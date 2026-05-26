@@ -1,0 +1,270 @@
+@font-face {
+    font-family: 'GothaProLig';
+    font-style: normal;
+    font-weight: 400;
+    src: url("/css/font/Gotham_Cyrillic/GothaProLig.otf") format('opentype')
+}
+
+@font-face {
+    font-family: 'GothaProMed';
+    font-style: normal;
+    font-weight: 400;
+    src: url("/css/font/Gotham_Cyrillic/GothaProMed.otf") format('opentype')
+}
+
+@font-face {
+    font-family: 'GothaProReg';
+    font-style: normal;
+    font-weight: 400;
+    src: url("/css/font/Gotham_Cyrillic/GothaProReg.otf") format('opentype')
+}
+
+a, p, span, td, div, button, h1, h2, h3, h4, h5, h6, li,textarea {
+    /*font-family: GothaProMed!important;*/
+    font-family: GothaProReg;
+}
+textarea{
+    font-size: 14px;
+}
+.big-text {
+    font-family: GothaProReg;
+    line-height: 1;
+    /*font-family: GothaProMed!important;*/
+}
+
+.logo-text {
+    color: #456085 !important;
+    font-size: 23px !important;
+}
+
+.uk-accordion-title::before {
+    float: left;
+}
+
+.big-text {
+    font-size: 64pt !important;
+    color: #456085 !important;
+
+}
+
+a {
+    outline: none;
+}
+
+.input-group-addon {
+    padding: 0;
+}
+
+.uk-tab-left > * > a {
+    border-right: 2px solid transparent;
+}
+
+.uk-logo img {
+    width: 190px;
+    max-height: 52px;
+}
+
+.wrap {
+    word-wrap: break-word;
+}
+
+.jodit_fullsize_box .tm-header.uk-navbar-container.tm-header-transparent {
+    display: none;
+}
+
+.uk-button-primary {
+
+    background-color: #97C69C !important;
+}
+
+p.uk-text-primary {
+
+    color: #97C69C !important;
+}
+
+.uk-button-primary:hover, .uk-button-primary:focus {
+
+    background-color: #36938f !important;
+}
+
+.uk-tab > .uk-active > a {
+    border-color: #97C69C !important;
+}
+
+.uk-section-primary {
+    background: #456085 !important;
+}
+
+.card-border-light {
+
+    border: 2px #44d4d0 solid;
+
+}
+
+.card-light {
+
+    background-color: #d7f5f4;
+
+}
+
+.jodit_toolbar_list > .jodit_toolbar li.jodit_toolbar_btn > a {
+    padding: 7px 4px !important;
+    text-align: center !important;
+}
+
+.smg-ticket-plus {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #44d4d0;
+}
+
+.smg-ticket-open {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #FF6D00;
+}
+ul.ticket-messages-list {
+    list-style: none;
+}
+
+.smg_dat400{
+    width: 400px !important;
+}
+
+.house-item .uk-margin{
+    margin: 0!important;
+}
+.sp-dd {
+    float: right!important;
+    margin-top: -20px;
+}
+.uk-form-controls>div>label{
+    margin-right: 15px;
+}
+#tp-form .uk-form-danger, #tpup-form .uk-form-danger {
+    color: inherit!important;
+}
+._smguide_adminpoint {
+    width: 60px!important;
+    position: relative!important;
+    top: -6px!important;
+    left: 15px!important;
+}
+._smguide_adminpoint svg {
+    #width: 10px;
+    #height: 10px;
+}
+
+.adminka._smguide_pulse._dwq77{
+    width: 18px;
+    position: relative;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+}
+
+._smguide_adminpoint .adminpoint_a {
+    width: 18px;
+    display: block;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+    border-radius: 50%;
+    line-height: 1;
+    font-size: 0;
+}
+
+._smguide_adminpoint .adminpoint_a svg {
+    #margin-top: 4px;
+    display: inline;
+}
+.field-helpposts-status{
+    #display: none;
+}
+.uk-navbar-container:not(.uk-navbar-transparent),.uk-section-primary {
+    background: #4089F6!important;
+}
+#helpposts-tags>label{
+    display: inline-block;
+    width: 30%;
+}
+#group2 label{
+    margin-top: 5px;;
+}
+#group2>div>div>div>div>label {
+    display: inline-block;
+    width: 100%;
+}
+#helpposts-tags>label>span {
+    margin-right: 20px;
+}
+
+.field-helptags-id_user,.field-helptags-id,.field-helptags-noredirect {
+    display: none;
+}
+.checkbox.sn-checkbox-use-protocol{
+    display: none;
+}
+#group2 span.uk-badge {
+    vertical-align: top;
+    margin-left: 20px;
+}
+.uk-text-white svg {
+    color: white;
+    margin: 0 5px;
+}
+.modal-edit-custom{
+    line-height: 1.4;
+}
+.modal-backdrop.in{
+    display: none;
+}
+.tox-form__controls-h-stack div {width:70%!important}
+
+.uk-button-secondary{
+    background-color:#1a237e!important;
+}
+.uk-button-secondary:hover{
+    background-color: #1526d5;
+}
+.uk-label-nofon {
+    background-color: #fff;
+    color: #333;
+    padding: 0;
+}
+.highcharts-credits{display: none}
+
+.stat_all {
+    margin-bottom: 25px;
+}
+.color-dark{
+    background-color: rgb(23, 28, 55);
+}
+.color-light{
+    background-color: rgb(249, 250, 251);
+}
+.color-blue{
+    background-color: rgb(0, 140, 255);
+}
+.color-green{
+    background-color: rgb(0, 171, 194);
+}
+.color-orange{
+    background-color: rgb(255, 109, 20);
+}
+#fon_logo{
+    vertical-align: middle;
+    display: table-cell;
+    width: auto;
+    height: auto;
+    padding: 6px;
+    margin:30px
+}
+
+.ui-helper-hidden-accessible{
+    display: none;
+}

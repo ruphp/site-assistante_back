@@ -1,0 +1,157 @@
+openapi: 3.0.0
+info:
+  title: 'Апи для виджета'
+  description: 'Апи для виджета'
+  contact:
+    name: 'Smartius Team'
+  version: '1.2'
+servers:
+  -
+    url: 'https://smguide.local'
+    description: 'API server'
+paths:
+  /api/configuration:
+    get:
+      tags:
+        - 'Виджет конфигурация'
+      description: 'Апи получения конфигурации'
+      operationId: a6e18409829459f5fdcf92df3ae62694
+      parameters:
+        -
+          name: publicKey
+          in: query
+          description: 'ID Клиента'
+          required: true
+          schema:
+            type: integer
+        -
+          name: userId
+          in: query
+          description: 'ID Пользователя (только для записи в лог))'
+          required: false
+          schema:
+            type: integer
+        -
+          name: 'userRole[]'
+          in: query
+          description: 'роли юзера  (только для записи в лог)'
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+        -
+          name: pathname
+          in: query
+          description: ' url страницы (без указания домена,и без указанием GET параметров) ,откуда идет обращение, пример ```/course/part/page.html``` '
+          required: false
+          schema:
+            type: string
+        -
+          name: getparams
+          in: query
+          description: 'GET параметры url страницы ,откуда идет обращение, пример ```?param1=test&param2=111``` '
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema: {  }
+              example: '{"position":"left","run":1,"domain":["school.permkrai.ru","edu-epos.permkrai.ru"],"type_tickets":2,"text_contacts":"","zero_log_delay":2000,"url_smguide_tp":""}'
+        '401':
+          description: 'Не найден клиент'
+  /api/courses:
+    get:
+      tags:
+        - Курсы
+      description: 'Апи получения списка курсов и категорий для содержания'
+      operationId: b90f76017a9aa21b3891dffbee401caf
+      parameters:
+        -
+          name: publicKey
+          in: query
+          description: 'ID Клиента'
+          required: true
+          schema:
+            type: integer
+        -
+          name: userId
+          in: query
+          description: 'ID Пользователя (только для записи в лог))'
+          required: false
+          schema:
+            type: integer
+        -
+          name: 'userRole[]'
+          in: query
+          description: 'роли юзера  (только для записи в лог)'
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+        -
+          name: pathname
+          in: query
+          description: ' url страницы (без указания домена,и без указанием GET параметров) ,откуда идет обращение, пример ```/course/part/page.html``` '
+          required: false
+          schema:
+            type: string
+        -
+          name: getparams
+          in: query
+          description: 'GET параметры url страницы ,откуда идет обращение, пример ```?param1=test&param2=111``` '
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema: {  }
+              example: '[{"id":1,"is_course":false,"parent_id":null,"name":"Первая категория"},{"id":4,"is_course":false,"parent_id":null,"name":"Инструкции"},{"id":5,"is_course":false,"parent_id":null,"name":"Регламенты"},{"id":1114,"is_course":false,"parent_id":null,"name":"Регламенты_тест"},{"id":1115,"is_course":false,"parent_id":1114,"name":"Регламент подключения к ФГИС ЕЦП НСПД"},{"id":1117,"is_course":false,"parent_id":null,"name":"База знаний"},{"id":1,"is_course":true,"parent_id":4,"name":"Инструкция по работе с сервисом","date_add":"2023-04-25 11:51:59","tags":{"1121":"Тег №1"},"urls":[]},{"id":9,"is_course":true,"parent_id":5,"name":"Регламент по работе с приложением","date_add":"2023-07-11 14:50:17","tags":[],"urls":[]},{"id":1120,"is_course":true,"parent_id":null,"name":"Содержание","date_add":"2023-12-19 08:11:35","tags":[],"urls":[{"url":"/user/manager/roles","is_children":0,"is_get":0}]},{"id":1121,"is_course":true,"parent_id":null,"name":"Подключение к ФГИС ЕЦП НСПД","date_add":"2023-12-19 15:17:59","tags":{"1122":"Регламент"},"urls":[]}]'
+        '401':
+          description: 'Не найден клиент'
+  /api/course:
+    get:
+      tags:
+        - Курсы
+      description: 'Апи получения определенного курса'
+      operationId: 06623fd14b824de08bd547b56ab0f1ea
+      parameters:
+        -
+          name: publicKey
+          in: query
+          description: 'ID Клиента'
+          required: true
+          schema:
+            type: integer
+        -
+          name: id
+          in: query
+          description: 'ID курса '
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema: {  }
+              example: "{\r\n  \"id\": 1,\r\n  \"name\": \"Инструкция по работе с сервисом\",\r\n  \"html\": \"<p>цф</p>\",\r\n  \"tags\": {\r\n    \"1121\": \"Тег №1\"\r\n  },\r\n  \"dislike\": \"42\",\r\n  \"like\": \"45\",\r\n  \"date_add\": \"2023-04-25 11:51:59\",\r\n  \"views\": 92\r\n}"
+        '401':
+          description: 'Не найден клиент'
+        '404':
+          description: 'Курс не найден или не доступен клиенту'
+tags:
+  -
+    name: 'Виджет конфигурация'
+    description: 'Виджет конфигурация'
+  -
+    name: Курсы
+    description: Курсы

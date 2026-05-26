@@ -1,0 +1,12 @@
+.dockerignore
+.bowerrc
+
+.osp
+.git
+.idea
+*/.idea
+vendor
+runtime
+web/assets
+web/custom
+docker/development
