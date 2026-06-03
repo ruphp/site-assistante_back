@@ -165,6 +165,9 @@ $config = [
 
     'id'         => 'basic',
     'basePath'   => dirname(__DIR__),
+    'controllerNamespace' => 'app\Presentation\Http\Controller',
+    'viewPath' => '@app/src/Presentation/Http/View',
+    'container' => require __DIR__ . '/container.php',
     'bootstrap'  => ['log'],
     'language'   => 'ru-RU',
     'sourceLanguage' =>'ru-RU',
@@ -186,7 +189,7 @@ $config = [
             'class' => YII_ENV_DEV ? 'yii\caching\DummyCache' : 'yii\caching\FileCache',
         ],
         'user'         => [
-            'identityClass'   => 'app\models\UserIdentity',
+            'identityClass'   => 'app\Infrastructure\User\UserIdentity',
             'enableAutoLogin' => true,
         ],
         'errorHandler' => [
@@ -214,7 +217,7 @@ $config = [
                 'port' => 465,
                 'options' => ['ssl' => true],
             ],
-            'viewPath'         => '@app/mail/layouts/html',
+            'viewPath'         => '@app/src/Presentation/Mail/View',
             'useFileTransport' => false,
         ],
         'log'          => [
@@ -238,7 +241,7 @@ $config = [
             'class'   => 'yii\authclient\Collection',
             'clients' => [
                 'rsaa' => [
-                    'class'        => 'app\components\RsaaAuthClient',
+                    'class'        => 'app\Infrastructure\Auth\RsaaAuthClient',
                     'clientId'     => $_ENV['RSAA_CLIENT'],
                     'clientSecret' => $_ENV['RSAA_SECRET'],
                     'authUrl'      => $_ENV['RSAA_AUTH_URL'],
@@ -278,19 +281,29 @@ $config = [
     ],
 ];
 // получаем список директорий в protected/modules
-$dirs = scandir(dirname(__FILE__) . '/../modules');
+$modulesPath = dirname(__FILE__) . '/../modules';
 
-foreach ($dirs as $val) {
-    if ($val[0] != '.') {
-        $config['bootstrap'][] = $val;
-        $config['modules'][$val] = ['class' => 'app\modules\\' . $val . '\Module'];
-        if($val=='chatbots'){
-            // получаем список директорий в подмодулях чатбота
-            $child_dirs = scandir(dirname(__FILE__) . '/../modules/chatbots/modules');
-            foreach ($child_dirs as $child_val) {
-                if ($child_val[0] != '.') {
-                    $config['bootstrap'][] = $child_val;
-                    $config['modules'][$child_val] = ['class' => 'app\modules\chatbots\modules\\' . $child_val . '\Module'];
+if (is_dir($modulesPath)) {
+    $dirs = scandir($modulesPath);
+
+    foreach ($dirs as $val) {
+        if ($val[0] != '.') {
+            $config['bootstrap'][] = $val;
+            $config['modules'][$val] = ['class' => 'app\modules\\' . $val . '\Module'];
+            if($val=='chatbots'){
+                // получаем список директорий в подмодулях чатбота
+                $chatbotModulesPath = $modulesPath . '/chatbots/modules';
+
+                if (!is_dir($chatbotModulesPath)) {
+                    continue;
+                }
+
+                $child_dirs = scandir($chatbotModulesPath);
+                foreach ($child_dirs as $child_val) {
+                    if ($child_val[0] != '.') {
+                        $config['bootstrap'][] = $child_val;
+                        $config['modules'][$child_val] = ['class' => 'app\modules\chatbots\modules\\' . $child_val . '\Module'];
+                    }
                 }
             }
         }
