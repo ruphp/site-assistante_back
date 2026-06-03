@@ -23,10 +23,10 @@ class UserJoinForm extends Model // создаем список параметр
     public $public_key = 0;
     public $password;
     public $password2;
-    public $subject_user_join = 'Cпасибо за регистрацию на smguide.ru!';
+    public $subject_user_join = 'Cпасибо за регистрацию на sitewidget.ru!';
     public $subject_admin_join = 'Регистрация на сайте';
-    public $body_user_join = 'Вы успешно зарегистрировались на сайте Smguide.io';
-    public $body_admin_join = 'На сайте Smguide.io успешно зарегистрировался новый пользователь';
+    public $body_user_join = 'Вы успешно зарегистрировались на сайте SiteWidget';
+    public $body_admin_join = 'На сайте SiteWidget успешно зарегистрировался новый пользователь';
 
     public function rules()
     { // механизм валидации

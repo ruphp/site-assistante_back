@@ -172,7 +172,7 @@ $config = [
     'language'   => 'ru-RU',
     'sourceLanguage' =>'ru-RU',
     'layout'     => 'smartius',
-    'name' => 'SmGuide',
+    'name' => 'SiteWidget',
     'aliases'    => [
         //'@bower' => '@vendor/yidas/yii2-bower-asset/bower',
         '@bower' => '@vendor/bower-asset',
@@ -275,7 +275,7 @@ $config = [
         ],
     ],
     'params'     =>[
-        'adminEmail'     => 'smguide@bk.ru',
+        'adminEmail'     => 'admin@sitewidget.ru',
         'language'       => 'ru-RU',
         'sourceLanguage' => 'ru-RU',
     ],

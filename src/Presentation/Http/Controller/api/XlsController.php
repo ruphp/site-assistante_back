@@ -76,8 +76,8 @@ class XlsController extends ManagerController
 
 // Set document properties
         $spreadsheet->getProperties()
-            ->setCreator('Help Layer')
-            ->setLastModifiedBy('Help Layer')
+            ->setCreator('SiteWidget')
+            ->setLastModifiedBy('SiteWidget')
             ->setTitle('Office 2007 XLSX Document')
             ->setSubject('Office 2007 XLSX Document')
             ->setDescription('Document for Office 2007 XLSX, generated using PHP classes.')

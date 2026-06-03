@@ -24,7 +24,7 @@ final class YiiUserAccountService implements UserAccountServiceInterface
 
         Yii::$app->mailer->compose()
             ->setTo($email)
-            ->setFrom([$adminEmail => 'Help Layer'])
+            ->setFrom([$adminEmail => 'SiteWidget'])
             ->setSubject($userSubject)
             ->setTextBody('тест')
             ->setHtmlBody($this->joinUserBody($name, $email, $password))
@@ -32,7 +32,7 @@ final class YiiUserAccountService implements UserAccountServiceInterface
 
         Yii::$app->mailer->compose()
             ->setTo($adminEmail)
-            ->setFrom([$adminEmail => 'Help Layer'])
+            ->setFrom([$adminEmail => 'SiteWidget'])
             ->setSubject($adminSubject)
             ->setTextBody($adminBody . ' ' . $name . ' ' . $email)
             ->send();
@@ -89,10 +89,10 @@ final class YiiUserAccountService implements UserAccountServiceInterface
 <html>
 <head>
     <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">
-    <title>Cпасибо за регистрацию на smguide.ru!</title>
+    <title>Cпасибо за регистрацию на sitewidget.ru!</title>
 </head>
 <body>
-<p>Добрый день, $name! Большое спасибо, что присоединились к Help Layer.</p>
+<p>Добрый день, $name! Большое спасибо, что присоединились к SiteWidget.</p>
 <p></p>
 <p></p>
 <p>С чего начать?
@@ -111,8 +111,7 @@ final class YiiUserAccountService implements UserAccountServiceInterface
 </p>
 <p>
 -- <br>
-Команда Help Layer</p>
-<img style='width:200px;Height:57px' src='https://admin.smguide.ru/img/smguide_logo.png'>
+Команда SiteWidget</p>
 </body>
 </html> ";
     }
@@ -123,14 +122,13 @@ final class YiiUserAccountService implements UserAccountServiceInterface
 <html>
 <head>
     <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">
-    <title>Смена пароля на smguide.ru!</title>
+    <title>Смена пароля на sitewidget.ru!</title>
 </head>
 <body>
 <p>Добрый день, $name !</p>
 <p> $link </p>
 -- <br>
-Команда Help Layer</p>
-<img style='width:200px;Height:57px' src='https://admin.smguide.ru/img/smguide_logo.png'>
+Команда SiteWidget</p>
 </body>
 </html> ";
     }

@@ -38,7 +38,7 @@ $config = [
         ],
     ],
     'params'              => [
-        'adminEmail'     => 'smguide@bk.ru',
+        'adminEmail'     => 'admin@sitewidget.ru',
         'language'       => 'ru-RU',
         'sourceLanguage' => 'ru-RU',
     ],

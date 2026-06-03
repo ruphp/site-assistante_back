@@ -118,9 +118,9 @@ $this->beginPage();
                     <?php
                     if ($_ENV['TYPE_DEPLOYED'] != 'MIRS') {
                     ?>
-                        <div class="uk-text-center"><a href="mailto:mail@help-layer.ru">mail@help-layer.ru</a></div>
+                        <div class="uk-text-center"><a href="mailto:mail@sitewidget.ru">mail@sitewidget.ru</a></div>
                         <div class="uk-text-center"></div>
-                        <div class="uk-text-center">help-layer.ru</div>
+                        <div class="uk-text-center">sitewidget.ru</div>
                         <div class="uk-text-center"><a href="/files/pzpd.docx">Политика конфиденциальности</a></div>
                     <?php
                     }

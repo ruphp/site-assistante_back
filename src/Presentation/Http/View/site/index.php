@@ -5,22 +5,21 @@
 use ruwmapps\yii2_uikit3\ActiveForm;
 use yii\helpers\Html;
 
-$this->title = 'Слой поддержки пользователей на Вашем web-ресурсе';
+$this->title = 'SiteWidget — виджет помощи для сайта';
 $this->registerMetaTag([
     'name'    => 'description',
-    'content' => 'Слой поддержки пользователей на Вашем web-ресурсе',
+    'content' => 'SiteWidget — виджет помощи для сайта',
 ]);
 $this->registerMetaTag([
     'name'    => 'keywords',
-    'content' => 'Слой поддержки пользователей на Вашем web-ресурсе',
+    'content' => 'SiteWidget, виджет помощи для сайта, онлайн-поддержка, база знаний, подсказки',
 ]);
 ?>
 <div class="uk-section  uk-section-default">
     <div class="uk-container">
 
-        <p class="uk-text-center  big-text uk-margin-remove">Help Layer</p>
-        <p class="uk-text-center logo-text uk-margin-remove">Контекстная поддержка пользователей на вашем
-            web-ресурсе</p>
+        <p class="uk-text-center  big-text uk-margin-remove">SiteWidget</p>
+        <p class="uk-text-center logo-text uk-margin-remove">Виджет помощи для вашего сайта</p>
         <br>
         <br>
         <br>

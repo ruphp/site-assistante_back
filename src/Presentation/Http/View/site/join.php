@@ -9,11 +9,11 @@ use yii\helpers\Html;
 $this->title = 'Регистрация пользователей';
 $this->registerMetaTag([
     'name'    => 'description',
-    'content' => 'Регистрация пользователя в центре интерактивной поддержки пользователей Help Layer',
+    'content' => 'Регистрация пользователя SiteWidget',
 ]);
 $this->registerMetaTag([
     'name'    => 'keywords',
-    'content' => 'Help Layer регистрация пользователя, регистрация в Help Layer',
+    'content' => 'SiteWidget регистрация пользователя, регистрация в SiteWidget',
 ]);
 ?>
 <div class="uk-container uk-container-xsmall">

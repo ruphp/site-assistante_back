@@ -9,11 +9,11 @@ use yii\helpers\Html;
 $this->title = 'Авторизация пользователей';
 $this->registerMetaTag([
     'name' => 'description',
-    'content' => 'Личный кабинет пользователя в центре интерактивной поддержки пользователей Help Layer',
+    'content' => 'Личный кабинет пользователя SiteWidget',
 ]);
 $this->registerMetaTag([
     'name' => 'keywords',
-    'content' => 'Help Layer личный кабинет пользователя, авторизация в Help Layer',
+    'content' => 'SiteWidget личный кабинет пользователя, авторизация в SiteWidget',
 ]);
 $urlencode = urlencode($_ENV['RSAA_REDIRECT_URI']);
 $href = "{$_ENV['RSAA_AUTH_URL']}?client_id={$_ENV['RSAA_CLIENT']}&scope=openid&response_type=code&redirect_uri=$urlencode";
