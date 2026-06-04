@@ -23,6 +23,24 @@ use app\Application\Panel\Contract\AssistantParamsRepositoryInterface;
 use app\Application\Panel\Contract\ClientModuleMenuRepositoryInterface;
 use app\Application\Panel\Metrics\Contract\PanelModuleMetricChartRepositoryInterface;
 use app\Application\User\Contract\UserAccountServiceInterface;
+use app\Modules\Support\Application\Contract\SupportConversationRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportMessageRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportUsageRepositoryInterface;
+use app\Modules\Support\Application\UseCase\GetSupportWidgetStateUseCase;
+use app\Modules\Support\Application\UseCase\GetSupportWidgetStateUseCaseInterface;
+use app\Modules\Support\Application\UseCase\ListSupportMessagesUseCase;
+use app\Modules\Support\Application\UseCase\ListSupportMessagesUseCaseInterface;
+use app\Modules\Support\Application\UseCase\ManageSupportSettingsUseCase;
+use app\Modules\Support\Application\UseCase\OperatorSupportUseCase;
+use app\Modules\Support\Application\UseCase\SendSupportMessageUseCase;
+use app\Modules\Support\Application\UseCase\SendSupportMessageUseCaseInterface;
+use app\Modules\Support\Application\UseCase\StartSupportConversationUseCase;
+use app\Modules\Support\Application\UseCase\StartSupportConversationUseCaseInterface;
+use app\Modules\Support\Infrastructure\YiiSupportConversationRepository;
+use app\Modules\Support\Infrastructure\YiiSupportMessageRepository;
+use app\Modules\Support\Infrastructure\YiiSupportSettingsRepository;
+use app\Modules\Support\Infrastructure\YiiSupportUsageRepository;
 use app\Infrastructure\Admin\YiiClientAccessRepository;
 use app\Infrastructure\Admin\YiiClientRepository;
 use app\Infrastructure\Client\YiiRbacClientModuleAccessRepository;
@@ -66,5 +84,15 @@ return [
         ClientModuleMenuRepositoryInterface::class => YiiRbacClientModuleMenuRepository::class,
         PanelModuleMetricChartRepositoryInterface::class => YiiPanelModuleMetricChartRepository::class,
         UserAccountServiceInterface::class => YiiUserAccountService::class,
+        SupportSettingsRepositoryInterface::class => YiiSupportSettingsRepository::class,
+        SupportConversationRepositoryInterface::class => YiiSupportConversationRepository::class,
+        SupportMessageRepositoryInterface::class => YiiSupportMessageRepository::class,
+        SupportUsageRepositoryInterface::class => YiiSupportUsageRepository::class,
+        GetSupportWidgetStateUseCaseInterface::class => GetSupportWidgetStateUseCase::class,
+        StartSupportConversationUseCaseInterface::class => StartSupportConversationUseCase::class,
+        SendSupportMessageUseCaseInterface::class => SendSupportMessageUseCase::class,
+        ListSupportMessagesUseCaseInterface::class => ListSupportMessagesUseCase::class,
+        ManageSupportSettingsUseCase::class => ManageSupportSettingsUseCase::class,
+        OperatorSupportUseCase::class => OperatorSupportUseCase::class,
     ],
 ];

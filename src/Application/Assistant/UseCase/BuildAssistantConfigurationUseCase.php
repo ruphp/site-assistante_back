@@ -34,14 +34,6 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
         $this->accessGuard->assertAllowed($context, $request->requestContext);
         $client = $context->client;
         $modules = $this->allowedEnabledModules($client->publicKey, $client->enabledModules());
-        $support = $this->resolveSupportModule($modules);
-
-        if ($support !== 0) {
-            $ticketTypes = $this->ticketTypes();
-            $nameSupport = $ticketTypes[$support];
-            unset($modules[array_search($nameSupport, $modules, true)]);
-            $modules[] = 'support';
-        }
 
         $response = new AssistantConfigurationResponse(
             error: [],
@@ -49,7 +41,7 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
             run: $client->params['run'],
             theme: $client->params['design'],
             domain: $client->allowedHosts(),
-            typeTickets: $support,
+            typeTickets: 0,
             textContacts: $client->params['tab_tp_contacts'] ? $client->params['tp_contacts'] : '',
             zeroLogDelay: $client->params['timeout'],
             urlSmguideTp: $client->params['server_stp'],
@@ -68,20 +60,5 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
     private function allowedEnabledModules(int $publicKey, array $enabledModules): array
     {
         return $this->moduleAccessRepository->getForClient($publicKey)->filterAllowed($enabledModules);
-    }
-
-    private function resolveSupportModule(array $modules): int
-    {
-        $ticketType = array_intersect($this->ticketTypes(), $modules);
-
-        return count($ticketType) ? array_key_first($ticketType) : 0;
-    }
-
-    private function ticketTypes(): array
-    {
-        return [
-            1 => 'tpsmartius',
-            2 => 'tpotrs',
-        ];
     }
 }

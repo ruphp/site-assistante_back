@@ -25,6 +25,7 @@ final class AdminClientService
     {
         $userId = $this->clients->create($request);
         $this->access->assignManagerRole($userId);
+        $this->access->syncModuleAccess($userId, ['support' => 1]);
     }
 
     public function deleteClient(int $userId): void

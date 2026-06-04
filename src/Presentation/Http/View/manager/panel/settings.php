@@ -39,12 +39,6 @@ $this->title = 'Настройки подключения ';
 
     echo $params['is_uuid'] ? $form->field($params, 'is_uuid')->checkbox(['checked ' => '']) : $form->field($params, 'is_uuid')->checkbox();
 
-    echo $params['tab_tp_contacts'] ? $form->field($params, 'tab_tp_contacts')->checkbox(['checked ' => '', 'class' => ' check_tp_contacts']) : $form->field($params, 'tab_tp_contacts')->checkbox(['class' => ' check_tp_contacts']);
-    if ($params['tab_tp_contacts']) {
-        echo $form->field($params, 'tp_contacts')->textarea(['rows' => '6', 'id' => 'testFormContacts', 'class' => 'uk-margin tp_contacts'])->label(null, ['class' => 'tp_contacts']);
-    } else {
-        echo $form->field($params, 'tp_contacts')->textarea(['rows' => '6', 'id' => 'testFormContacts', 'class' => 'tp_contacts uk-margin uk-hidden'])->label(null, ['class' => 'tp_contacts uk-hidden']);
-    }
     if ($moduleAccess->allows('chatbots')) {
         echo $form->field($params, 'default_answer')->textarea(['rows' => '6', 'id' => 'default_answer', 'class' => 'uk-margin']);
     }

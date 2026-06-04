@@ -54,7 +54,6 @@ class Assistant extends Model
         $this->public_key = $public_key;
         if ($params = Params::getWidgetParam($public_key)) {
             $this->params = $params;
-            $this->params['widget_modules'][] = 'support';
             $this->params['run'] = $params['status'];
 
 
@@ -124,14 +123,27 @@ class Assistant extends Model
                 foreach ($permissions as $key => $val) {
 
                     if ($auth->getChildren('accesses_modules')[$key] ?? false) {
-                        $param = Yii::$app->getModule($key)->params;
-                        $this->params['widget_modules'] = array_merge($this->params['widget_modules'], $param['widget_modules']);
+                        $this->params['widget_modules'] = array_merge(
+                            $this->params['widget_modules'],
+                            $this->widgetModulesForPermission((string)$key),
+                        );
                     }
                 };
                 Yii::$app->cache->set('widget_modules_' . $public_key, $this->params['widget_modules']);
             }
         }
         parent::__construct();
+    }
+
+    private function widgetModulesForPermission(string $permission): array
+    {
+        if ($permission === 'support') {
+            return ['support'];
+        }
+
+        $module = Yii::$app->getModule($permission);
+
+        return $module ? ($module->params['widget_modules'] ?? []) : [];
     }
 
     private static function textClean($text, $is_path = 0, $is_query = 0): string

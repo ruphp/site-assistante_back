@@ -27,6 +27,17 @@ final class YiiRbacClientModuleMenuRepository implements ClientModuleMenuReposit
                 continue;
             }
 
+            if ($key === 'support') {
+                $menus[] = [
+                    '#' => [
+                        'Онлайн-поддержка',
+                        'manager/support/conversations' => 'Диалоги',
+                        'manager/support' => 'Настройки',
+                    ],
+                ];
+                continue;
+            }
+
             $module = Yii::$app->getModule($key);
 
             if ($module !== null && isset($module->params['menu'])) {

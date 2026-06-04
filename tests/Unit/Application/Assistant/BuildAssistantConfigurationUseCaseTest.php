@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 
 final class BuildAssistantConfigurationUseCaseTest extends TestCase
 {
-    public function testBuildsConfigurationAndNormalizesSupportModule(): void
+    public function testBuildsConfigurationWithEnabledModules(): void
     {
         $context = $this->context([
             'leftbutton' => true,
@@ -28,20 +28,20 @@ final class BuildAssistantConfigurationUseCaseTest extends TestCase
             'tp_contacts' => 'Call us',
             'timeout' => 15,
             'server_stp' => 'https://support.test',
-            'widget_modules' => ['courses', 'tpotrs'],
+            'widget_modules' => ['courses', 'support'],
         ]);
 
         $useCase = new BuildAssistantConfigurationUseCase(
             new FakeAssistantContextRepository($context),
             new FakeAssistantConfigurationLogger(),
-            new FakeClientModuleAccessRepository(['courses', 'tpotrs']),
+            new FakeClientModuleAccessRepository(['courses', 'support']),
         );
 
         $response = $useCase->build(new BuildAssistantConfigurationRequest(10))->toArray();
 
         self::assertSame('left', $response['position']);
         self::assertSame(['client.test', 'second.test'], $response['domain']);
-        self::assertSame(2, $response['type_tickets']);
+        self::assertSame(0, $response['type_tickets']);
         self::assertSame(['courses', 'support'], $response['modules']);
         self::assertSame('Call us', $response['text_contacts']);
     }

@@ -54,7 +54,8 @@
       "app\\Presentation\\": "src/Presentation/",
       "app\\Application\\": "src/Application/",
       "app\\Domain\\": "src/Domain/",
-      "app\\Infrastructure\\": "src/Infrastructure/"
+      "app\\Infrastructure\\": "src/Infrastructure/",
+      "app\\Modules\\": "src/Modules/"
     }
   },
   "autoload-dev": {

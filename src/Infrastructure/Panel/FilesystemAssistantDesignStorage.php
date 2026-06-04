@@ -71,7 +71,7 @@ final class FilesystemAssistantDesignStorage implements AssistantDesignStorageIn
 
     private function customDir(): string
     {
-        return dirname(__DIR__, 4) . '/web/custom';
+        return dirname(__DIR__, 3) . '/web/custom';
     }
 
     private function isSvg(string $content): bool

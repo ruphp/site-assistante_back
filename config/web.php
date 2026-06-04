@@ -53,6 +53,22 @@ $url_rules=[
             'pattern' => '/manager/statistics',
             'route'   => 'manager/panel/statistics',
         ],
+        [
+            'pattern' => '/manager/support',
+            'route'   => 'manager-support/index',
+        ],
+        [
+            'pattern' => '/manager/support/conversations',
+            'route'   => 'manager-support/conversations',
+        ],
+        [
+            'pattern' => '/manager/support/conversation',
+            'route'   => 'manager-support/conversation',
+        ],
+        [
+            'pattern' => '/manager/support/reply',
+            'route'   => 'manager-support/reply',
+        ],
 
         [
             'pattern' => '/manager/roles',
@@ -135,6 +151,22 @@ $url_rules=[
             'route'   => 'api/widget/log-open',
         ],
         [
+            'pattern' => '/api/support/state',
+            'route'   => 'api/support/state',
+        ],
+        [
+            'pattern' => '/api/support/conversation/start',
+            'route'   => 'api/support/start-conversation',
+        ],
+        [
+            'pattern' => '/api/support/message/send',
+            'route'   => 'api/support/send-message',
+        ],
+        [
+            'pattern' => '/api/support/messages',
+            'route'   => 'api/support/messages',
+        ],
+        [
             'pattern' => '/api/report/usage',
             'route'   => 'api/report/usage',
         ],
@@ -179,6 +211,11 @@ $config = [
         '@npm'   => '@vendor/npm-asset',
     ],
     'modules'    => [],
+    'controllerMap' => [
+        'manager-support' => [
+            'class' => app\Modules\Support\Presentation\Http\Controller\ManagerSupportController::class,
+        ],
+    ],
     'components' => [
         'request'      => [
             'enableCsrfValidation' => true,
