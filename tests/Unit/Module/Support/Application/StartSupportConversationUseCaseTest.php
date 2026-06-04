@@ -57,6 +57,13 @@ final class StartSupportConversationUseCaseTest extends TestCase
         $useCase->start(new StartSupportConversationRequest(10, new SupportVisitorContext(visitorId: 'visitor-1')));
     }
 
+    public function testUsesEmailAsVisitorIdentityWhenUserIdIsMissing(): void
+    {
+        $context = new SupportVisitorContext(visitorEmail: 'USER@Example.COM');
+
+        self::assertSame('email:user@example.com', $context->resolvedVisitorId());
+    }
+
     private function accessGuard(): SupportAccessGuard
     {
         return $this->createStub(SupportAccessGuard::class);
@@ -67,9 +74,15 @@ final class FakeSupportConversationRepository implements SupportConversationRepo
 {
     public array $conversations = [];
 
-    public function create(int $publicKey, string $visitorId): SupportConversation
+    public function create(int $publicKey, SupportVisitorContext $context): SupportConversation
     {
-        $conversation = new SupportConversation(1, $publicKey, $visitorId);
+        $conversation = new SupportConversation(
+            id: 1,
+            publicKey: $publicKey,
+            visitorId: $context->resolvedVisitorId(),
+            visitorEmail: $context->visitorEmail,
+            pageUrl: $context->pageUrl,
+        );
         $this->conversations[] = $conversation;
 
         return $conversation;

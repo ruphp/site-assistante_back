@@ -35,7 +35,7 @@ final class ManageSupportSettingsUseCase
 
         return $this->settings->save(new SupportSettings(
             publicKey: $publicKey,
-            enabled: (bool)($data['enabled'] ?? false),
+            enabled: true,
             title: $this->text($data, 'title', 'Онлайн-поддержка'),
             welcomeMessage: $this->text($data, 'welcomeMessage', 'Здравствуйте! Напишите нам, мы поможем.'),
             offlineMessage: $this->text($data, 'offlineMessage', 'Мы сейчас не онлайн, но ответим позже.'),

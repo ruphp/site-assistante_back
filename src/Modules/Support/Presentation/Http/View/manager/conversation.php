@@ -4,6 +4,7 @@ use yii\helpers\Html;
 
 /**
  * @var int $conversationId
+ * @var array<string, mixed>|null $conversation
  * @var array<int, array<string, mixed>> $messages
  */
 
@@ -13,6 +14,22 @@ $this->title = 'Диалог поддержки';
 <div class="uk-container uk-position-relative">
     <p><?= Html::a('← К списку диалогов', ['/manager/support/conversations']) ?></p>
     <h3>Диалог #<?= Html::encode((string)$conversationId) ?></h3>
+    <?php if ($conversation !== null): ?>
+        <div class="uk-alert-primary" uk-alert>
+            <p>
+                Посетитель:
+                <?= Html::encode((string)($conversation['visitor_email'] ?: $conversation['visitor_id'])) ?>
+            </p>
+            <?php if ($conversation['page_url']): ?>
+                <p>
+                    Страница:
+                    <a href="<?= Html::encode((string)$conversation['page_url']) ?>" target="_blank" rel="noopener noreferrer">
+                        <?= Html::encode((string)$conversation['page_url']) ?>
+                    </a>
+                </p>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
 
     <div class="uk-margin">
         <?php if ($messages === []): ?>

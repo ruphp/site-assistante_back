@@ -59,6 +59,7 @@ final class ManagerSupportController extends ManagerController
 
         return $this->render('@app/src/Modules/Support/Presentation/Http/View/manager/conversation', [
             'conversationId' => $conversationId,
+            'conversation' => $this->operatorSupport->conversation($publicKey, $conversationId)?->toArray()['conversation'],
             'messages' => $this->operatorSupport->listMessages($publicKey, $conversationId)->toArray()['messages'],
         ]);
     }

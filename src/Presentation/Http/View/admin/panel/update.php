@@ -51,6 +51,12 @@ $this->title = 'Изменение данных клиента';
             <h4>Разрешить использование модулей</h4>
             <?php
             foreach ($moduleAccessView->items() as $item) {
+                if ($item->key === 'support') {
+                    echo Html::hiddenInput("Users[modules][$item->key]", '1');
+                    echo '<div class="uk-margin-small uk-text-muted">' . Html::encode($item->label) . ' включена всегда</div>';
+                    continue;
+                }
+
                 echo $form->field($user, "modules[$item->key]")->checkbox(['label' => $item->label]);
             }
             ?>

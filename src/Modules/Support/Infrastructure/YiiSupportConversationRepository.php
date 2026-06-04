@@ -3,16 +3,20 @@
 namespace app\Modules\Support\Infrastructure;
 
 use app\Modules\Support\Application\Contract\SupportConversationRepositoryInterface;
+use app\Modules\Support\Application\Dto\SupportVisitorContext;
 use app\Modules\Support\Domain\SupportConversation;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportConversationRecord;
 
 final class YiiSupportConversationRepository implements SupportConversationRepositoryInterface
 {
-    public function create(int $publicKey, string $visitorId): SupportConversation
+    public function create(int $publicKey, SupportVisitorContext $context): SupportConversation
     {
         $record = new SupportConversationRecord();
         $record->public_key = $publicKey;
-        $record->visitor_id = $visitorId;
+        $record->visitor_id = $context->resolvedVisitorId();
+        $record->visitor_email = $context->visitorEmail;
+        $record->visitor_ip = $context->remoteAddr;
+        $record->page_url = $context->pageUrl;
         $record->status = SupportConversation::STATUS_OPEN;
         $record->save(false);
 
@@ -65,6 +69,8 @@ final class YiiSupportConversationRepository implements SupportConversationRepos
             id: (int)$record->id,
             publicKey: (int)$record->public_key,
             visitorId: (string)$record->visitor_id,
+            visitorEmail: $record->visitor_email === null ? null : (string)$record->visitor_email,
+            pageUrl: $record->page_url === null ? null : (string)$record->page_url,
             status: (string)$record->status,
         );
     }

@@ -24,6 +24,7 @@ final class YiiClientAccessRepository implements ClientAccessRepositoryInterface
     {
         $auth = Yii::$app->authManager;
         $allowedModules = array_fill_keys(array_keys($auth->getPermissionsByRole('accesses_modules')), true);
+        $modules['support'] = 1;
 
         foreach ($modules as $module => $isAccess) {
             if (!isset($allowedModules[(string)$module])) {

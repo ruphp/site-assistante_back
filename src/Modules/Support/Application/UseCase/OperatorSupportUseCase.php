@@ -5,7 +5,9 @@ namespace app\Modules\Support\Application\UseCase;
 use app\Application\Client\Contract\ClientModuleAccessRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportConversationRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportMessageRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportReplyNotifierInterface;
 use app\Modules\Support\Application\Dto\SupportConversationListResponse;
+use app\Modules\Support\Application\Dto\SupportConversationResponse;
 use app\Modules\Support\Application\Dto\SupportMessageListResponse;
 use app\Modules\Support\Application\Exception\SupportAccessDeniedException;
 use app\Modules\Support\Application\Exception\SupportConversationNotFoundException;
@@ -17,6 +19,7 @@ final class OperatorSupportUseCase
     public function __construct(
         private readonly SupportConversationRepositoryInterface $conversations,
         private readonly SupportMessageRepositoryInterface $messages,
+        private readonly SupportReplyNotifierInterface $replyNotifier,
         private readonly ClientModuleAccessRepositoryInterface $moduleAccess,
     ) {
     }
@@ -39,6 +42,13 @@ final class OperatorSupportUseCase
         );
     }
 
+    public function conversation(int $publicKey, int $conversationId): SupportConversationResponse
+    {
+        return new SupportConversationResponse(
+            $this->assertConversationExists($publicKey, $conversationId),
+        );
+    }
+
     public function reply(int $publicKey, int $conversationId, int $operatorId, string $body): void
     {
         $body = trim($body);
@@ -46,17 +56,21 @@ final class OperatorSupportUseCase
             throw new \InvalidArgumentException('Message body is required');
         }
 
-        $this->assertConversationExists($publicKey, $conversationId);
-        $this->messages->addOperatorMessage($publicKey, $conversationId, $operatorId, $body);
+        $conversation = $this->assertConversationExists($publicKey, $conversationId);
+        $message = $this->messages->addOperatorMessage($publicKey, $conversationId, $operatorId, $body);
+        $this->replyNotifier->notifyOperatorReply($conversation, $message);
     }
 
-    private function assertConversationExists(int $publicKey, int $conversationId): void
+    private function assertConversationExists(int $publicKey, int $conversationId): SupportConversation
     {
         $this->assertModuleAvailable($publicKey);
 
-        if ($this->conversations->getForClient($publicKey, $conversationId) === null) {
+        $conversation = $this->conversations->getForClient($publicKey, $conversationId);
+        if ($conversation === null) {
             throw new SupportConversationNotFoundException('Conversation not found');
         }
+
+        return $conversation;
     }
 
     private function assertModuleAvailable(int $publicKey): void

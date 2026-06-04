@@ -32,7 +32,7 @@ final class StartSupportConversationUseCase implements StartSupportConversationU
 
         $conversation = $this->conversations->create(
             $request->publicKey,
-            $request->context->resolvedVisitorId(),
+            $request->context,
         );
         $this->usage->incrementConversations($request->publicKey, $month);
 

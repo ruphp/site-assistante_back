@@ -123,9 +123,11 @@ class SupportController extends ApiController
 
         return new SupportVisitorContext(
             visitorId: $request->get('visitorId') ?: $request->get('userId'),
+            visitorEmail: $request->get('visitorEmail') ?: $request->get('userEmail'),
             originHost: $this->originHost(),
             remoteAddr: $request->userIP ?? '0.0.0.0',
             pathname: (string)$request->get('pathname', ''),
+            pageUrl: (string)$request->get('pageUrl', ''),
         );
     }
 

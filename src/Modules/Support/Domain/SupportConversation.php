@@ -11,6 +11,8 @@ final class SupportConversation
         public readonly ?int $id,
         public readonly int $publicKey,
         public readonly string $visitorId,
+        public readonly ?string $visitorEmail = null,
+        public readonly ?string $pageUrl = null,
         public readonly string $status = self::STATUS_OPEN,
     ) {
     }

@@ -3,10 +3,11 @@
 namespace app\Modules\Support\Application\Contract;
 
 use app\Modules\Support\Domain\SupportConversation;
+use app\Modules\Support\Application\Dto\SupportVisitorContext;
 
 interface SupportConversationRepositoryInterface
 {
-    public function create(int $publicKey, string $visitorId): SupportConversation;
+    public function create(int $publicKey, SupportVisitorContext $context): SupportConversation;
 
     public function getOpenForVisitor(int $publicKey, int $conversationId, string $visitorId): ?SupportConversation;
 

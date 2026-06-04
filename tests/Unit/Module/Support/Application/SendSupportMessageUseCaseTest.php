@@ -90,9 +90,15 @@ final class SendFakeSupportConversationRepository implements SupportConversation
 {
     public array $conversations = [];
 
-    public function create(int $publicKey, string $visitorId): SupportConversation
+    public function create(int $publicKey, SupportVisitorContext $context): SupportConversation
     {
-        $conversation = new SupportConversation(1, $publicKey, $visitorId);
+        $conversation = new SupportConversation(
+            id: 1,
+            publicKey: $publicKey,
+            visitorId: $context->resolvedVisitorId(),
+            visitorEmail: $context->visitorEmail,
+            pageUrl: $context->pageUrl,
+        );
         $this->conversations[] = $conversation;
 
         return $conversation;

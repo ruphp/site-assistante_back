@@ -27,14 +27,6 @@ if ($settings->timezone !== '' && !isset($timezones[$settings->timezone])) {
     <?php $form = ActiveForm::begin(['options' => ['class' => 'uk-form-stacked']]); ?>
 
     <div class="uk-margin">
-        <label>
-            <?= Html::hiddenInput('SupportSettings[enabled]', '0') ?>
-            <?= Html::checkbox('SupportSettings[enabled]', $settings->enabled, ['value' => '1']) ?>
-            Включить онлайн-поддержку в виджете
-        </label>
-    </div>
-
-    <div class="uk-margin">
         <?= Html::label('Название модуля', 'support-title', ['class' => 'uk-form-label']) ?>
         <?= Html::input('text', 'SupportSettings[title]', $settings->title, [
             'id' => 'support-title',

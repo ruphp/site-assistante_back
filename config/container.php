@@ -25,6 +25,7 @@ use app\Application\Panel\Metrics\Contract\PanelModuleMetricChartRepositoryInter
 use app\Application\User\Contract\UserAccountServiceInterface;
 use app\Modules\Support\Application\Contract\SupportConversationRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportMessageRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportReplyNotifierInterface;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportUsageRepositoryInterface;
 use app\Modules\Support\Application\UseCase\GetSupportWidgetStateUseCase;
@@ -39,6 +40,7 @@ use app\Modules\Support\Application\UseCase\StartSupportConversationUseCase;
 use app\Modules\Support\Application\UseCase\StartSupportConversationUseCaseInterface;
 use app\Modules\Support\Infrastructure\YiiSupportConversationRepository;
 use app\Modules\Support\Infrastructure\YiiSupportMessageRepository;
+use app\Modules\Support\Infrastructure\YiiSupportReplyNotifier;
 use app\Modules\Support\Infrastructure\YiiSupportSettingsRepository;
 use app\Modules\Support\Infrastructure\YiiSupportUsageRepository;
 use app\Infrastructure\Admin\YiiClientAccessRepository;
@@ -87,6 +89,7 @@ return [
         SupportSettingsRepositoryInterface::class => YiiSupportSettingsRepository::class,
         SupportConversationRepositoryInterface::class => YiiSupportConversationRepository::class,
         SupportMessageRepositoryInterface::class => YiiSupportMessageRepository::class,
+        SupportReplyNotifierInterface::class => YiiSupportReplyNotifier::class,
         SupportUsageRepositoryInterface::class => YiiSupportUsageRepository::class,
         GetSupportWidgetStateUseCaseInterface::class => GetSupportWidgetStateUseCase::class,
         StartSupportConversationUseCaseInterface::class => StartSupportConversationUseCase::class,
