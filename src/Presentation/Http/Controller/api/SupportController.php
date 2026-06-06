@@ -58,8 +58,11 @@ class SupportController extends ApiController
                     (int)$publicKey,
                     $this->visitorContext(),
                     $this->stringBodyParam('message'),
+                    $this->bodyParam('entry_point_id') === null ? null : (int)$this->bodyParam('entry_point_id'),
                 ))
                 ->toArray();
+        } catch (\InvalidArgumentException $e) {
+            return $this->HTTPStatus(400, $e->getMessage());
         } catch (AssistantContextNotFoundException $e) {
             return $this->HTTPStatus(404, $e->getMessage());
         } catch (SupportAccessDeniedException $e) {
@@ -141,7 +144,21 @@ class SupportController extends ApiController
 
     private function bodyParam(string $name): mixed
     {
-        return Yii::$app->request->post($name, Yii::$app->request->get($name));
+        $request = Yii::$app->request;
+        $postValue = $request->post($name);
+        if ($postValue !== null) {
+            return $postValue;
+        }
+
+        $body = $request->getRawBody();
+        if ($body !== '') {
+            $decoded = json_decode($body, true);
+            if (is_array($decoded) && array_key_exists($name, $decoded)) {
+                return $decoded[$name];
+            }
+        }
+
+        return $request->get($name);
     }
 
     private function stringBodyParam(string $name): ?string

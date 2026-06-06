@@ -3,7 +3,10 @@
 namespace tests\Unit\Module\Support\Application;
 
 use app\Modules\Support\Application\Contract\SupportConversationRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportManagerNotifierInterface;
 use app\Modules\Support\Application\Contract\SupportMessageRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportRealtimePublisherInterface;
+use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportUsageRepositoryInterface;
 use app\Modules\Support\Application\Dto\SendSupportMessageRequest;
 use app\Modules\Support\Application\Dto\SupportVisitorContext;
@@ -12,7 +15,9 @@ use app\Modules\Support\Application\Exception\SupportLimitExceededException;
 use app\Modules\Support\Application\UseCase\SendSupportMessageUseCase;
 use app\Modules\Support\Application\UseCase\SupportAccessGuard;
 use app\Modules\Support\Domain\SupportConversation;
+use app\Modules\Support\Domain\SupportEntryPoint;
 use app\Modules\Support\Domain\SupportMessage;
+use app\Modules\Support\Domain\SupportSettings;
 use PHPUnit\Framework\TestCase;
 
 final class SendSupportMessageUseCaseTest extends TestCase
@@ -23,7 +28,9 @@ final class SendSupportMessageUseCaseTest extends TestCase
         $conversations->conversations[] = new SupportConversation(5, 10, 'visitor-1');
         $messages = new SendFakeSupportMessageRepository();
         $usage = new SendFakeSupportUsageRepository();
-        $useCase = new SendSupportMessageUseCase($this->accessGuard(), $conversations, $messages, $usage);
+        $notifier = new SendFakeSupportManagerNotifier();
+        $realtime = new SendFakeSupportRealtimePublisher();
+        $useCase = new SendSupportMessageUseCase($this->accessGuard(), $conversations, $messages, $usage, new SendFakeSupportSettingsRepository(), $notifier, $realtime);
 
         $response = $useCase->send(new SendSupportMessageRequest(
             10,
@@ -34,6 +41,8 @@ final class SendSupportMessageUseCaseTest extends TestCase
 
         self::assertSame('Есть вопрос', $response->message->body);
         self::assertSame(1, $usage->messageCount);
+        self::assertSame(1, $notifier->count);
+        self::assertSame(1, $realtime->count);
     }
 
     public function testDeniesForeignVisitorConversation(): void
@@ -45,6 +54,9 @@ final class SendSupportMessageUseCaseTest extends TestCase
             $conversations,
             new SendFakeSupportMessageRepository(),
             new SendFakeSupportUsageRepository(),
+            new SendFakeSupportSettingsRepository(),
+            new SendFakeSupportManagerNotifier(),
+            new SendFakeSupportRealtimePublisher(),
         );
 
         $this->expectException(SupportConversationNotFoundException::class);
@@ -68,6 +80,9 @@ final class SendSupportMessageUseCaseTest extends TestCase
             $conversations,
             new SendFakeSupportMessageRepository(),
             $usage,
+            new SendFakeSupportSettingsRepository(),
+            new SendFakeSupportManagerNotifier(),
+            new SendFakeSupportRealtimePublisher(),
         );
 
         $this->expectException(SupportLimitExceededException::class);
@@ -90,7 +105,7 @@ final class SendFakeSupportConversationRepository implements SupportConversation
 {
     public array $conversations = [];
 
-    public function create(int $publicKey, SupportVisitorContext $context): SupportConversation
+    public function create(int $publicKey, SupportVisitorContext $context, ?SupportEntryPoint $entryPoint = null): SupportConversation
     {
         $conversation = new SupportConversation(
             id: 1,
@@ -184,5 +199,38 @@ final class SendFakeSupportUsageRepository implements SupportUsageRepositoryInte
     public function incrementMessages(int $publicKey, \DateTimeImmutable $month): void
     {
         $this->messageCount++;
+    }
+}
+
+final class SendFakeSupportSettingsRepository implements SupportSettingsRepositoryInterface
+{
+    public function getForClient(int $publicKey): SupportSettings
+    {
+        return new SupportSettings($publicKey);
+    }
+
+    public function save(SupportSettings $settings): bool
+    {
+        return true;
+    }
+}
+
+final class SendFakeSupportManagerNotifier implements SupportManagerNotifierInterface
+{
+    public int $count = 0;
+
+    public function notifyVisitorMessage(SupportConversation $conversation, SupportMessage $message): void
+    {
+        $this->count++;
+    }
+}
+
+final class SendFakeSupportRealtimePublisher implements SupportRealtimePublisherInterface
+{
+    public int $count = 0;
+
+    public function publishMessage(SupportConversation $conversation, SupportMessage $message): void
+    {
+        $this->count++;
     }
 }

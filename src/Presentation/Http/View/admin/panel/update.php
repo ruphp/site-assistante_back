@@ -6,6 +6,8 @@ use yii\helpers\Html;
 /**
  * @var array $user
  * @var \app\Application\Admin\Dto\ClientModuleAccessView $moduleAccessView
+ * @var \app\Modules\Support\Domain\SupportSettings $supportSettings
+ * @var array<string, string> $supportPlanLabels
  */
 
 $this->title = 'Изменение данных клиента';
@@ -19,6 +21,7 @@ $this->title = 'Изменение данных клиента';
             $form = ActiveForm::begin(['id' => 'user-join-form', 'classForm' => 'uk-form-stacked']);
             $user['change_password'] = 0;
             $user['modules'] = $moduleAccessView->selectedModules();
+            $user['support_plan'] = $supportSettings->plan;
             ?>
             <?= $form->field($user, 'firm') ?>
             <?= $form->field($user, 'name') ?>
@@ -60,6 +63,15 @@ $this->title = 'Изменение данных клиента';
                 echo $form->field($user, "modules[$item->key]")->checkbox(['label' => $item->label]);
             }
             ?>
+
+            <h4>Тарифы</h4>
+            <div class="uk-margin">
+                <?= Html::label('Тариф онлайн-поддержки', 'support-plan', ['class' => 'uk-form-label']) ?>
+                <?= Html::dropDownList('Users[support_plan]', $user['support_plan'], $supportPlanLabels, [
+                    'id' => 'support-plan',
+                    'class' => 'uk-select',
+                ]) ?>
+            </div>
 
             <?= Html::submitButton('Сохранить', ['class' => 'uk-button uk-button-primary']) ?>
             <?php ActiveForm::end(); ?>

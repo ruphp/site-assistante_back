@@ -14,6 +14,8 @@ interface UserAccountServiceInterface
         string $adminBody
     ): bool;
 
+    public function sendEmailConfirmation(string $name, string $email, string $confirmUrl): bool;
+
     public function sendPasswordResetEmail(string $email): bool;
 
     public function canResetPassword(string $key, int $userId): bool;

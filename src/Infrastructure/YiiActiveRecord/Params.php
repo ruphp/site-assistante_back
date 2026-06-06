@@ -103,6 +103,7 @@ class Params extends ActiveRecord
 
     public static function getCode($user, $domain, $domainstatic, $domaincustom)
     {
+            $domainWs = $_ENV['DOMAININFOWSWIDGET'] ?? '';
 
             $code =
                 "&lt;script&gt;
@@ -110,6 +111,7 @@ class Params extends ActiveRecord
         apiUrl: '" . $domain . "/api',
         staticUrl: '" .$domainstatic. "',
         customUrl: '" .$domaincustom. "',
+        supportWsUrl: '" .$domainWs. "',
         publicKey: " . $user . ",
         _user: {
             id: null,

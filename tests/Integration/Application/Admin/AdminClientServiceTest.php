@@ -6,6 +6,7 @@ use app\Application\Admin\AdminClientService;
 use app\Application\Admin\Dto\UpdateClientRequest;
 use app\Infrastructure\Admin\YiiClientAccessRepository;
 use app\Infrastructure\Admin\YiiClientRepository;
+use app\Modules\Support\Infrastructure\YiiSupportSettingsRepository;
 use DomainException;
 use tests\Integration\Support\YiiIntegrationTestCase;
 use Yii;
@@ -22,6 +23,7 @@ final class AdminClientServiceTest extends YiiIntegrationTestCase
         $service = new AdminClientService(
             new YiiClientRepository(),
             new YiiClientAccessRepository(),
+            new YiiSupportSettingsRepository(),
         );
 
         try {
@@ -32,6 +34,7 @@ final class AdminClientServiceTest extends YiiIntegrationTestCase
                 'hacked-admin@help-layer.local',
                 1,
                 5,
+                'free',
                 false,
                 ['chatbots' => 1],
             ));

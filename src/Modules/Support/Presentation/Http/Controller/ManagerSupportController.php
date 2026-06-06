@@ -2,6 +2,8 @@
 
 namespace app\Modules\Support\Presentation\Http\Controller;
 
+use app\Modules\Support\Application\Contract\SupportRealtimeTokenIssuerInterface;
+use app\Modules\Support\Application\UseCase\ManageSupportEntryPointsUseCase;
 use app\Modules\Support\Application\UseCase\ManageSupportSettingsUseCase;
 use app\Modules\Support\Application\UseCase\OperatorSupportUseCase;
 use app\Presentation\Http\Controller\ManagerController;
@@ -14,7 +16,9 @@ final class ManagerSupportController extends ManagerController
         $id,
         $module,
         private readonly ManageSupportSettingsUseCase $settings,
+        private readonly ManageSupportEntryPointsUseCase $entryPoints,
         private readonly OperatorSupportUseCase $operatorSupport,
+        private readonly SupportRealtimeTokenIssuerInterface $realtimeTokenIssuer,
         $config = [],
     ) {
         parent::__construct($id, $module, $config);
@@ -33,7 +37,10 @@ final class ManagerSupportController extends ManagerController
             Yii::$app->session->setFlash('error', 'Модуль онлайн-поддержки недоступен клиенту');
         }
 
-        return $this->render('@app/src/Modules/Support/Presentation/Http/View/manager/settings', $this->settings->viewData($publicKey)->toArray());
+        return $this->render(
+            '@app/src/Modules/Support/Presentation/Http/View/manager/settings',
+            $this->settings->viewData($publicKey, (string)Yii::$app->user->identity->email)->toArray(),
+        );
     }
 
     public function actionConversations(): Response|string
@@ -45,6 +52,43 @@ final class ManagerSupportController extends ManagerController
             'conversations' => $this->operatorSupport->listConversations($publicKey, $status)->toArray()['conversations'],
             'status' => $status,
         ]);
+    }
+
+    public function actionEntryPoints(): Response|string
+    {
+        $publicKey = Yii::$app->user->identity->getPublicKey();
+
+        if (Yii::$app->request->isPost) {
+            try {
+                if ($this->entryPoints->saveFromPost($publicKey, Yii::$app->request->post())) {
+                    Yii::$app->session->setFlash('success', 'Кнопка обращения сохранена');
+                    return $this->redirect('/manager/support/entry-points');
+                }
+
+                Yii::$app->session->setFlash('error', 'Модуль онлайн-поддержки недоступен клиенту');
+            } catch (\Throwable $exception) {
+                Yii::$app->session->setFlash('error', $exception->getMessage());
+            }
+        }
+
+        return $this->render(
+            '@app/src/Modules/Support/Presentation/Http/View/manager/entry-points',
+            $this->entryPoints->viewData($publicKey),
+        );
+    }
+
+    public function actionEntryPointDelete(): Response
+    {
+        $publicKey = Yii::$app->user->identity->getPublicKey();
+        $id = (int)Yii::$app->request->post('id', Yii::$app->request->get('id'));
+
+        if ($id > 0 && $this->entryPoints->delete($publicKey, $id)) {
+            Yii::$app->session->setFlash('success', 'Кнопка обращения удалена');
+        } else {
+            Yii::$app->session->setFlash('error', 'Не удалось удалить кнопку обращения');
+        }
+
+        return $this->redirect('/manager/support/entry-points');
     }
 
     public function actionConversation(): Response|string
@@ -79,5 +123,17 @@ final class ManagerSupportController extends ManagerController
         }
 
         return $this->redirect(['/manager/support/conversation', 'id' => $conversationId]);
+    }
+
+    public function actionWsToken(): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $publicKey = (int)Yii::$app->user->identity->getPublicKey();
+
+        return [
+            'token' => $this->realtimeTokenIssuer->issueManagerToken($publicKey),
+            'publicKey' => $publicKey,
+            'wsUrl' => $_ENV['DOMAINWSWIDGET'] ?? '',
+        ];
     }
 }

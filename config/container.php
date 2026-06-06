@@ -24,7 +24,12 @@ use app\Application\Panel\Contract\ClientModuleMenuRepositoryInterface;
 use app\Application\Panel\Metrics\Contract\PanelModuleMetricChartRepositoryInterface;
 use app\Application\User\Contract\UserAccountServiceInterface;
 use app\Modules\Support\Application\Contract\SupportConversationRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportEntryPointRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportManagerNotifierInterface;
+use app\Modules\Support\Application\Contract\SupportManagerRecipientRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportMessageRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportRealtimePublisherInterface;
+use app\Modules\Support\Application\Contract\SupportRealtimeTokenIssuerInterface;
 use app\Modules\Support\Application\Contract\SupportReplyNotifierInterface;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportUsageRepositoryInterface;
@@ -33,12 +38,18 @@ use app\Modules\Support\Application\UseCase\GetSupportWidgetStateUseCaseInterfac
 use app\Modules\Support\Application\UseCase\ListSupportMessagesUseCase;
 use app\Modules\Support\Application\UseCase\ListSupportMessagesUseCaseInterface;
 use app\Modules\Support\Application\UseCase\ManageSupportSettingsUseCase;
+use app\Modules\Support\Application\UseCase\ManageSupportEntryPointsUseCase;
 use app\Modules\Support\Application\UseCase\OperatorSupportUseCase;
 use app\Modules\Support\Application\UseCase\SendSupportMessageUseCase;
 use app\Modules\Support\Application\UseCase\SendSupportMessageUseCaseInterface;
 use app\Modules\Support\Application\UseCase\StartSupportConversationUseCase;
 use app\Modules\Support\Application\UseCase\StartSupportConversationUseCaseInterface;
 use app\Modules\Support\Infrastructure\YiiSupportConversationRepository;
+use app\Modules\Support\Infrastructure\YiiSupportEntryPointRepository;
+use app\Modules\Support\Infrastructure\RedisSupportRealtimePublisher;
+use app\Modules\Support\Infrastructure\RedisSupportRealtimeTokenIssuer;
+use app\Modules\Support\Infrastructure\YiiSupportManagerNotifier;
+use app\Modules\Support\Infrastructure\YiiSupportManagerRecipientRepository;
 use app\Modules\Support\Infrastructure\YiiSupportMessageRepository;
 use app\Modules\Support\Infrastructure\YiiSupportReplyNotifier;
 use app\Modules\Support\Infrastructure\YiiSupportSettingsRepository;
@@ -87,8 +98,13 @@ return [
         PanelModuleMetricChartRepositoryInterface::class => YiiPanelModuleMetricChartRepository::class,
         UserAccountServiceInterface::class => YiiUserAccountService::class,
         SupportSettingsRepositoryInterface::class => YiiSupportSettingsRepository::class,
+        SupportEntryPointRepositoryInterface::class => YiiSupportEntryPointRepository::class,
         SupportConversationRepositoryInterface::class => YiiSupportConversationRepository::class,
         SupportMessageRepositoryInterface::class => YiiSupportMessageRepository::class,
+        SupportManagerNotifierInterface::class => YiiSupportManagerNotifier::class,
+        SupportManagerRecipientRepositoryInterface::class => YiiSupportManagerRecipientRepository::class,
+        SupportRealtimePublisherInterface::class => RedisSupportRealtimePublisher::class,
+        SupportRealtimeTokenIssuerInterface::class => RedisSupportRealtimeTokenIssuer::class,
         SupportReplyNotifierInterface::class => YiiSupportReplyNotifier::class,
         SupportUsageRepositoryInterface::class => YiiSupportUsageRepository::class,
         GetSupportWidgetStateUseCaseInterface::class => GetSupportWidgetStateUseCase::class,
@@ -96,6 +112,7 @@ return [
         SendSupportMessageUseCaseInterface::class => SendSupportMessageUseCase::class,
         ListSupportMessagesUseCaseInterface::class => ListSupportMessagesUseCase::class,
         ManageSupportSettingsUseCase::class => ManageSupportSettingsUseCase::class,
+        ManageSupportEntryPointsUseCase::class => ManageSupportEntryPointsUseCase::class,
         OperatorSupportUseCase::class => OperatorSupportUseCase::class,
     ],
 ];

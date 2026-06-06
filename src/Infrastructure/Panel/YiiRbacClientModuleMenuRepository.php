@@ -32,6 +32,7 @@ final class YiiRbacClientModuleMenuRepository implements ClientModuleMenuReposit
                     '#' => [
                         'Онлайн-поддержка',
                         'manager/support/conversations' => 'Диалоги',
+                        'manager/support/entry-points' => 'Кнопки обращений',
                         'manager/support' => 'Настройки',
                     ],
                 ];

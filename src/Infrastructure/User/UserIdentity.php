@@ -25,7 +25,7 @@ class UserIdentity extends Users implements IdentityInterface
     public static function findIdentity($id)
     {
         // TODO: Implement findIdentity() method.
-        return static::findOne($id); //найти одного
+        return static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]); //найти одного
     }
     public static function findName($name)
     {

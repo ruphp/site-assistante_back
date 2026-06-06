@@ -38,7 +38,7 @@ $config = [
         ],
     ],
     'params'              => [
-        'adminEmail'     => 'admin@sitewidget.ru',
+        'adminEmail'     => $_ENV['ADMIN_EMAIL'] ?: $_ENV['MAIL_USER'],
         'language'       => 'ru-RU',
         'sourceLanguage' => 'ru-RU',
     ],

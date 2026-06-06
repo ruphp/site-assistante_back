@@ -5,6 +5,7 @@ namespace app\Modules\Support\Application\UseCase;
 use app\Application\Client\Contract\ClientModuleAccessRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportConversationRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportMessageRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportRealtimePublisherInterface;
 use app\Modules\Support\Application\Contract\SupportReplyNotifierInterface;
 use app\Modules\Support\Application\Dto\SupportConversationListResponse;
 use app\Modules\Support\Application\Dto\SupportConversationResponse;
@@ -21,6 +22,7 @@ final class OperatorSupportUseCase
         private readonly SupportMessageRepositoryInterface $messages,
         private readonly SupportReplyNotifierInterface $replyNotifier,
         private readonly ClientModuleAccessRepositoryInterface $moduleAccess,
+        private readonly SupportRealtimePublisherInterface $realtimePublisher,
     ) {
     }
 
@@ -59,6 +61,7 @@ final class OperatorSupportUseCase
         $conversation = $this->assertConversationExists($publicKey, $conversationId);
         $message = $this->messages->addOperatorMessage($publicKey, $conversationId, $operatorId, $body);
         $this->replyNotifier->notifyOperatorReply($conversation, $message);
+        $this->realtimePublisher->publishMessage($conversation, $message);
     }
 
     private function assertConversationExists(int $publicKey, int $conversationId): SupportConversation

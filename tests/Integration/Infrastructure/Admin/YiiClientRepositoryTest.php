@@ -29,6 +29,7 @@ final class YiiClientRepositoryTest extends YiiIntegrationTestCase
             'updated-client@help-layer.local',
             1,
             5,
+            'free',
             false,
             [],
         ), null));
@@ -40,6 +41,7 @@ final class YiiClientRepositoryTest extends YiiIntegrationTestCase
             'hacked-admin@help-layer.local',
             1,
             5,
+            'free',
             false,
             [],
         ), null));

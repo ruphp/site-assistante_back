@@ -18,6 +18,8 @@ use yii\db\Exception;
  */
 class Users extends ActiveRecord
 {
+    public const STATUS_PENDING = 0;
+    public const STATUS_ACTIVE = 1;
 
     public int $change_password;
     public array $modules;
@@ -34,6 +36,14 @@ class Users extends ActiveRecord
     public static function findUserByEmail($email): ?Users
     {
         return static::findOne(['email' => $email]);
+    }
+
+    public static function findByEmailConfirmToken(string $token): ?Users
+    {
+        return static::findOne([
+            'email_confirm_token' => $token,
+            'status' => self::STATUS_PENDING,
+        ]);
     }
 
     public static function getUserDataById($id): ?Users
@@ -66,7 +76,7 @@ class Users extends ActiveRecord
         $this->firm = $userJoinForm->firm;
         $this->public_key = null;
         $this->setPassword($userJoinForm->password);
-        $this->status = 1;
+        $this->status = self::STATUS_ACTIVE;
     }
 
     /**
@@ -82,7 +92,23 @@ class Users extends ActiveRecord
         $this->firm = Yii::$app->user->identity->getFirm();
         $this->public_key = Yii::$app->user->identity->getPublicKey();
         $this->setPassword($userJoinForm->password);
-        $this->status = 1;
+        $this->status = self::STATUS_ACTIVE;
+    }
+
+    public function prepareEmailConfirmation(): void
+    {
+        $this->status = self::STATUS_PENDING;
+        $this->email_confirmed_at = null;
+        $this->email_confirm_token = Yii::$app->security->generateRandomString(64);
+    }
+
+    public function confirmEmail(): bool
+    {
+        $this->status = self::STATUS_ACTIVE;
+        $this->email_confirmed_at = date('Y-m-d H:i:s');
+        $this->email_confirm_token = null;
+
+        return $this->save();
     }
 
     public function upAdminJoinForm(UserJoinForm $userJoinForm): void

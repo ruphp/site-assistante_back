@@ -6,6 +6,8 @@ use app\Application\Admin\Contract\ClientAccessRepositoryInterface;
 use app\Application\Admin\Contract\ClientRepositoryInterface;
 use app\Application\Admin\Dto\CreateClientRequest;
 use app\Application\Admin\Dto\UpdateClientRequest;
+use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
+use app\Modules\Support\Domain\SupportPlan;
 use DomainException;
 
 final class AdminClientService
@@ -13,6 +15,7 @@ final class AdminClientService
     public function __construct(
         private readonly ClientRepositoryInterface $clients,
         private readonly ClientAccessRepositoryInterface $access,
+        private readonly SupportSettingsRepositoryInterface $supportSettings,
     ) {
     }
 
@@ -48,15 +51,25 @@ final class AdminClientService
         }
 
         $this->access->syncModuleAccess($request->id, $request->modules);
+        $client = $this->clients->findForAdminView($request->id);
+        $publicKey = (int)($client?->public_key ?? $request->id);
+        $this->supportSettings->save(
+            $this->supportSettings->getForClient($publicKey)->withPlan(SupportPlan::normalize($request->supportPlan)),
+        );
 
         return $newPassword;
     }
 
     public function getUpdateViewData(int $userId): array
     {
+        $client = $this->clients->findForAdminView($userId);
+        $publicKey = (int)($client?->public_key ?? $userId);
+
         return [
-            'user' => $this->clients->findForAdminView($userId),
+            'user' => $client,
             'moduleAccessView' => $this->access->getModuleAccessView($userId),
+            'supportSettings' => $this->supportSettings->getForClient($publicKey),
+            'supportPlanLabels' => SupportPlan::labels(),
         ];
     }
 

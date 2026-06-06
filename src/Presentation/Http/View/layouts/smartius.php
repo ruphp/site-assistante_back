@@ -66,6 +66,7 @@ $this->beginPage();
         <?= Html::csrfMetaTags() // генерируем защитные токены для передачи POST , для проверки что данные были отправлены с нашего сайта      ?>
         <?php $this->registerCsrfMetaTags() ?>
         <title><?= Html::encode($this->title) ?></title>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
         <?php $this->head() ?>
         <meta name="yandex-verification" content="8404bd8126455b4e"/>
         <meta name="yandex-verification" content="56b4ceb0b5a35c1c"/>
@@ -111,24 +112,26 @@ $this->beginPage();
             </div>
         </section>
 
-        <div class="uk-container uk-margin"></div>
-        <footer class="uk-section uk-section-primary">
-            <div class="uk-container uk-container-small">
-                <div class="uk-grid-divider uk-child-width-expand@s" uk-grid>
-                    <?php
-                    if ($_ENV['TYPE_DEPLOYED'] != 'MIRS') {
-                    ?>
-                        <div class="uk-text-center"><a href="mailto:mail@sitewidget.ru">mail@sitewidget.ru</a></div>
-                        <div class="uk-text-center"></div>
-                        <div class="uk-text-center">sitewidget.ru</div>
-                        <div class="uk-text-center"><a href="/files/pzpd.docx">Политика конфиденциальности</a></div>
-                    <?php
-                    }
+        <?php if (empty($this->params['hideLayoutFooter'])): ?>
+            <div class="uk-container uk-margin"></div>
+            <footer class="uk-section uk-section-primary">
+                <div class="uk-container uk-container-small">
+                    <div class="uk-grid-divider uk-child-width-expand@s" uk-grid>
+                        <?php
+                        if ($_ENV['TYPE_DEPLOYED'] != 'MIRS') {
+                        ?>
+                            <div class="uk-text-center"><a href="mailto:mail@sitewidget.ru">mail@sitewidget.ru</a></div>
+                            <div class="uk-text-center"></div>
+                            <div class="uk-text-center">sitewidget.ru</div>
+                            <div class="uk-text-center"><a href="/files/pzpd.docx">Политика конфиденциальности</a></div>
+                        <?php
+                        }
 
-                    ?>
+                        ?>
+                    </div>
                 </div>
-            </div>
-        </footer>
+            </footer>
+        <?php endif; ?>
 
     </div>
 
@@ -139,26 +142,15 @@ $this->beginPage();
     <?php $this->endBody() ?>
 
     <?php
-
-    $addtestchatbots = '';
-
-
-    if ((bool)$_ENV['ISADMINSCRIPT']) {
-    if ($testchatbots) {
-        ?>
-        <script type="text/javascript">
-            window.open("//<?=$_ENV['DOMAINAPIWIDGET']?>/chatbottest.php?id=<?=$testchatbots?>&pk=<?=$_ENV['PK']?>");
-            //win.focus();
-        </script>
-    <?php
-    }
+        if ((bool)$_ENV['ISADMINSCRIPT']) {
     ?>
         <script type="text/javascript">
             window.Smartius = {
                 apiUrl: '<?=$_ENV['DOMAINAPIWIDGET'] . '/api'?>',
                 staticUrl: '<?=$_ENV['DOMAINSTATICWIDGET']?>',
                 customUrl: '<?=$_ENV['DOMAINCUSTOMWIDGET']?>',
-                publicKey: '<?=$id_user > 1 ? $_ENV['PK_WIDGET'] : 3?>',
+                supportWsUrl: '<?= $_ENV['DOMAINWSWIDGET'] ?? '' ?>',
+                publicKey: '<?=$_ENV['PK_WIDGET']?>',
                 _user: {
                     <?php
                     if (!is_null($id_user)) {
@@ -180,7 +172,7 @@ $this->beginPage();
 
         <?php
     }
-    ?>
+        ?>
 
 
     </body>

@@ -11,6 +11,7 @@ final class UpdateClientRequest
         public readonly string $email,
         public readonly int $status,
         public readonly int $gmt,
+        public readonly string $supportPlan,
         public readonly bool $changePassword,
         public readonly array $modules,
     ) {
@@ -27,6 +28,7 @@ final class UpdateClientRequest
             mb_strtolower((string)($user['email'] ?? '')),
             (int)($user['status'] ?? 0),
             (int)($user['gmt'] ?? 0),
+            (string)($user['support_plan'] ?? 'free'),
             (bool)($user['change_password'] ?? false),
             self::normalizeModules((array)($user['modules'] ?? [])),
         );

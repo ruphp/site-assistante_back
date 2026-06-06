@@ -29,6 +29,7 @@ class UserLoginForm extends Model
             ['password', 'required', 'message' => 'Укажите пароль'],
             ['password', 'errorIfPasswordWrong'],
             ['email', 'errorIfEmailNotFound'],
+            ['email', 'errorIfEmailNotConfirmed'],
         ];
 
     }
@@ -50,6 +51,17 @@ class UserLoginForm extends Model
     {
         if (is_null($this->userRecord)) {
             $this->addError('email', 'Этот Email не зарегистрирован');
+        }
+    }
+
+    public function errorIfEmailNotConfirmed()
+    {
+        if ($this->hasErrors() || $this->userRecord === null) {
+            return;
+        }
+
+        if ((int)$this->userRecord->status !== Users::STATUS_ACTIVE) {
+            $this->addError('email', 'Подтвердите email по ссылке из письма');
         }
     }
 

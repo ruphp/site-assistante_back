@@ -10,6 +10,8 @@ final class SupportSettingsViewData
     public function __construct(
         public readonly SupportSettings $settings,
         public readonly SupportPlanLimit $limit,
+        public readonly array $managerRecipients = [],
+        public readonly string $defaultNotificationEmail = '',
     ) {
     }
 
@@ -18,6 +20,8 @@ final class SupportSettingsViewData
         return [
             'settings' => $this->settings,
             'limit' => $this->limit,
+            'managerRecipients' => $this->managerRecipients,
+            'defaultNotificationEmail' => $this->defaultNotificationEmail,
         ];
     }
 }

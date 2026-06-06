@@ -18,26 +18,35 @@ final class YiiUserAccountService implements UserAccountServiceInterface
         string $adminSubject,
         string $adminBody
     ): bool {
-        if (YII_ENV_DEV) {
-            return true;
-        }
+        $from = [$_ENV['MAIL_USER'] => 'SiteWidget'];
 
-        Yii::$app->mailer->compose()
+        $userSent = Yii::$app->mailer->compose()
             ->setTo($email)
-            ->setFrom([$adminEmail => 'SiteWidget'])
+            ->setFrom($from)
             ->setSubject($userSubject)
             ->setTextBody('тест')
             ->setHtmlBody($this->joinUserBody($name, $email, $password))
             ->send();
 
-        Yii::$app->mailer->compose()
+        $adminSent = Yii::$app->mailer->compose()
             ->setTo($adminEmail)
-            ->setFrom([$adminEmail => 'SiteWidget'])
+            ->setFrom($from)
             ->setSubject($adminSubject)
             ->setTextBody($adminBody . ' ' . $name . ' ' . $email)
             ->send();
 
-        return true;
+        return $userSent && $adminSent;
+    }
+
+    public function sendEmailConfirmation(string $name, string $email, string $confirmUrl): bool
+    {
+        return Yii::$app->mailer->compose()
+            ->setTo($email)
+            ->setFrom([$_ENV['MAIL_USER'] => 'SiteWidget'])
+            ->setSubject('Подтверждение регистрации SiteWidget')
+            ->setTextBody("Добрый день, $name! Подтвердите регистрацию: $confirmUrl")
+            ->setHtmlBody($this->emailConfirmationBody($name, $confirmUrl))
+            ->send();
     }
 
     public function sendPasswordResetEmail(string $email): bool
@@ -59,7 +68,7 @@ final class YiiUserAccountService implements UserAccountServiceInterface
 
         return Yii::$app->mailer->compose()
             ->setTo($user->email)
-            ->setFrom(Yii::$app->params['adminEmail'])
+            ->setFrom([$_ENV['MAIL_USER'] => 'SiteWidget'])
             ->setSubject('Сброс пароля для ' . $user->name)
             ->setHtmlBody($this->passwordResetBody($user->name, $link))
             ->send();
@@ -127,6 +136,28 @@ final class YiiUserAccountService implements UserAccountServiceInterface
 <body>
 <p>Добрый день, $name !</p>
 <p> $link </p>
+-- <br>
+Команда SiteWidget</p>
+</body>
+</html> ";
+    }
+
+    private function emailConfirmationBody(string $name, string $confirmUrl): string
+    {
+        $link = Html::a('Подтвердить email', $confirmUrl);
+
+        return "
+<html>
+<head>
+    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">
+    <title>Подтверждение регистрации SiteWidget</title>
+</head>
+<body>
+<p>Добрый день, $name!</p>
+<p>Чтобы активировать панель SiteWidget, подтвердите email:</p>
+<p>$link</p>
+<p>Если кнопка не открывается, скопируйте ссылку в браузер:<br>$confirmUrl</p>
+<p>
 -- <br>
 Команда SiteWidget</p>
 </body>

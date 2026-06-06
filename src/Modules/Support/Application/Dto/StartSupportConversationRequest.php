@@ -8,6 +8,7 @@ final class StartSupportConversationRequest
         public readonly int $publicKey,
         public readonly SupportVisitorContext $context,
         public readonly ?string $firstMessage = null,
+        public readonly ?int $entryPointId = null,
     ) {
     }
 }

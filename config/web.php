@@ -11,17 +11,22 @@ $url_rules=[
 
         [
             'pattern' => '/login',
-            'route'   => 'site',
+            'route'   => 'site/login',
         ],
 
         [
             'pattern' => 'site/login',
-            'route'   => 'site',
+            'route'   => 'site/login',
         ],
 
         [
             'pattern' => '/join',
             'route'   => 'site/join',
+        ],
+
+        [
+            'pattern' => '/confirm-email',
+            'route'   => 'site/confirm-email',
         ],
 
         [
@@ -62,12 +67,24 @@ $url_rules=[
             'route'   => 'manager-support/conversations',
         ],
         [
+            'pattern' => '/manager/support/entry-points',
+            'route'   => 'manager-support/entry-points',
+        ],
+        [
+            'pattern' => '/manager/support/entry-point/delete',
+            'route'   => 'manager-support/entry-point-delete',
+        ],
+        [
             'pattern' => '/manager/support/conversation',
             'route'   => 'manager-support/conversation',
         ],
         [
             'pattern' => '/manager/support/reply',
             'route'   => 'manager-support/reply',
+        ],
+        [
+            'pattern' => '/manager/support/ws-token',
+            'route'   => 'manager-support/ws-token',
         ],
 
         [
@@ -189,6 +206,34 @@ $url_rules=[
 ];
 
 
+$authClients = [
+    'rsaa' => [
+        'class'        => 'app\Infrastructure\Auth\RsaaAuthClient',
+        'clientId'     => $_ENV['RSAA_CLIENT'],
+        'clientSecret' => $_ENV['RSAA_SECRET'],
+        'authUrl'      => $_ENV['RSAA_AUTH_URL'],
+        'tokenUrl'     => $_ENV['RSAA_TOKEN_URL'],
+        'validateAuthState' => false
+    ],
+];
+
+if (!empty($_ENV['YANDEX_OAUTH_CLIENT_ID'] ?? '') && !empty($_ENV['YANDEX_OAUTH_CLIENT_SECRET'] ?? '')) {
+    $authClients['yandex'] = [
+        'class' => 'yii\authclient\clients\Yandex',
+        'clientId' => $_ENV['YANDEX_OAUTH_CLIENT_ID'],
+        'clientSecret' => $_ENV['YANDEX_OAUTH_CLIENT_SECRET'],
+    ];
+}
+
+if (!empty($_ENV['VK_OAUTH_CLIENT_ID'] ?? '') && !empty($_ENV['VK_OAUTH_CLIENT_SECRET'] ?? '')) {
+    $authClients['vkontakte'] = [
+        'class' => 'yii\authclient\clients\VKontakte',
+        'clientId' => $_ENV['VK_OAUTH_CLIENT_ID'],
+        'clientSecret' => $_ENV['VK_OAUTH_CLIENT_SECRET'],
+        'scope' => 'email',
+    ];
+}
+
 
 
 
@@ -256,6 +301,9 @@ $config = [
             ],
             'viewPath'         => '@app/src/Presentation/Mail/View',
             'useFileTransport' => false,
+            'messageConfig' => [
+                'from' => [$_ENV['MAIL_USER'] => 'SiteWidget'],
+            ],
         ],
         'log'          => [
         ],
@@ -276,17 +324,7 @@ $config = [
         ],
         'authClientCollection' => [
             'class'   => 'yii\authclient\Collection',
-            'clients' => [
-                'rsaa' => [
-                    'class'        => 'app\Infrastructure\Auth\RsaaAuthClient',
-                    'clientId'     => $_ENV['RSAA_CLIENT'],
-                    'clientSecret' => $_ENV['RSAA_SECRET'],
-                    'authUrl'      => $_ENV['RSAA_AUTH_URL'],
-                    'tokenUrl'     => $_ENV['RSAA_TOKEN_URL'],
-                    'validateAuthState' => false
-                ],
-                // и т.д.
-            ],
+            'clients' => $authClients,
         ],
         'urlManager' => [
             'enablePrettyUrl'     => true,
@@ -312,7 +350,7 @@ $config = [
         ],
     ],
     'params'     =>[
-        'adminEmail'     => 'admin@sitewidget.ru',
+        'adminEmail'     => $_ENV['ADMIN_EMAIL'] ?: $_ENV['MAIL_USER'],
         'language'       => 'ru-RU',
         'sourceLanguage' => 'ru-RU',
     ],

@@ -3,7 +3,10 @@
 namespace app\Modules\Support\Application\UseCase;
 
 use app\Modules\Support\Application\Contract\SupportConversationRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportManagerNotifierInterface;
 use app\Modules\Support\Application\Contract\SupportMessageRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportRealtimePublisherInterface;
+use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportUsageRepositoryInterface;
 use app\Modules\Support\Application\Dto\SendSupportMessageRequest;
 use app\Modules\Support\Application\Dto\SupportMessageResponse;
@@ -18,6 +21,9 @@ final class SendSupportMessageUseCase implements SendSupportMessageUseCaseInterf
         private readonly SupportConversationRepositoryInterface $conversations,
         private readonly SupportMessageRepositoryInterface $messages,
         private readonly SupportUsageRepositoryInterface $usage,
+        private readonly SupportSettingsRepositoryInterface $settings,
+        private readonly SupportManagerNotifierInterface $managerNotifier,
+        private readonly SupportRealtimePublisherInterface $realtimePublisher,
     ) {
     }
 
@@ -40,7 +46,8 @@ final class SendSupportMessageUseCase implements SendSupportMessageUseCaseInterf
         }
 
         $month = new \DateTimeImmutable('first day of this month 00:00:00');
-        if (!SupportPlanLimit::free()->canSendMessage($this->usage->monthlyMessageCount($request->publicKey, $month))) {
+        $limit = SupportPlanLimit::forPlan($this->settings->getForClient($request->publicKey)->plan);
+        if (!$limit->canSendMessage($this->usage->monthlyMessageCount($request->publicKey, $month))) {
             throw new SupportLimitExceededException('Message monthly limit exceeded');
         }
 
@@ -51,6 +58,8 @@ final class SendSupportMessageUseCase implements SendSupportMessageUseCaseInterf
             $body,
         );
         $this->usage->incrementMessages($request->publicKey, $month);
+        $this->managerNotifier->notifyVisitorMessage($conversation, $message);
+        $this->realtimePublisher->publishMessage($conversation, $message);
 
         return new SupportMessageResponse($message);
     }

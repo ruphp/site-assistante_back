@@ -4,6 +4,7 @@ namespace app\Modules\Support\Infrastructure;
 
 use app\Modules\Support\Application\Contract\SupportMessageRepositoryInterface;
 use app\Modules\Support\Domain\SupportMessage;
+use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportConversationRecord;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportMessageRecord;
 
 final class YiiSupportMessageRepository implements SupportMessageRepositoryInterface
@@ -17,6 +18,7 @@ final class YiiSupportMessageRepository implements SupportMessageRepositoryInter
         $record->sender_id = $visitorId;
         $record->body = $body;
         $record->save(false);
+        $this->touchConversation($conversationId);
 
         return $this->map($record);
     }
@@ -30,6 +32,7 @@ final class YiiSupportMessageRepository implements SupportMessageRepositoryInter
         $record->sender_id = (string)$operatorId;
         $record->body = $body;
         $record->save(false);
+        $this->touchConversation($conversationId);
 
         return $this->map($record);
     }
@@ -61,6 +64,14 @@ final class YiiSupportMessageRepository implements SupportMessageRepositoryInter
             senderId: $record->sender_id === null ? null : (string)$record->sender_id,
             body: (string)$record->body,
             createdAt: $record->created_at === null ? null : (string)$record->created_at,
+        );
+    }
+
+    private function touchConversation(int $conversationId): void
+    {
+        SupportConversationRecord::updateAll(
+            ['updated_at' => new \yii\db\Expression('NOW()')],
+            ['id' => $conversationId],
         );
     }
 }

@@ -112,12 +112,14 @@ final class ManageAssistantSettingsService
         $domain = $_ENV['DOMAININFOAPIWIDGET'];
         $domainStatic = $_ENV['DOMAININFOSTATICWIDGET'];
         $domainCustom = $_ENV['DOMAININFOCUSTOMWIDGET'];
+        $domainWs = $_ENV['DOMAININFOWSWIDGET'] ?? '';
 
         return "&lt;script&gt;
     window.Smartius = {
         apiUrl: '" . $domain . "/api',
         staticUrl: '" . $domainStatic . "',
         customUrl: '" . $domainCustom . "',
+        supportWsUrl: '" . $domainWs . "',
         publicKey: " . $publicKey . ",
         _user: {
             id: null,

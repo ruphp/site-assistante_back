@@ -5,11 +5,13 @@ namespace app\Modules\Support\Infrastructure;
 use app\Modules\Support\Application\Contract\SupportConversationRepositoryInterface;
 use app\Modules\Support\Application\Dto\SupportVisitorContext;
 use app\Modules\Support\Domain\SupportConversation;
+use app\Modules\Support\Domain\SupportEntryPoint;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportConversationRecord;
+use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportMessageRecord;
 
 final class YiiSupportConversationRepository implements SupportConversationRepositoryInterface
 {
-    public function create(int $publicKey, SupportVisitorContext $context): SupportConversation
+    public function create(int $publicKey, SupportVisitorContext $context, ?SupportEntryPoint $entryPoint = null): SupportConversation
     {
         $record = new SupportConversationRecord();
         $record->public_key = $publicKey;
@@ -18,6 +20,8 @@ final class YiiSupportConversationRepository implements SupportConversationRepos
         $record->visitor_ip = $context->remoteAddr;
         $record->page_url = $context->pageUrl;
         $record->status = SupportConversation::STATUS_OPEN;
+        $record->entry_point_id = $entryPoint?->id;
+        $record->priority = $entryPoint?->priority ?? 0;
         $record->save(false);
 
         return $this->map($record);
@@ -60,11 +64,37 @@ final class YiiSupportConversationRepository implements SupportConversationRepos
             $query->andWhere(['status' => $status]);
         }
 
-        return array_map(fn($record) => $this->map($record), $query->all());
+        $conversations = array_map(fn($record) => $this->map($record), $query->all());
+
+        usort($conversations, static function (SupportConversation $left, SupportConversation $right): int {
+            if ($left->waitsForOperator() !== $right->waitsForOperator()) {
+                return $left->waitsForOperator() ? -1 : 1;
+            }
+
+            if ($left->priority !== $right->priority) {
+                return $right->priority <=> $left->priority;
+            }
+
+            if ($left->waitsForOperator()) {
+                return $right->waitingSeconds() <=> $left->waitingSeconds();
+            }
+
+            return strcmp((string)$right->lastMessageAt, (string)$left->lastMessageAt);
+        });
+
+        return $conversations;
     }
 
     private function map(SupportConversationRecord $record): SupportConversation
     {
+        $lastMessage = SupportMessageRecord::find()
+            ->where([
+                'public_key' => (int)$record->public_key,
+                'conversation_id' => (int)$record->id,
+            ])
+            ->orderBy(['id' => SORT_DESC])
+            ->one();
+
         return new SupportConversation(
             id: (int)$record->id,
             publicKey: (int)$record->public_key,
@@ -72,6 +102,10 @@ final class YiiSupportConversationRepository implements SupportConversationRepos
             visitorEmail: $record->visitor_email === null ? null : (string)$record->visitor_email,
             pageUrl: $record->page_url === null ? null : (string)$record->page_url,
             status: (string)$record->status,
+            lastMessageAt: $lastMessage?->created_at === null ? null : (string)$lastMessage->created_at,
+            lastSenderType: $lastMessage?->sender_type === null ? null : (string)$lastMessage->sender_type,
+            entryPointId: $record->entry_point_id === null ? null : (int)$record->entry_point_id,
+            priority: (int)$record->priority,
         );
     }
 }

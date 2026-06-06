@@ -29,6 +29,7 @@ $href = "{$_ENV['RSAA_AUTH_URL']}?client_id={$_ENV['RSAA_CLIENT']}&scope=openid&
                 <a href="<?php echo $href ?>" class="uk-button uk-button-default">Авторизоваться через РСАА</a>
                 <?php
             } else {
+                $oauthClients = Yii::$app->authClientCollection->clients;
                 app\Presentation\Yii\Asset\AppAsset::register($this);
                 $form = ActiveForm::begin(['id' => 'user-login-form', 'classForm' => 'uk-form-stacked']); ?>
                 <?= $form->field($userLoginForm, 'email')->label('Адрес электронной почты') ?>
@@ -38,6 +39,17 @@ $href = "{$_ENV['RSAA_AUTH_URL']}?client_id={$_ENV['RSAA_CLIENT']}&scope=openid&
                     ['class' => 'uk-button uk-button-primary']) ?>
                 <a href="/join" class="uk-button uk-button-default">Зарегистрироваться</a>
                 <?php ActiveForm::end(); ?>
+                <?php if (isset($oauthClients['yandex']) || isset($oauthClients['vkontakte'])): ?>
+                    <hr>
+                    <div class="uk-grid-small" uk-grid>
+                        <?php if (isset($oauthClients['yandex'])): ?>
+                            <div><?= Html::a('Войти через Яндекс ID', ['/site/auth', 'authclient' => 'yandex'], ['class' => 'uk-button uk-button-default']) ?></div>
+                        <?php endif; ?>
+                        <?php if (isset($oauthClients['vkontakte'])): ?>
+                            <div><?= Html::a('Войти через VK', ['/site/auth', 'authclient' => 'vkontakte'], ['class' => 'uk-button uk-button-default']) ?></div>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
                 <?php echo Html::a('Забыли пароль?', ['/send-email']);
             }
 
