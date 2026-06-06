@@ -151,6 +151,12 @@ class SiteController extends SmartiusController
         if (Yii::$app->request->isPost)
             return $this->actionLoginPost();
         $userLoginForm = new UserLoginForm();
+
+        // Разлогиниваем, если пользователь уже вошёл
+        if (!Yii::$app->user->isGuest) {
+            Yii::$app->user->logout();
+        }
+
         if (!Yii::$app->user->isGuest) {
             if (!is_null(Yii::$app->authManager->getAssignments(Yii::$app->user->id)['admin'] ?? null)) {
                 return $this->redirect('/admin');
@@ -197,6 +203,10 @@ class SiteController extends SmartiusController
             return $this->actionJoinPost();
         }
 
+        // Разлогиниваем, если пользователь уже вошёл
+        if (!Yii::$app->user->isGuest) {
+            Yii::$app->user->logout();
+        }
 
         $userJoinForm = new UserJoinForm();
         $userJoinForm->setUsers();
