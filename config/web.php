@@ -11,17 +11,22 @@ $url_rules=[
 
         [
             'pattern' => '/login',
-            'route'   => 'site',
+            'route'   => 'site/login',
         ],
 
         [
             'pattern' => 'site/login',
-            'route'   => 'site',
+            'route'   => 'site/login',
         ],
 
         [
             'pattern' => '/join',
             'route'   => 'site/join',
+        ],
+
+        [
+            'pattern' => '/confirm-email',
+            'route'   => 'site/confirm-email',
         ],
 
         [
@@ -52,6 +57,34 @@ $url_rules=[
         [
             'pattern' => '/manager/statistics',
             'route'   => 'manager/panel/statistics',
+        ],
+        [
+            'pattern' => '/manager/support',
+            'route'   => 'manager-support/index',
+        ],
+        [
+            'pattern' => '/manager/support/conversations',
+            'route'   => 'manager-support/conversations',
+        ],
+        [
+            'pattern' => '/manager/support/entry-points',
+            'route'   => 'manager-support/entry-points',
+        ],
+        [
+            'pattern' => '/manager/support/entry-point/delete',
+            'route'   => 'manager-support/entry-point-delete',
+        ],
+        [
+            'pattern' => '/manager/support/conversation',
+            'route'   => 'manager-support/conversation',
+        ],
+        [
+            'pattern' => '/manager/support/reply',
+            'route'   => 'manager-support/reply',
+        ],
+        [
+            'pattern' => '/manager/support/ws-token',
+            'route'   => 'manager-support/ws-token',
         ],
 
         [
@@ -135,6 +168,22 @@ $url_rules=[
             'route'   => 'api/widget/log-open',
         ],
         [
+            'pattern' => '/api/support/state',
+            'route'   => 'api/support/state',
+        ],
+        [
+            'pattern' => '/api/support/conversation/start',
+            'route'   => 'api/support/start-conversation',
+        ],
+        [
+            'pattern' => '/api/support/message/send',
+            'route'   => 'api/support/send-message',
+        ],
+        [
+            'pattern' => '/api/support/messages',
+            'route'   => 'api/support/messages',
+        ],
+        [
             'pattern' => '/api/report/usage',
             'route'   => 'api/report/usage',
         ],
@@ -157,6 +206,34 @@ $url_rules=[
 ];
 
 
+$authClients = [
+    'rsaa' => [
+        'class'        => 'app\Infrastructure\Auth\RsaaAuthClient',
+        'clientId'     => $_ENV['RSAA_CLIENT'],
+        'clientSecret' => $_ENV['RSAA_SECRET'],
+        'authUrl'      => $_ENV['RSAA_AUTH_URL'],
+        'tokenUrl'     => $_ENV['RSAA_TOKEN_URL'],
+        'validateAuthState' => false
+    ],
+];
+
+if (!empty($_ENV['YANDEX_OAUTH_CLIENT_ID'] ?? '') && !empty($_ENV['YANDEX_OAUTH_CLIENT_SECRET'] ?? '')) {
+    $authClients['yandex'] = [
+        'class' => 'yii\authclient\clients\Yandex',
+        'clientId' => $_ENV['YANDEX_OAUTH_CLIENT_ID'],
+        'clientSecret' => $_ENV['YANDEX_OAUTH_CLIENT_SECRET'],
+    ];
+}
+
+if (!empty($_ENV['VK_OAUTH_CLIENT_ID'] ?? '') && !empty($_ENV['VK_OAUTH_CLIENT_SECRET'] ?? '')) {
+    $authClients['vkontakte'] = [
+        'class' => 'yii\authclient\clients\VKontakte',
+        'clientId' => $_ENV['VK_OAUTH_CLIENT_ID'],
+        'clientSecret' => $_ENV['VK_OAUTH_CLIENT_SECRET'],
+        'scope' => 'email',
+    ];
+}
+
 
 
 
@@ -165,17 +242,25 @@ $config = [
 
     'id'         => 'basic',
     'basePath'   => dirname(__DIR__),
+    'controllerNamespace' => 'app\Presentation\Http\Controller',
+    'viewPath' => '@app/src/Presentation/Http/View',
+    'container' => require __DIR__ . '/container.php',
     'bootstrap'  => ['log'],
     'language'   => 'ru-RU',
     'sourceLanguage' =>'ru-RU',
     'layout'     => 'smartius',
-    'name' => 'SmGuide',
+    'name' => 'SiteWidget',
     'aliases'    => [
         //'@bower' => '@vendor/yidas/yii2-bower-asset/bower',
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
     ],
     'modules'    => [],
+    'controllerMap' => [
+        'manager-support' => [
+            'class' => app\Modules\Support\Presentation\Http\Controller\ManagerSupportController::class,
+        ],
+    ],
     'components' => [
         'request'      => [
             'enableCsrfValidation' => true,
@@ -186,7 +271,7 @@ $config = [
             'class' => YII_ENV_DEV ? 'yii\caching\DummyCache' : 'yii\caching\FileCache',
         ],
         'user'         => [
-            'identityClass'   => 'app\models\UserIdentity',
+            'identityClass'   => 'app\Infrastructure\User\UserIdentity',
             'enableAutoLogin' => true,
         ],
         'errorHandler' => [
@@ -214,8 +299,11 @@ $config = [
                 'port' => 465,
                 'options' => ['ssl' => true],
             ],
-            'viewPath'         => '@app/mail/layouts/html',
+            'viewPath'         => '@app/src/Presentation/Mail/View',
             'useFileTransport' => false,
+            'messageConfig' => [
+                'from' => [$_ENV['MAIL_USER'] => 'SiteWidget'],
+            ],
         ],
         'log'          => [
         ],
@@ -236,17 +324,7 @@ $config = [
         ],
         'authClientCollection' => [
             'class'   => 'yii\authclient\Collection',
-            'clients' => [
-                'rsaa' => [
-                    'class'        => 'app\components\RsaaAuthClient',
-                    'clientId'     => $_ENV['RSAA_CLIENT'],
-                    'clientSecret' => $_ENV['RSAA_SECRET'],
-                    'authUrl'      => $_ENV['RSAA_AUTH_URL'],
-                    'tokenUrl'     => $_ENV['RSAA_TOKEN_URL'],
-                    'validateAuthState' => false
-                ],
-                // и т.д.
-            ],
+            'clients' => $authClients,
         ],
         'urlManager' => [
             'enablePrettyUrl'     => true,
@@ -272,25 +350,35 @@ $config = [
         ],
     ],
     'params'     =>[
-        'adminEmail'     => 'smguide@bk.ru',
+        'adminEmail'     => $_ENV['ADMIN_EMAIL'] ?: $_ENV['MAIL_USER'],
         'language'       => 'ru-RU',
         'sourceLanguage' => 'ru-RU',
     ],
 ];
 // получаем список директорий в protected/modules
-$dirs = scandir(dirname(__FILE__) . '/../modules');
+$modulesPath = dirname(__FILE__) . '/../modules';
 
-foreach ($dirs as $val) {
-    if ($val[0] != '.') {
-        $config['bootstrap'][] = $val;
-        $config['modules'][$val] = ['class' => 'app\modules\\' . $val . '\Module'];
-        if($val=='chatbots'){
-            // получаем список директорий в подмодулях чатбота
-            $child_dirs = scandir(dirname(__FILE__) . '/../modules/chatbots/modules');
-            foreach ($child_dirs as $child_val) {
-                if ($child_val[0] != '.') {
-                    $config['bootstrap'][] = $child_val;
-                    $config['modules'][$child_val] = ['class' => 'app\modules\chatbots\modules\\' . $child_val . '\Module'];
+if (is_dir($modulesPath)) {
+    $dirs = scandir($modulesPath);
+
+    foreach ($dirs as $val) {
+        if ($val[0] != '.') {
+            $config['bootstrap'][] = $val;
+            $config['modules'][$val] = ['class' => 'app\modules\\' . $val . '\Module'];
+            if($val=='chatbots'){
+                // получаем список директорий в подмодулях чатбота
+                $chatbotModulesPath = $modulesPath . '/chatbots/modules';
+
+                if (!is_dir($chatbotModulesPath)) {
+                    continue;
+                }
+
+                $child_dirs = scandir($chatbotModulesPath);
+                foreach ($child_dirs as $child_val) {
+                    if ($child_val[0] != '.') {
+                        $config['bootstrap'][] = $child_val;
+                        $config['modules'][$child_val] = ['class' => 'app\modules\chatbots\modules\\' . $child_val . '\Module'];
+                    }
                 }
             }
         }

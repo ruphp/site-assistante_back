@@ -5,7 +5,8 @@ $config = [
     'id'                  => 'basic-console',
     'basePath'            => dirname(__DIR__),
     'bootstrap'           => ['log'],
-    'controllerNamespace' => 'app\commands',
+    'controllerNamespace' => 'app\Presentation\Console\Controller',
+    'container'           => require __DIR__ . '/container.php',
     'aliases'             => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
@@ -37,7 +38,7 @@ $config = [
         ],
     ],
     'params'              => [
-        'adminEmail'     => 'smguide@bk.ru',
+        'adminEmail'     => $_ENV['ADMIN_EMAIL'] ?: $_ENV['MAIL_USER'],
         'language'       => 'ru-RU',
         'sourceLanguage' => 'ru-RU',
     ],
@@ -55,21 +56,31 @@ $config = [
 
 ];
 // получаем список директорий в protected/modules
-$dirs = scandir(dirname(__FILE__) . '/../modules');
+$modulesPath = dirname(__FILE__) . '/../modules';
 
-foreach ($dirs as $val) {
-    if ($val[0] != '.') {
-        $config['bootstrap'][] = $val;
-        $config['modules'][$val] = ['class' => 'app\modules\\' . $val . '\Module'];
-        $config['controllerMap']['migrate']['migrationPath'][] = '@app/modules/' . $val . '/migrations';
-        if($val=='chatbots'){
-            // получаем список директорий в подмодулях чатбота
-            $child_dirs = scandir(dirname(__FILE__) . '/../modules/chatbots/modules');
-            foreach ($child_dirs as $child_val) {
-                if ($child_val[0] != '.') {
-                    $config['bootstrap'][] = $child_val;
-                    $config['modules'][$child_val] = ['class' => 'app\modules\chatbots\modules\\' . $child_val . '\Module'];
-                    $config['controllerMap']['migrate']['migrationPath'][] = '@app/modules/chatbots/modules/' . $child_val . '/migrations';
+if (is_dir($modulesPath)) {
+    $dirs = scandir($modulesPath);
+
+    foreach ($dirs as $val) {
+        if ($val[0] != '.') {
+            $config['bootstrap'][] = $val;
+            $config['modules'][$val] = ['class' => 'app\modules\\' . $val . '\Module'];
+            $config['controllerMap']['migrate']['migrationPath'][] = '@app/modules/' . $val . '/migrations';
+            if($val=='chatbots'){
+                // получаем список директорий в подмодулях чатбота
+                $chatbotModulesPath = $modulesPath . '/chatbots/modules';
+
+                if (!is_dir($chatbotModulesPath)) {
+                    continue;
+                }
+
+                $child_dirs = scandir($chatbotModulesPath);
+                foreach ($child_dirs as $child_val) {
+                    if ($child_val[0] != '.') {
+                        $config['bootstrap'][] = $child_val;
+                        $config['modules'][$child_val] = ['class' => 'app\modules\chatbots\modules\\' . $child_val . '\Module'];
+                        $config['controllerMap']['migrate']['migrationPath'][] = '@app/modules/chatbots/modules/' . $child_val . '/migrations';
+                    }
                 }
             }
         }

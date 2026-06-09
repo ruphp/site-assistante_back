@@ -1,0 +1,9 @@
+<svg width="200" height="200" viewBox="394 88 60 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g transform="matrix(1, 0, 0, 1, -1, 0)">
+    <path d="M399.571 117.961C399.571 102.031 410.412 91.412 423.907 91.412C437.403 91.412 448.244 102.031 448.244 117.961" fill="none" stroke="#000000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M399.571 117.961C399.571 114.2 402.447 111.324 406.208 111.324H409.527C411.297 111.324 412.845 112.872 412.845 114.642V127.916C412.845 129.686 411.297 131.235 409.527 131.235H406.208C402.447 131.235 399.571 128.359 399.571 124.598V117.961Z" fill="none" stroke="#000000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M448.244 117.961C448.244 114.2 445.367 111.324 441.606 111.324H438.288C436.518 111.324 434.969 112.872 434.969 114.642V127.916C434.969 129.686 436.518 131.235 438.288 131.235H441.606C445.367 131.235 448.244 128.359 448.244 124.598V117.961Z" fill="none" stroke="#000000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M434.969 133.447C432.314 136.324 428.553 137.872 423.907 137.872" fill="none" stroke="#000000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="423.907" cy="137.872" r="3.54" fill="#000000"/>
+  </g>
+</svg>

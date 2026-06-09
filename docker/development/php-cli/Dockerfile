@@ -1,18 +1,18 @@
 FROM php:8.4-cli-alpine3.21
 
-COPY ./ /app/
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-RUN apk add unzip
-RUN cd /app && unzip /app/vendor.zip && rm -Rf /app/vendor.zip
+COPY ./ /app/
 
 WORKDIR /app
 
-RUN apk update && apk add zlib-dev libpng-dev libxml2-dev libxslt-dev libzip-dev
+RUN apk update && apk add zlib-dev libpng-dev freetype-dev libjpeg-turbo-dev libxml2-dev libxslt-dev libzip-dev unzip git
 RUN set -ex && apk add postgresql-dev
-RUN echo "extension=zip.so" >> /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini  \
-    && echo "max_input_vars=5000" >> /usr/local/etc/php/conf.d/docker-php-ext-exif.ini  \
-    && echo "extension=pdo_pgsql" >> /usr/local/etc/php/php.ini
-RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql && docker-php-ext-install pdo pdo_pgsql pgsql intl zip
+RUN echo "max_input_vars=5000" >> /usr/local/etc/php/conf.d/help-layer.ini
+RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_pgsql pgsql intl zip gd
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 RUN crontab cronjobs.txt
 
