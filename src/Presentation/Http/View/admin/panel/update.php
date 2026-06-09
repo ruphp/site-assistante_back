@@ -21,7 +21,7 @@ $this->title = 'Изменение данных клиента';
             $form = ActiveForm::begin(['id' => 'user-join-form', 'classForm' => 'uk-form-stacked']);
             $user['change_password'] = 0;
             $user['modules'] = $moduleAccessView->selectedModules();
-            $user['support_plan'] = $supportSettings->plan;
+            $supportPlan = $supportSettings->plan;
             ?>
             <?= $form->field($user, 'firm') ?>
             <?= $form->field($user, 'name') ?>
@@ -67,7 +67,7 @@ $this->title = 'Изменение данных клиента';
             <h4>Тарифы</h4>
             <div class="uk-margin">
                 <?= Html::label('Тариф онлайн-поддержки', 'support-plan', ['class' => 'uk-form-label']) ?>
-                <?= Html::dropDownList('Users[support_plan]', $user['support_plan'], $supportPlanLabels, [
+                <?= Html::dropDownList('Users[support_plan]', $supportPlan, $supportPlanLabels, [
                     'id' => 'support-plan',
                     'class' => 'uk-select',
                 ]) ?>

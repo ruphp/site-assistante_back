@@ -20,7 +20,7 @@ class Users extends ActiveRecord
 {
     public const STATUS_PENDING = 0;
     public const STATUS_ACTIVE = 1;
-
+    public $support_plan;
     public int $change_password;
     public array $modules;
     public static function tableName(): string

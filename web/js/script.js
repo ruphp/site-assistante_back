@@ -703,39 +703,81 @@ $.fn.extend({
 });
 
 
-/*$(document).on('click', '.house-item input:checkbox', function () {
+(function() {
+    var header = document.getElementById('sw-header');
+    if (!header) return;
+    var sentinel = document.querySelector('.site-landing__hero');
+    if (!sentinel) {
+        header.classList.add('is-sticky');
+        return;
+    }
+    var observer = new IntersectionObserver(function(entries) {
+        header.classList.toggle('is-sticky', !entries[0].isIntersecting);
+    }, { threshold: 0 });
+    observer.observe(sentinel);
+})();
+// Cookie consent
+(function() {
+    var banner = document.getElementById('sw-cookie');
+    if (!banner) return;
 
-    if ($(this).is(':checked')) {
-        $(this).parents('.house-item').find('input:checkbox').not(this).prop('checked', false);
+    // Если уже дано согласие — запускаем метрику и выходим
+    var saved = localStorage.getItem('sw-cookie-consent');
+    if (saved) {
+        try {
+            var savedConsent = JSON.parse(saved);
+            if (savedConsent.metrika) {
+                (function(m,e,t,r,i,k,a){
+                    m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+                    m[i].l=1*new Date();
+                    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+                })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109693340', 'ym');
 
+                ym(109693340, 'init', {
+                    clickmap:true,
+                    trackLinks:true,
+                    accurateTrackBounce:true,
+                    webvisor:true
+                });
+            }
+        } catch(e) {}
+        return;
     }
 
-});
+    // Иначе показываем плашку
+    banner.style.display = 'block';
 
-$(document).on('click', '.field-chatbots-is_default input:checkbox', function () {
+    document.getElementById('sw-cookie-accept').addEventListener('click', function() {
+        document.getElementById('sw-cookie-metrika').checked = true;
+        saveAndHide();
+    });
 
-        $('.onoff').toggleClass('uk-hidden');
-    if ($(this).is(':checked')) {
-        $('.field-chatbots-run').find('input:checkbox').prop('checked', true).attr('disabled',true);
-    }else{
+    document.getElementById('sw-cookie-save').addEventListener('click', function() {
+        saveAndHide();
+    });
 
-        $('.field-chatbots-run').find('input:checkbox').attr('disabled',false);
+    function saveAndHide() {
+        var consent = {
+            required: true,
+            metrika: document.getElementById('sw-cookie-metrika').checked,
+            date: new Date().toISOString()
+        };
+        localStorage.setItem('sw-cookie-consent', JSON.stringify(consent));
+        banner.style.display = 'none';
+
+        if (consent.metrika) {
+            (function(m,e,t,r,i,k,a){
+                m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+                m[i].l=1*new Date();
+                k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+            })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109693340', 'ym');
+
+            ym(109693340, 'init', {
+                clickmap:true,
+                trackLinks:true,
+                accurateTrackBounce:true,
+                webvisor:true
+            });
+        }
     }
-
-});
-
-$(document).on('click', 'input.is_first:checkbox', function () {
-    if ($(this).is(':checked')) {
-        $('input.is_first:checkbox').not(this).prop('checked', false);
-
-    }
-
-});*/
-
-
-
-
-
-
-
-
+})();
