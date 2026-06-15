@@ -75,4 +75,9 @@ class UserLoginForm extends Model
             $this->remember ? 3600 * 24 * 30 : 0);
 
     }
+
+    public function getUser(): ?Users
+    {
+        return $this->userRecord;
+    }
 }
