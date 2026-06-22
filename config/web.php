@@ -27,6 +27,10 @@ $url_rules = [
         'pattern' => '/confirm-email',
         'route' => 'site/confirm-email',
     ],
+    [
+        'pattern' => '/site/yandex-mobile-callback',
+        'route' => 'site/yandex-mobile-callback',
+    ],
 
     [
         'pattern' => '/logout',
@@ -76,6 +80,14 @@ $url_rules = [
     [
         'pattern' => '/manager/support/conversation',
         'route' => 'manager-support/conversation',
+    ],
+    [
+        'pattern' => '/manager/support/conversation-close',
+        'route' => 'manager-support/conversation-close',
+    ],
+    [
+        'pattern' => '/manager/support/conversation-delete',
+        'route' => 'manager-support/conversation-delete',
     ],
     [
         'pattern' => '/manager/support/reply',
@@ -183,6 +195,18 @@ $url_rules = [
         'route' => 'api/support/messages',
     ],
     [
+        'pattern' => '/api/support/conversation/close',
+        'route' => 'api/support/close-conversation',
+    ],
+    [
+        'pattern' => '/api/support/conversation/verify',
+        'route' => 'api/support/verify-conversation',
+    ],
+    [
+        'pattern' => '/api/support/conversation/activity',
+        'route' => 'api/support/activity',
+    ],
+    [
         'pattern' => '/api/report/usage',
         'route' => 'api/report/usage',
     ],
@@ -201,6 +225,7 @@ $url_rules = [
         'pattern' => '/systems',
     ],
     'POST api/auth/login' => 'api/auth/login',
+    'POST api/auth/yandex-url' => 'api/auth/yandex-url',
     'POST api/auth/yandex' => 'api/auth/yandex',
     'GET api/support/manager/conversations' => 'api/support-manager/conversations',
     'GET api/support/manager/messages' => 'api/support-manager/messages',
@@ -209,16 +234,7 @@ $url_rules = [
 ];
 
 
-$authClients = [
-    'rsaa' => [
-        'class' => 'app\Infrastructure\Auth\RsaaAuthClient',
-        'clientId' => $_ENV['RSAA_CLIENT'],
-        'clientSecret' => $_ENV['RSAA_SECRET'],
-        'authUrl' => $_ENV['RSAA_AUTH_URL'],
-        'tokenUrl' => $_ENV['RSAA_TOKEN_URL'],
-        'validateAuthState' => false
-    ],
-];
+$authClients = [];
 
 if (!empty($_ENV['YANDEX_OAUTH_CLIENT_ID'] ?? '') && !empty($_ENV['YANDEX_OAUTH_CLIENT_SECRET'] ?? '')) {
     $authClients['yandex'] = [

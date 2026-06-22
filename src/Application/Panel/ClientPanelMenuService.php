@@ -17,7 +17,6 @@ final class ClientPanelMenuService
             'manager/params' => 'Параметры',
             'manager/designe' => 'Оформление',
             'manager/roles' => 'Роли',
-            'manager/statistics' => 'Отчеты и аналитические панели',
         ];
     }
 

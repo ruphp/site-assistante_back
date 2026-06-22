@@ -21,6 +21,25 @@ $waitingColors = [
     'red' => '#e03131',
     'none' => '#adb5bd',
 ];
+
+$visitorLabel = static function (array $conversation): string {
+    $name = trim((string)($conversation['visitor_name'] ?? ''));
+    if ($name !== '') {
+        return $name;
+    }
+
+    $email = trim((string)($conversation['visitor_email'] ?? ''));
+    if ($email !== '') {
+        return $email;
+    }
+
+    $visitorId = trim((string)($conversation['visitor_id'] ?? ''));
+    if (str_starts_with($visitorId, 'email:')) {
+        return substr($visitorId, 6);
+    }
+
+    return $visitorId;
+};
 ?>
 
 <div class="uk-container uk-position-relative">
@@ -52,6 +71,7 @@ $waitingColors = [
             <tr>
                 <th>ID</th>
                 <th>Посетитель</th>
+                <th>Кнопка</th>
                 <th>Страница</th>
                 <th>Приоритет</th>
                 <th>Ожидание</th>
@@ -64,10 +84,20 @@ $waitingColors = [
                 <tr>
                     <td><?= Html::encode((string)$conversation['id']) ?></td>
                     <td>
-                        <?= Html::encode((string)($conversation['visitor_email'] ?: $conversation['visitor_id'])) ?>
-                        <?php if ($conversation['visitor_email']): ?>
-                            <div class="uk-text-meta"><?= Html::encode((string)$conversation['visitor_id']) ?></div>
+                        <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <?= Html::encode($visitorLabel($conversation)) ?>
+                        </div>
+                    </td>
+                    <td>
+                        <?php $entryPointTitle = trim((string)($conversation['entry_point_title'] ?? '')); ?>
+                        <?php if ($entryPointTitle !== ''): ?>
+                            <div><?= Html::encode($entryPointTitle) ?></div>
+                        <?php else: ?>
+                            <span class="uk-text-muted">-</span>
                         <?php endif; ?>
+                        <div class="uk-text-meta">
+                            <?= Html::encode('Приоритет ' . (string)($conversation['priority'] ?? 0)) ?>
+                        </div>
                     </td>
                     <td>
                         <?php if ($conversation['page_url']): ?>

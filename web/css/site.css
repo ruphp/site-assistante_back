@@ -87,6 +87,106 @@ p.uk-text-primary {
     background-color: #36938f !important;
 }
 
+.auth-page {
+    padding-top: 48px;
+    padding-bottom: 48px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 560px;
+    border: 1px solid #DEE2ED;
+    border-radius: 8px;
+    box-shadow: 0 12px 28px rgba(43, 36, 92, 0.08);
+    background: #fff;
+}
+
+.auth-title {
+    margin: 0 0 24px;
+    font-size: 24px;
+    line-height: 30px;
+    font-family: GothaProMed;
+    color: #2B245C;
+}
+
+.auth-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.auth-button {
+    height: 42px;
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 2px;
+    font-family: GothaProMed;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    vertical-align: middle;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.auth-page .uk-button-primary.auth-button {
+    background: #2563EB !important;
+    color: #fff !important;
+    border: 1px solid #2563EB !important;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.16);
+}
+
+.auth-page .uk-button-primary.auth-button:hover,
+.auth-page .uk-button-primary.auth-button:focus {
+    background: #3D8AF5 !important;
+    border-color: #3D8AF5 !important;
+    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.24);
+}
+
+.auth-button-secondary {
+    background: #FAFAFF !important;
+    border-color: #DEE2ED !important;
+    color: #2B245C !important;
+    border-radius: 2px;
+}
+
+.auth-button-secondary:hover,
+.auth-button-secondary:focus {
+    background: #F3F6FF !important;
+    border-color: #2563EB !important;
+    color: #2B245C !important;
+}
+
+.auth-divider {
+    margin: 24px 0 16px;
+    border-color: #E7E8F0;
+}
+
+.auth-socials {
+    margin-top: 0;
+}
+
+.auth-footer {
+    margin-top: 14px;
+}
+
+.auth-link {
+    color: #2B245C;
+    font-family: GothaProMed;
+    text-decoration: none;
+}
+
+.auth-link:hover,
+.auth-link:focus {
+    color: #2563EB;
+    text-decoration: underline;
+}
+
 .uk-tab > .uk-active > a {
     border-color: #97C69C !important;
 }
@@ -358,8 +458,8 @@ ul.ticket-messages-list {
 }
 
 .sw-header__mark {
-    width: 69px;
-    height: 69px;
+    width: 46px;
+    height: 46px;
     display: block;
     flex-shrink: 0;
 }

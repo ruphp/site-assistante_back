@@ -34,9 +34,44 @@ class SiteController extends SmartiusController
                 'class'           => 'yii\authclient\AuthAction',
                 'successCallback' => [$this, 'onAuthSuccess'],
                 'cancelCallback' => [$this, 'onAuthError'],
-                'defaultClientId' => 'rsaa',
             ],
         ];
+    }
+
+    public function actionYandexMobileCallback(): string
+    {
+        $code = (string)Yii::$app->request->get('code', '');
+        $state = (string)Yii::$app->request->get('state', '');
+
+        $scheme = 'sitewidget://oauth';
+        $query = http_build_query(array_filter([
+            'code' => $code !== '' ? $code : null,
+            'state' => $state !== '' ? $state : null,
+        ], static fn($value) => $value !== null && $value !== ''));
+
+        $target = $scheme . ($query !== '' ? ('?' . $query) : '');
+        $escaped = htmlspecialchars($target, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+        return <<<HTML
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SiteWidget</title>
+  <script>
+    window.location.replace("{$escaped}");
+    setTimeout(function () {
+      window.location.href = "{$escaped}";
+    }, 250);
+  </script>
+</head>
+<body>
+  <p>Возврат в приложение...</p>
+  <p><a href="{$escaped}">Открыть SiteWidget</a></p>
+</body>
+</html>
+HTML;
     }
 
 
@@ -49,23 +84,7 @@ class SiteController extends SmartiusController
 
     public function onAuthSuccess($client)
     {
-        if ($client->getId() !== 'rsaa') {
-            return $this->onExternalAuthSuccess($client);
-        }
-
-        if (!is_null($client->roles)) {
-            $roles = explode(',', $client->roles);
-            $role = $roles[0] ?? 'no_oauth';
-
-            $userIdentity = UserIdentity::findIdentityByAccessToken($role);
-
-            if (!is_null($userIdentity)) { // добавляем внешний сервис аутентификации
-                Yii::$app->user->login($userIdentity);
-                return $this->redirect('/');
-            }
-        }
-        Yii::$app->getSession()->setFlash('warning', 'Пользователь не имеет доступа к системе.  Запросите доступ к системе ЦИПП (cipp), выбрав нужную роль. <a target="_blank" href="'.$_ENV['RSAA_LK_HOST'].'">Личный кабинет РСАА</a>');
-        return $this->redirect('/logout');
+        return $this->onExternalAuthSuccess($client);
     }
 
     /**
@@ -152,7 +171,7 @@ class SiteController extends SmartiusController
             return $this->actionLoginPost();
         $userLoginForm = new UserLoginForm();
 
-        // Разлогиниваем, если пользователь уже вошёл
+        // Р Р°Р·Р»РѕРіРёРЅРёРІР°РµРј, РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓР¶Рµ РІРѕС€С‘Р»
         if (!Yii::$app->user->isGuest) {
             Yii::$app->user->logout();
         }
@@ -166,11 +185,6 @@ class SiteController extends SmartiusController
             }
             Yii::$app->user->logout();
         }
-/*        if ($_ENV['TYPE_DEPLOYED'] == 'MIRS') {
-            $urlencode = urlencode($_ENV['RSAA_REDIRECT_URI']);
-            $href = "{$_ENV['RSAA_AUTH_URL']}?client_id={$_ENV['RSAA_CLIENT']}&scope=openid&response_type=code&redirect_uri=$urlencode";
-            return $this->redirect($href);
-        }*/
         return $this->render('login', compact('userLoginForm'));
     }
 
@@ -286,7 +300,7 @@ class SiteController extends SmartiusController
 
         if ($userRecord->confirmEmail()) {
             $this->assignManagerRole($userRecord);
-            Yii::$app->session->setFlash('success', 'Email подтвержден. Теперь можно войти в панель.', false);
+            Yii::$app->session->setFlash('success', 'Email подтверждён. Теперь можно войти в панель.', false);
 
             return $this->redirect('/login');
         }
@@ -367,10 +381,6 @@ class SiteController extends SmartiusController
 
         if (!Yii::$app->user->isGuest) {
             Yii::$app->user->logout();
-            if ($_ENV['TYPE_AUTH'] == 'RSAA') {
-                return $this->redirect($_ENV['RSAA_LOGOUT_URL'] . '?redirect_uri='.$_ENV['RSAA_LOGOUT_REDIRECT_URL']);
-
-            }
         }
         return $this->redirect('/');
     }
@@ -387,3 +397,4 @@ class SiteController extends SmartiusController
     }
 
 }
+

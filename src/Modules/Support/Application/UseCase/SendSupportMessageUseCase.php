@@ -57,6 +57,7 @@ final class SendSupportMessageUseCase implements SendSupportMessageUseCaseInterf
             $request->context->resolvedVisitorId(),
             $body,
         );
+        $this->conversations->markVisitorActivity($request->publicKey, $request->conversationId);
         $this->usage->incrementMessages($request->publicKey, $month);
         $this->managerNotifier->notifyVisitorMessage($conversation, $message);
         $this->realtimePublisher->publishMessage($conversation, $message);

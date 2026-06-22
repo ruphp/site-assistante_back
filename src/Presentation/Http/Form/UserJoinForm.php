@@ -1,9 +1,9 @@
 <?php
 /**
- * User  - юзер (кто)
- * Join - регистрация (какой процесс)
- * Form - форма (к чему относится)
- * создаем модель для формы
+ * User - пользователь
+ * Join - регистрация
+ * Form - форма
+ * Модель формы регистрации
  */
 
 namespace app\Presentation\Http\Form;
@@ -12,10 +12,9 @@ use app\Infrastructure\YiiActiveRecord\Users;
 use yii\base\Model;
 
 /**
- *
  * @property mixed $userRecord
  */
-class UserJoinForm extends Model // создаем список параметров, потом получаем эти параметры в контроллере
+class UserJoinForm extends Model
 {
     public $name;
     public $email;
@@ -23,13 +22,13 @@ class UserJoinForm extends Model // создаем список параметр
     public $public_key = 0;
     public $password;
     public $password2;
-    public $subject_user_join = 'Cпасибо за регистрацию на sitewidget.ru!';
+    public $subject_user_join = 'Спасибо за регистрацию на sitewidget.ru!';
     public $subject_admin_join = 'Регистрация на сайте';
     public $body_user_join = 'Вы успешно зарегистрировались на сайте SiteWidget';
     public $body_admin_join = 'На сайте SiteWidget успешно зарегистрировался новый пользователь';
 
     public function rules()
-    { // механизм валидации
+    {
         return [
             ['name', 'required', 'message' => 'Укажите имя'],
             ['firm', 'required', 'message' => 'Укажите Вашу компанию'],
@@ -45,33 +44,25 @@ class UserJoinForm extends Model // создаем список параметр
         ];
     }
 
-    public function setUsers(?Users $userRecord = null)
+    public function setUsers(?Users $userRecord = null): void
     {
-        //$userRecord->setTestUser();
         $this->name = '';
         $this->email = '';
-        $this->password = $this->password2 = ''; // зададим всем пользователям один пароль
+        $this->password = $this->password2 = '';
     }
 
-    public function errorIfEmailUsed()
+    public function errorIfEmailUsed(): void
     {
         if (Users::existsEmail($this->email)) {
             $this->addErrors(['email' => 'Этот email уже используется']);
         }
     }
 
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
-        if($_ENV['TYPE_AUTH'] == 'RSAA' ){
-            return [
-                'firm'         => 'Наименование ИС',
-                'name'         => 'Наименование ИС латиницей (имя клиента в РСАА)',
-            ];
-        }
         return [
-            'firm'         => 'Наименование организации',
-            'name'         => 'Короткое наименование организации латиницей',
+            'firm' => 'Наименование организации',
+            'name' => 'Короткое наименование организации латиницей',
         ];
-
     }
 }

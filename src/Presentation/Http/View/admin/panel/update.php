@@ -25,14 +25,7 @@ $this->title = 'Изменение данных клиента';
             ?>
             <?= $form->field($user, 'firm') ?>
             <?= $form->field($user, 'name') ?>
-            <?php
-            if ($_ENV['TYPE_AUTH'] == 'RSAA') {
-                echo $form->field($user, 'email')->hiddenInput()->label('');
-            } else {
-                echo $form->field($user, 'email')->label('Адрес электронной почты');
-            }
-            ?>
-            <?= $form->field($user, 'email')->hiddenInput()->label('') ?>
+            <?= $form->field($user, 'email')->label('Адрес электронной почты') ?>
 
             <?php
             if ($_ENV['TYPE_DEPLOYED'] == 'MIRS') {
@@ -43,13 +36,7 @@ $this->title = 'Изменение данных клиента';
             ?>
 
             <?= $form->field($user, 'status')->checkbox(['label' => 'Доступность контента']); ?>
-            <?php
-            if ($_ENV['TYPE_AUTH'] == 'RSAA') {
-                $form->field($user, 'change_password')->checkbox(['label' => '', 'class' => ' uk-hidden']);
-            } else {
-                echo $form->field($user, 'change_password')->checkbox(['label' => 'Cменить пароль']);
-            }
-            ?>
+            <?= $form->field($user, 'change_password')->checkbox(['label' => 'Cменить пароль']); ?>
 
             <h4>Разрешить использование модулей</h4>
             <?php

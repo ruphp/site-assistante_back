@@ -152,6 +152,10 @@ final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
             $lines[] = 'Email посетителя: ' . $conversation->visitorEmail;
         }
 
+        if ($conversation->visitorName !== null && trim($conversation->visitorName) !== '') {
+            $lines[] = 'Имя посетителя: ' . $conversation->visitorName;
+        }
+
         if ($conversation->pageUrl !== null && trim($conversation->pageUrl) !== '') {
             $lines[] = 'Страница: ' . $conversation->pageUrl;
         }

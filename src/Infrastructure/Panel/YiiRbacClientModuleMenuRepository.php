@@ -31,7 +31,6 @@ final class YiiRbacClientModuleMenuRepository implements ClientModuleMenuReposit
                 $menus[] = [
                     '#' => [
                         'Онлайн-поддержка',
-                        'manager/support/conversations' => 'Диалоги',
                         'manager/support/entry-points' => 'Кнопки обращений',
                         'manager/support' => 'Настройки',
                     ],

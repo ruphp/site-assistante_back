@@ -60,8 +60,21 @@ final class OperatorSupportUseCase
 
         $conversation = $this->assertConversationExists($publicKey, $conversationId);
         $message = $this->messages->addOperatorMessage($publicKey, $conversationId, $operatorId, $body);
+        $this->conversations->markOperatorReply($publicKey, $conversationId);
         $this->replyNotifier->notifyOperatorReply($conversation, $message);
         $this->realtimePublisher->publishMessage($conversation, $message);
+    }
+
+    public function closeConversation(int $publicKey, int $conversationId): void
+    {
+        $this->assertConversationExists($publicKey, $conversationId);
+        $this->conversations->closeForClient($publicKey, $conversationId);
+    }
+
+    public function deleteConversation(int $publicKey, int $conversationId): void
+    {
+        $this->assertConversationExists($publicKey, $conversationId);
+        $this->conversations->deleteForClient($publicKey, $conversationId);
     }
 
     private function assertConversationExists(int $publicKey, int $conversationId): SupportConversation

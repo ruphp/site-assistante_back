@@ -12,7 +12,21 @@ interface SupportConversationRepositoryInterface
 
     public function getOpenForVisitor(int $publicKey, int $conversationId, string $visitorId): ?SupportConversation;
 
+    public function findOpenByEmail(int $publicKey, string $visitorEmail): ?SupportConversation;
+
     public function getForClient(int $publicKey, int $conversationId): ?SupportConversation;
+
+    public function markVisitorActivity(int $publicKey, int $conversationId): bool;
+
+    public function markOperatorReply(int $publicKey, int $conversationId): bool;
+
+    public function markOperatorSeen(int $publicKey, int $conversationId): bool;
+
+    public function closeExpiredAfterOperatorSeen(int $timeoutSeconds): int;
+
+    public function closeForClient(int $publicKey, int $conversationId): bool;
+
+    public function deleteForClient(int $publicKey, int $conversationId): bool;
 
     /**
      * @return SupportConversation[]

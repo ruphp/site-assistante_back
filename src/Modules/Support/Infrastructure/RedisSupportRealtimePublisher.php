@@ -22,6 +22,8 @@ final class RedisSupportRealtimePublisher implements SupportRealtimePublisherInt
                     'publicKey' => $conversation->publicKey,
                     'conversationId' => $conversation->id,
                     'visitorId' => $conversation->visitorId,
+                    'visitorName' => $conversation->visitorName,
+                    'visitorEmail' => $conversation->visitorEmail,
                     'message' => (new SupportMessageResponse($message))->toArray()['message'],
                 ], JSON_THROW_ON_ERROR),
             ]);

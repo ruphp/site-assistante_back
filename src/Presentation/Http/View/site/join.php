@@ -16,10 +16,10 @@ $this->registerMetaTag([
     'content' => 'SiteWidget регистрация пользователя, регистрация в SiteWidget',
 ]);
 ?>
-<div class="uk-container uk-container-xsmall">
-    <div>
-        <div class="uk-card uk-card-large uk-card-default uk-card-body">
-            <h2 class="bd-title">Регистрация</h2>
+<div class="auth-page uk-container uk-container-xsmall">
+    <div class="uk-flex uk-flex-center">
+        <div class="uk-card uk-card-default uk-card-body auth-card">
+            <h2 class="auth-title">Регистрация</h2>
             <?php
             app\Presentation\Yii\Asset\AppAsset::register($this);
             $form = ActiveForm::begin(['id' => 'user-join-form', 'classForm' => 'uk-form-stacked']); ?>
@@ -34,17 +34,18 @@ $this->registerMetaTag([
                     <div class="smart-captcha" data-sitekey="<?= Html::encode($captchaSiteKey) ?>"></div>
                 </div>
             <?php endif; ?>
-            <?= Html::submitButton('Создать',
-                ['class' => 'uk-button uk-button-primary']) ?>
+            <div class="auth-actions">
+                <?= Html::submitButton('Создать', ['class' => 'uk-button uk-button-primary auth-button']) ?>
+            </div>
             <?php ActiveForm::end(); ?>
             <?php if (isset($oauthClients['yandex']) || isset($oauthClients['vkontakte'])): ?>
-                <hr>
-                <div class="uk-grid-small" uk-grid>
+                <hr class="auth-divider">
+                <div class="uk-grid-small auth-socials" uk-grid>
                     <?php if (isset($oauthClients['yandex'])): ?>
-                        <div><?= Html::a('Создать через Яндекс ID', ['/site/auth', 'authclient' => 'yandex'], ['class' => 'uk-button uk-button-default']) ?></div>
+                        <div><?= Html::a('Создать через Яндекс ID', ['/site/auth', 'authclient' => 'yandex'], ['class' => 'uk-button uk-button-default auth-button auth-button-secondary']) ?></div>
                     <?php endif; ?>
                     <?php if (isset($oauthClients['vkontakte'])): ?>
-                        <div><?= Html::a('Создать через VK', ['/site/auth', 'authclient' => 'vkontakte'], ['class' => 'uk-button uk-button-default']) ?></div>
+                        <div><?= Html::a('Создать через VK', ['/site/auth', 'authclient' => 'vkontakte'], ['class' => 'uk-button uk-button-default auth-button auth-button-secondary']) ?></div>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>

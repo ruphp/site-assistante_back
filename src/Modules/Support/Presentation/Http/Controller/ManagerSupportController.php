@@ -125,6 +125,40 @@ final class ManagerSupportController extends ManagerController
         return $this->redirect(['/manager/support/conversation', 'id' => $conversationId]);
     }
 
+    public function actionConversationClose(): Response
+    {
+        $publicKey = Yii::$app->user->identity->getPublicKey();
+        $conversationId = (int)Yii::$app->request->post('id', Yii::$app->request->get('id'));
+
+        if ($conversationId > 0) {
+            try {
+                $this->operatorSupport->closeConversation($publicKey, $conversationId);
+                Yii::$app->session->setFlash('success', 'Диалог завершён');
+            } catch (\Throwable $exception) {
+                Yii::$app->session->setFlash('error', 'Не удалось завершить диалог');
+            }
+        }
+
+        return $this->redirect(['/manager/support/conversation', 'id' => $conversationId]);
+    }
+
+    public function actionConversationDelete(): Response
+    {
+        $publicKey = Yii::$app->user->identity->getPublicKey();
+        $conversationId = (int)Yii::$app->request->post('id', Yii::$app->request->get('id'));
+
+        if ($conversationId > 0) {
+            try {
+                $this->operatorSupport->deleteConversation($publicKey, $conversationId);
+                Yii::$app->session->setFlash('success', 'Диалог удалён');
+            } catch (\Throwable $exception) {
+                Yii::$app->session->setFlash('error', 'Не удалось удалить диалог');
+            }
+        }
+
+        return $this->redirect('/manager/support/conversations');
+    }
+
     public function actionWsToken(): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;

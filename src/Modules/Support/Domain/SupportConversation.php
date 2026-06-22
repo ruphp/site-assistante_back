@@ -11,12 +11,18 @@ final class SupportConversation
         public readonly ?int $id,
         public readonly int $publicKey,
         public readonly string $visitorId,
+        public readonly ?string $visitorName = null,
         public readonly ?string $visitorEmail = null,
         public readonly ?string $pageUrl = null,
         public readonly string $status = self::STATUS_OPEN,
+        public readonly ?string $createdAt = null,
         public readonly ?string $lastMessageAt = null,
         public readonly ?string $lastSenderType = null,
+        public readonly ?string $operatorRepliedAt = null,
+        public readonly ?string $operatorSeenAt = null,
+        public readonly ?string $lastVisitorActivityAt = null,
         public readonly ?int $entryPointId = null,
+        public readonly ?string $entryPointTitle = null,
         public readonly int $priority = 0,
     ) {
     }

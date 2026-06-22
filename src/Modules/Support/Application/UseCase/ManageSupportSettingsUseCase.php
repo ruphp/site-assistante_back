@@ -46,16 +46,15 @@ final class ManageSupportSettingsUseCase
             enabled: true,
             title: $this->text($data, 'title', 'Онлайн-поддержка'),
             welcomeMessage: $this->text($data, 'welcomeMessage', 'Здравствуйте! Напишите нам, мы поможем.'),
-            offlineMessage: $this->text($data, 'offlineMessage', 'Мы сейчас не онлайн, но ответим позже.'),
-            contactInfo: $this->text($data, 'contactInfo'),
+            offlineMessage: $this->text($data, 'offlineMessage', 'Сейчас операторы не в сети - но вы можете оставить сообщение, мы свяжемся с вами.'),
             timezone: $this->text($data, 'timezone', 'Asia/Yekaterinburg'),
             workingHours: $this->workingHoursLabel($schedule['work'], $schedule['holidays']),
             workSchedule: $schedule['work'],
             holidaySchedule: $schedule['holidays'],
-            askName: (bool)($data['askName'] ?? false),
-            askEmail: (bool)($data['askEmail'] ?? false),
-            askPhone: (bool)($data['askPhone'] ?? false),
-            requireEmailOffline: (bool)($data['requireEmailOffline'] ?? false),
+            keepWidgetOpenWhenOnline: (bool)($data['keepWidgetOpenWhenOnline'] ?? false),
+            askName: (bool)($data['askName'] ?? true),
+            askEmail: true,
+            askPhone: (bool)($data['askPhone'] ?? true),
             autoReply: $this->text($data, 'autoReply', 'Спасибо, мы получили сообщение.'),
             pollingIntervalSeconds: max(3, min(60, (int)($data['pollingIntervalSeconds'] ?? 5))),
             notifyEmail: (bool)($data['notifyEmail'] ?? false),
@@ -198,3 +197,4 @@ final class ManageSupportSettingsUseCase
         ];
     }
 }
+

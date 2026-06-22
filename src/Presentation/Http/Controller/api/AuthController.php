@@ -2,29 +2,55 @@
 
 namespace app\Presentation\Http\Controller\api;
 
-use Yii;
-use yii\rest\Controller;
-use yii\authclient\clients\Yandex;
-use app\Presentation\Http\Form\UserLoginForm;
 use app\Infrastructure\YiiActiveRecord\Users;
+use app\Presentation\Http\Form\UserLoginForm;
+use Yii;
+use yii\authclient\clients\Yandex;
+use yii\rest\Controller;
 
 class AuthController extends Controller
 {
-    public function actionLogin()
+    public function actionYandexUrl(): array
+    {
+        $body = $this->requestBody();
+        $redirectUri = trim((string)($body['redirectUri'] ?? ''));
+        if ($redirectUri === '') {
+            $redirectUri = Yii::$app->urlManager->createAbsoluteUrl(['/site/yandex-mobile-callback']);
+        }
+
+        $state = Yii::$app->security->generateRandomString(24);
+        Yii::$app->cache->set('yandex_oauth_state:' . $state, [
+            'redirectUri' => $redirectUri,
+        ], 600);
+
+        $query = http_build_query([
+            'response_type' => 'code',
+            'client_id' => $_ENV['YANDEX_OAUTH_CLIENT_ID'],
+            'redirect_uri' => $redirectUri,
+            'scope' => 'login:info login:email',
+            'force_confirm' => 'yes',
+            'state' => $state,
+        ]);
+
+        return [
+            'success' => true,
+            'authUrl' => 'https://oauth.yandex.ru/authorize?' . $query,
+            'redirectUri' => $redirectUri,
+            'state' => $state,
+        ];
+    }
+
+    public function actionLogin(): array
     {
         $form = new UserLoginForm();
         $form->load($this->requestBody(), '');
 
         if ($form->validate() && $form->getUser()) {
             $user = $form->getUser();
-            $token = Yii::$app->security->generateRandomString(64);
-
-            // Храним токен -> user_id в кэше на 30 дней
-            Yii::$app->cache->set('mobile_token:' . $token, $user->id, 86400 * 30);
 
             return [
                 'success' => true,
-                'token' => $token,
+                'token' => $this->issueMobileToken($user),
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -40,16 +66,32 @@ class AuthController extends Controller
         ];
     }
 
-    public function actionYandex()
+    public function actionYandex(): array
     {
         $body = $this->requestBody();
         $code = $body['code'] ?? null;
+        $redirectUri = trim((string)($body['redirectUri'] ?? ''));
+        $state = trim((string)($body['state'] ?? ''));
 
         if (!$code) {
             return ['success' => false, 'message' => 'Код не передан'];
         }
 
-        $redirectUri = Yii::$app->urlManager->createAbsoluteUrl(['/site/auth', 'authclient' => 'yandex']);
+        if ($redirectUri === '') {
+            $redirectUri = Yii::$app->urlManager->createAbsoluteUrl(['/site/yandex-mobile-callback']);
+        }
+
+        if ($state === '') {
+            return ['success' => false, 'message' => 'Не передано состояние авторизации'];
+        }
+
+        $stateData = Yii::$app->cache->get('yandex_oauth_state:' . $state);
+        if (!is_array($stateData) || (($stateData['redirectUri'] ?? null) !== $redirectUri)) {
+            return ['success' => false, 'message' => 'Неверное состояние авторизации'];
+        }
+
+        Yii::$app->cache->delete('yandex_oauth_state:' . $state);
+
         $client = new Yandex([
             'clientId' => $_ENV['YANDEX_OAUTH_CLIENT_ID'],
             'clientSecret' => $_ENV['YANDEX_OAUTH_CLIENT_SECRET'],
@@ -97,13 +139,15 @@ class AuthController extends Controller
             return ['success' => false, 'message' => 'Пользователь не найден'];
         }
 
-        $token = Yii::$app->security->generateRandomString(64);
-        Yii::$app->cache->set('mobile_token:' . $token, $user->id, 86400 * 30);
-
         return [
             'success' => true,
-            'token' => $token,
-            'user' => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email, 'public_key' => $user->public_key],
+            'token' => $this->issueMobileToken($user),
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'public_key' => $user->public_key,
+            ],
         ];
     }
 
@@ -117,5 +161,14 @@ class AuthController extends Controller
         }
 
         return Yii::$app->request->post();
+    }
+
+    private function issueMobileToken(Users $user): string
+    {
+        $token = Yii::$app->security->generateRandomString(64);
+        $user->mobile_auth_token = $token;
+        $user->save(false, ['mobile_auth_token']);
+
+        return $token;
     }
 }

@@ -9,6 +9,29 @@ use yii\helpers\Html;
  */
 
 $this->title = 'Диалог поддержки';
+
+$visitorLabel = static function (?array $conversation): string {
+    if ($conversation === null) {
+        return '';
+    }
+
+    $name = trim((string)($conversation['visitor_name'] ?? ''));
+    if ($name !== '') {
+        return $name;
+    }
+
+    $email = trim((string)($conversation['visitor_email'] ?? ''));
+    if ($email !== '') {
+        return $email;
+    }
+
+    $visitorId = trim((string)($conversation['visitor_id'] ?? ''));
+    if (str_starts_with($visitorId, 'email:')) {
+        return substr($visitorId, 6);
+    }
+
+    return $visitorId;
+};
 ?>
 
 <div class="uk-container uk-position-relative">
@@ -24,7 +47,7 @@ $this->title = 'Диалог поддержки';
         <div class="uk-alert-primary" uk-alert>
             <p>
                 Посетитель:
-                <?= Html::encode((string)($conversation['visitor_email'] ?: $conversation['visitor_id'])) ?>
+                <strong style="display:inline-block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;"><?= Html::encode($visitorLabel($conversation)) ?></strong>
             </p>
             <?php if ($conversation['page_url']): ?>
                 <p>
@@ -34,6 +57,13 @@ $this->title = 'Диалог поддержки';
                     </a>
                 </p>
             <?php endif; ?>
+            <p>
+                Кнопка:
+                <strong><?= Html::encode(trim((string)($conversation['entry_point_title'] ?? '')) ?: '—') ?></strong>
+            </p>
+            <p class="uk-text-meta">
+                Приоритет: <?= Html::encode((string)($conversation['priority'] ?? 0)) ?>
+            </p>
         </div>
     <?php endif; ?>
 
@@ -57,6 +87,24 @@ $this->title = 'Диалог поддержки';
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
+    </div>
+
+    <div class="uk-margin uk-flex uk-flex-gap-small">
+        <?= Html::beginForm(['/manager/support/conversation-close'], 'post', ['style' => 'display:inline']) ?>
+            <?= Html::hiddenInput('id', (string)$conversationId) ?>
+            <?= Html::submitButton('Завершить диалог', [
+                'class' => 'uk-button uk-button-default',
+                'onclick' => "return confirm('Завершить диалог?');",
+            ]) ?>
+        <?= Html::endForm() ?>
+
+        <?= Html::beginForm(['/manager/support/conversation-delete'], 'post', ['style' => 'display:inline']) ?>
+            <?= Html::hiddenInput('id', (string)$conversationId) ?>
+            <?= Html::submitButton('Удалить', [
+                'class' => 'uk-button uk-button-danger',
+                'onclick' => "return confirm('Удалить диалог и сообщения?');",
+            ]) ?>
+        <?= Html::endForm() ?>
     </div>
 
     <?= Html::beginForm('/manager/support/reply', 'post', ['class' => 'uk-form-stacked']) ?>

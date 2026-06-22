@@ -15,6 +15,7 @@ use yii\db\Exception;
  * @property int|null $public_key
  * @property int $status
  * @property string $passhash
+ * @property string|null $mobile_auth_token
  */
 class Users extends ActiveRecord
 {
@@ -195,13 +196,6 @@ class Users extends ActiveRecord
     }
     public function attributeLabels()
     {
-        if($_ENV['TYPE_AUTH'] == 'RSAA' ){
-            return [
-                'public_key'         => 'Порядковый номер ИС',
-                'firm'         => 'Наименование ИС',
-                'name'         => 'Наименование ИС латиницей (имя клиента в РСАА)',
-            ];
-        }
         return [
             'public_key'         => 'Идентификатор',
             'firm'         => 'Наименование организации',

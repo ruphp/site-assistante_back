@@ -51,7 +51,7 @@ if ($settings->timezone !== '' && !isset($timezones[$settings->timezone])) {
     </div>
 
     <div class="uk-margin">
-        <?= Html::label('Приветственное сообщение', 'support-welcome', ['class' => 'uk-form-label']) ?>
+        <?= Html::label('Приветственное сообщение при онлайне', 'support-welcome', ['class' => 'uk-form-label']) ?>
         <?= Html::textarea('SupportSettings[welcomeMessage]', $settings->welcomeMessage, [
             'id' => 'support-welcome',
             'class' => 'uk-textarea',
@@ -60,7 +60,7 @@ if ($settings->timezone !== '' && !isset($timezones[$settings->timezone])) {
     </div>
 
     <div class="uk-margin">
-        <?= Html::label('Сообщение, когда операторов нет онлайн', 'support-offline', ['class' => 'uk-form-label']) ?>
+        <?= Html::label('Приветственное сообщение при офлайне', 'support-offline', ['class' => 'uk-form-label']) ?>
         <?= Html::textarea('SupportSettings[offlineMessage]', $settings->offlineMessage, [
             'id' => 'support-offline',
             'class' => 'uk-textarea',
@@ -69,12 +69,11 @@ if ($settings->timezone !== '' && !isset($timezones[$settings->timezone])) {
     </div>
 
     <div class="uk-margin">
-        <?= Html::label('Контакты или общая информация', 'support-contact-info', ['class' => 'uk-form-label']) ?>
-        <?= Html::textarea('SupportSettings[contactInfo]', $settings->contactInfo, [
-            'id' => 'support-contact-info',
-            'class' => 'uk-textarea',
-            'rows' => 5,
-        ]) ?>
+        <label class="uk-display-block">
+            <?= Html::hiddenInput('SupportSettings[keepWidgetOpenWhenOnline]', '0') ?>
+            <?= Html::checkbox('SupportSettings[keepWidgetOpenWhenOnline]', $settings->keepWidgetOpenWhenOnline, ['value' => '1']) ?>
+            Когда операторы онлайн, держать виджет открытым
+        </label>
     </div>
 
     <div class="uk-grid-small" uk-grid>
@@ -203,37 +202,18 @@ if ($settings->timezone !== '' && !isset($timezones[$settings->timezone])) {
     <div class="uk-margin">
         <div class="uk-form-label">Данные посетителя</div>
         <div class="uk-text-meta uk-margin-small-bottom">
-            Эти поля спрашиваются всплывашкой при старте диалога только если сайт не передал их в коде подключения.
+            Имя, email и телефон запрашиваются всегда. Email обязателен, обязательность имени и телефона можно настроить.
         </div>
         <label class="uk-display-block">
             <?= Html::hiddenInput('SupportSettings[askName]', '0') ?>
             <?= Html::checkbox('SupportSettings[askName]', $settings->askName, ['value' => '1']) ?>
-            Запрашивать имя, если не передано сайтом
+            Имя обязательно
         </label>
-        <label class="uk-display-block">
-            <?= Html::hiddenInput('SupportSettings[askEmail]', '0') ?>
-            <?= Html::checkbox('SupportSettings[askEmail]', $settings->askEmail, ['value' => '1']) ?>
-            Запрашивать email, если не передан сайтом
-        </label>
-        <label class="uk-display-block">
+        <label class="uk-display-block uk-margin-small-top">
             <?= Html::hiddenInput('SupportSettings[askPhone]', '0') ?>
             <?= Html::checkbox('SupportSettings[askPhone]', $settings->askPhone, ['value' => '1']) ?>
-            Запрашивать телефон, если не передан сайтом
+            Телефон обязательно
         </label>
-        <label class="uk-display-block">
-            <?= Html::hiddenInput('SupportSettings[requireEmailOffline]', '0') ?>
-            <?= Html::checkbox('SupportSettings[requireEmailOffline]', $settings->requireEmailOffline, ['value' => '1']) ?>
-            Email обязателен, когда операторов нет онлайн
-        </label>
-    </div>
-
-    <div class="uk-margin">
-        <?= Html::label('Автоответ после первого сообщения', 'support-auto-reply', ['class' => 'uk-form-label']) ?>
-        <?= Html::textarea('SupportSettings[autoReply]', $settings->autoReply, [
-            'id' => 'support-auto-reply',
-            'class' => 'uk-textarea',
-            'rows' => 3,
-        ]) ?>
     </div>
 
     <div class="uk-margin">
@@ -471,3 +451,4 @@ $this->registerJs(<<<'JS'
 })();
 JS, \yii\web\View::POS_READY);
 ?>
+

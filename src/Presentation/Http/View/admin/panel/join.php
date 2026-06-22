@@ -20,23 +20,10 @@ $this->title = 'Создание нового клиента';
             ?>
             <?= $form->field($userJoinForm, 'firm')?>
             <?= $form->field($userJoinForm, 'name')?>
-
-            <?php
-
-            if($_ENV['TYPE_AUTH'] == 'RSAA' ) {
-                echo $form->field($userJoinForm, 'email')->hiddenInput(['value'=> strtolower(substr(md5(time()),0,10))."@local.local"])->label('');
-                echo $form->field($userJoinForm, 'password')->hiddenInput(['value'=> 12345])->label('');
-                echo $form->field($userJoinForm, 'password2')->hiddenInput(['value'=> 12345])->label('');
-            }else{
-                echo $form->field($userJoinForm, 'email')->label('Адрес электронной почты');
-                echo $form->field($userJoinForm, 'password')->passwordInput()->label('Пароль');
-                echo $form->field($userJoinForm, 'password2')->passwordInput()->label('Повторите пароль');
-            }
-
-
-
-
-            echo Html::submitButton('Создать',['class' => 'uk-button uk-button-primary']) ?>
+            <?= $form->field($userJoinForm, 'email')->label('Адрес электронной почты') ?>
+            <?= $form->field($userJoinForm, 'password')->passwordInput()->label('Пароль') ?>
+            <?= $form->field($userJoinForm, 'password2')->passwordInput()->label('Повторите пароль') ?>
+            <?= Html::submitButton('Создать',['class' => 'uk-button uk-button-primary']) ?>
             <?php ActiveForm::end(); ?>
         </div>
     </div>
