@@ -29,6 +29,7 @@ final class SupportWidgetStateResponse
             'work_schedule' => $this->settings->normalizedWorkSchedule(),
             'holiday_schedule' => $this->settings->holidaySchedule,
             'keep_widget_open_when_online' => $this->settings->keepWidgetOpenWhenOnline,
+            'auto_open_snooze_minutes' => $this->settings->autoOpenSnoozeMinutes,
             'visitor_form' => [
                 'ask_name' => $this->settings->askName,
                 'ask_email' => $this->settings->askEmail,

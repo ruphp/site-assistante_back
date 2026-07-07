@@ -4,6 +4,7 @@ namespace app\Infrastructure\Client;
 
 use app\Application\Client\Contract\ClientModuleAccessRepositoryInterface;
 use app\Domain\Client\ClientModuleAccess;
+use app\Modules\Support\Domain\SupportModule;
 use Yii;
 
 final class YiiRbacClientModuleAccessRepository implements ClientModuleAccessRepositoryInterface
@@ -13,6 +14,7 @@ final class YiiRbacClientModuleAccessRepository implements ClientModuleAccessRep
         $auth = Yii::$app->authManager;
         $availableModules = array_keys($auth->getPermissionsByRole('accesses_modules'));
         $clientPermissions = array_keys($auth->getPermissionsByUser($publicKey));
+        $clientPermissions[] = SupportModule::NAME;
 
         return new ClientModuleAccess(array_values(array_intersect($availableModules, $clientPermissions)));
     }

@@ -51,13 +51,14 @@ final class ManageSupportEntryPointsUseCase
             throw new \InvalidArgumentException('Укажите название кнопки');
         }
 
+        $description = trim((string)($data['description'] ?? ''));
         $rankLimit = min($limit->entryPointRankLimit(), max(1, $entryPointCount + ($isNew ? 1 : 0)));
 
         return $this->entryPoints->save(new SupportEntryPoint(
             id: $isNew ? null : $id,
             publicKey: $publicKey,
             title: mb_substr($title, 0, 255),
-            description: '',
+            description: mb_substr($description, 0, 2000),
             priority: max(1, min($rankLimit, (int)($data['priority'] ?? 1))),
             enabled: (bool)($data['enabled'] ?? false),
             sortOrder: max(1, min($rankLimit, (int)($data['sortOrder'] ?? 1))),

@@ -11,7 +11,7 @@ $pk = (int)$_REQUEST['pk'] ?? 0;
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => {
-            window.Smartius = {
+            window.SiteWidget = {
                 testchatbot: <?=$id?>,
                 apiUrl: '<?=$_SERVER['SERVER_ADDR']?>/api',
                 staticUrl: '<?=$_ENV['DOMAININFOSTATICWIDGET']?>',

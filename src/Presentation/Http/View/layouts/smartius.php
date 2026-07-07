@@ -177,7 +177,7 @@ $this->beginPage();
 
     <?php if ((bool)$_ENV['ISADMINSCRIPT']): ?>
         <script type="text/javascript">
-            window.Smartius = {
+            window.SiteWidget = {
                 apiUrl: '<?= $_ENV['DOMAINAPIWIDGET'] . '/api' ?>',
                 staticUrl: '<?= $_ENV['DOMAINSTATICWIDGET'] ?>',
                 customUrl: '<?= $_ENV['DOMAINCUSTOMWIDGET'] ?>',

@@ -15,6 +15,7 @@ final class AssistantConfigurationResponse
         public readonly mixed $zeroLogDelay,
         public readonly mixed $urlSmguideTp,
         public readonly array $modules,
+        public readonly int $autoOpenSnoozeMinutes = 0,
     ) {
     }
 
@@ -34,6 +35,7 @@ final class AssistantConfigurationResponse
             $this->zeroLogDelay,
             $this->urlSmguideTp,
             $this->modules,
+            $this->autoOpenSnoozeMinutes,
         );
     }
 
@@ -50,6 +52,7 @@ final class AssistantConfigurationResponse
             'zero_log_delay' => $this->zeroLogDelay,
             'url_smguide_tp' => $this->urlSmguideTp,
             'modules' => $this->modules,
+            'auto_open_snooze_minutes' => $this->autoOpenSnoozeMinutes,
         ];
     }
 }

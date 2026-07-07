@@ -33,7 +33,7 @@ textarea{
 }
 
 .logo-text {
-    color: #456085 !important;
+    color: var(--sw-base) !important;
     font-size: 23px !important;
 }
 
@@ -43,7 +43,7 @@ textarea{
 
 .big-text {
     font-size: 64pt !important;
-    color: #456085 !important;
+    color: var(--sw-base) !important;
 
 }
 
@@ -73,18 +73,18 @@ a {
 }
 
 .uk-button-primary {
-
-    background-color: #97C69C !important;
+    background-color: var(--sw-primary) !important;
+    border-color: var(--sw-primary) !important;
+    color: #fff !important;
 }
 
 p.uk-text-primary {
-
-    color: #97C69C !important;
+    color: var(--sw-primary) !important;
 }
 
 .uk-button-primary:hover, .uk-button-primary:focus {
-
-    background-color: #36938f !important;
+    background-color: var(--sw-base) !important;
+    border-color: var(--sw-base) !important;
 }
 
 .auth-page {
@@ -95,10 +95,10 @@ p.uk-text-primary {
 .auth-card {
     width: 100%;
     max-width: 560px;
-    border: 1px solid #DEE2ED;
-    border-radius: 8px;
-    box-shadow: 0 12px 28px rgba(43, 36, 92, 0.08);
-    background: #fff;
+    border: 1px solid var(--sw-line);
+    border-radius: 4px;
+    box-shadow: 0 10px 20px rgba(43, 36, 92, 0.06);
+    background: var(--sw-surface);
 }
 
 .auth-title {
@@ -106,7 +106,7 @@ p.uk-text-primary {
     font-size: 24px;
     line-height: 30px;
     font-family: GothaProMed;
-    color: #2B245C;
+    color: var(--sw-base);
 }
 
 .auth-actions {
@@ -120,7 +120,7 @@ p.uk-text-primary {
     height: 42px;
     min-height: 42px;
     padding: 0 18px;
-    border-radius: 2px;
+    border-radius: 0;
     font-family: GothaProMed;
     line-height: 1;
     display: inline-flex;
@@ -135,36 +135,36 @@ p.uk-text-primary {
 }
 
 .auth-page .uk-button-primary.auth-button {
-    background: #2563EB !important;
+    background: var(--sw-primary) !important;
     color: #fff !important;
-    border: 1px solid #2563EB !important;
-    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.16);
+    border: 1px solid var(--sw-primary) !important;
+    box-shadow: none;
 }
 
 .auth-page .uk-button-primary.auth-button:hover,
 .auth-page .uk-button-primary.auth-button:focus {
-    background: #3D8AF5 !important;
-    border-color: #3D8AF5 !important;
-    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.24);
+    background: var(--sw-base) !important;
+    border-color: var(--sw-base) !important;
+    box-shadow: none;
 }
 
 .auth-button-secondary {
-    background: #FAFAFF !important;
-    border-color: #DEE2ED !important;
-    color: #2B245C !important;
-    border-radius: 2px;
+    background: var(--sw-surface) !important;
+    border-color: var(--sw-line) !important;
+    color: var(--sw-base) !important;
+    border-radius: 0;
 }
 
 .auth-button-secondary:hover,
 .auth-button-secondary:focus {
-    background: #F3F6FF !important;
-    border-color: #2563EB !important;
-    color: #2B245C !important;
+    background: #fff !important;
+    border-color: var(--sw-primary) !important;
+    color: var(--sw-base) !important;
 }
 
 .auth-divider {
     margin: 24px 0 16px;
-    border-color: #E7E8F0;
+    border-color: var(--sw-line);
 }
 
 .auth-socials {
@@ -176,34 +176,34 @@ p.uk-text-primary {
 }
 
 .auth-link {
-    color: #2B245C;
+    color: var(--sw-base);
     font-family: GothaProMed;
     text-decoration: none;
 }
 
 .auth-link:hover,
 .auth-link:focus {
-    color: #2563EB;
+    color: var(--sw-primary);
     text-decoration: underline;
 }
 
 .uk-tab > .uk-active > a {
-    border-color: #97C69C !important;
+    border-color: var(--sw-primary) !important;
 }
 
 .uk-section-primary {
-    background: #456085 !important;
+    background: var(--sw-base) !important;
 }
 
 .card-border-light {
 
-    border: 2px #44d4d0 solid;
+    border: 2px solid var(--sw-lavender);
 
 }
 
 .card-light {
 
-    background-color: #d7f5f4;
+    background-color: var(--sw-surface);
 
 }
 
@@ -217,7 +217,7 @@ p.uk-text-primary {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: #44d4d0;
+    background: var(--sw-primary);
 }
 
 .smg-ticket-open {
@@ -416,6 +416,14 @@ ul.ticket-messages-list {
 .sw-header.is-sticky .sw-header__login {
     background: var(--sw-primary);
     border-color: var(--sw-primary);
+    transition: background .15s, border-color .15s, box-shadow .15s, color .15s;
+}
+
+.sw-header.is-sticky .sw-header__login:hover,
+.sw-header.is-sticky .sw-header__login:focus {
+    background: var(--sw-primary);
+    border-color: #fff;
+    box-shadow: 0 0 0 1px #fff inset;
 }
 
 .sw-header.is-sticky .sw-header__logout {
@@ -455,6 +463,13 @@ ul.ticket-messages-list {
     gap: 10px;
     text-decoration: none;
     flex-shrink: 0;
+}
+
+.sw-header__brand:hover,
+.sw-header__brand:focus,
+.sw-header__brand:hover .sw-header__logo-text,
+.sw-header__brand:focus .sw-header__logo-text {
+    text-decoration: none;
 }
 
 .sw-header__mark {
@@ -691,6 +706,8 @@ ul.ticket-messages-list {
     text-decoration: none;
     font-weight: 700;
     border: 1px solid var(--sw-base);
+    border-radius: 0;
+    transition: background-color .15s, border-color .15s, color .15s, box-shadow .15s;
 }
 
 .site-landing__button--primary {
@@ -699,9 +716,33 @@ ul.ticket-messages-list {
     border-color: var(--sw-primary);
 }
 
+.site-landing__button--primary:hover,
+.site-landing__button--primary:focus {
+    background: var(--sw-base);
+    border-color: var(--sw-base);
+    color: #fff !important;
+}
+
+.site-landing__cta .site-landing__button--primary:hover,
+.site-landing__cta .site-landing__button--primary:focus,
+.site-landing__step .site-landing__button--primary:hover,
+.site-landing__step .site-landing__button--primary:focus {
+    background: var(--sw-primary);
+    border-color: #fff;
+    box-shadow: 0 0 0 1px #fff inset;
+    color: #fff !important;
+}
+
 .site-landing__button--ghost {
     color: var(--sw-base) !important;
     background: #fff;
+}
+
+.site-landing__button--ghost:hover,
+.site-landing__button--ghost:focus {
+    background: var(--sw-surface);
+    border-color: var(--sw-primary);
+    color: var(--sw-base) !important;
 }
 
 .site-landing__mockup {

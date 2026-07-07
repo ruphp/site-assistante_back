@@ -107,7 +107,7 @@ class Params extends ActiveRecord
 
             $code =
                 "&lt;script&gt;
-    window.Smartius = {
+    window.SiteWidget = {
         apiUrl: '" . $domain . "/api',
         staticUrl: '" .$domainstatic. "',
         customUrl: '" .$domaincustom. "',
@@ -129,10 +129,38 @@ class Params extends ActiveRecord
 
     public static function getWidgetParam($id): array|ActiveRecord|null
     {
+        $params = self::find()
+            ->select('params.*,users.status')
+            ->innerJoin('users', 'users.id = params.public_key')
+            ->where(['users.public_key' => $id])
+            ->asArray()->one();
+
+        if ($params !== null) {
+            return $params;
+        }
+
+        $user = Users::find()
+            ->select(['id'])
+            ->where(['public_key' => $id])
+            ->one();
+
+        if ($user === null) {
+            return null;
+        }
+
+        $paramsModel = new self();
+        $paramsModel->public_key = (int)$user->id;
+
+        if (!$paramsModel->save(false)) {
+            return null;
+        }
+
+        Yii::$app->cache->delete('widget_modules_' . (int)$id);
+
         return self::find()
             ->select('params.*,users.status')
             ->innerJoin('users', 'users.id = params.public_key')
-            ->where(['users.public_key' => $id])->cache(3600)
+            ->where(['users.public_key' => $id])
             ->asArray()->one();
     }
 

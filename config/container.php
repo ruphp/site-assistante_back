@@ -27,6 +27,8 @@ use app\Modules\Support\Application\Contract\SupportConversationRepositoryInterf
 use app\Modules\Support\Application\Contract\SupportEntryPointRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportManagerNotifierInterface;
 use app\Modules\Support\Application\Contract\SupportManagerRecipientRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportPushDeviceRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportPushNotificationSenderInterface;
 use app\Modules\Support\Application\Contract\SupportMessageRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportRealtimePublisherInterface;
 use app\Modules\Support\Application\Contract\SupportRealtimeTokenIssuerInterface;
@@ -48,9 +50,11 @@ use app\Modules\Support\Infrastructure\YiiSupportConversationRepository;
 use app\Modules\Support\Infrastructure\YiiSupportEntryPointRepository;
 use app\Modules\Support\Infrastructure\RedisSupportRealtimePublisher;
 use app\Modules\Support\Infrastructure\RedisSupportRealtimeTokenIssuer;
+use app\Modules\Support\Infrastructure\FirebaseHttpV1PushNotificationSender;
 use app\Modules\Support\Infrastructure\YiiSupportManagerNotifier;
 use app\Modules\Support\Infrastructure\YiiSupportManagerRecipientRepository;
 use app\Modules\Support\Infrastructure\YiiSupportMessageRepository;
+use app\Modules\Support\Infrastructure\YiiSupportPushDeviceRepository;
 use app\Modules\Support\Infrastructure\YiiSupportReplyNotifier;
 use app\Modules\Support\Infrastructure\YiiSupportSettingsRepository;
 use app\Modules\Support\Infrastructure\YiiSupportUsageRepository;
@@ -103,6 +107,8 @@ return [
         SupportMessageRepositoryInterface::class => YiiSupportMessageRepository::class,
         SupportManagerNotifierInterface::class => YiiSupportManagerNotifier::class,
         SupportManagerRecipientRepositoryInterface::class => YiiSupportManagerRecipientRepository::class,
+        SupportPushDeviceRepositoryInterface::class => YiiSupportPushDeviceRepository::class,
+        SupportPushNotificationSenderInterface::class => FirebaseHttpV1PushNotificationSender::class,
         SupportRealtimePublisherInterface::class => RedisSupportRealtimePublisher::class,
         SupportRealtimeTokenIssuerInterface::class => RedisSupportRealtimeTokenIssuer::class,
         SupportReplyNotifierInterface::class => YiiSupportReplyNotifier::class,

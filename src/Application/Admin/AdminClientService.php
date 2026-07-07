@@ -8,6 +8,7 @@ use app\Application\Admin\Dto\CreateClientRequest;
 use app\Application\Admin\Dto\UpdateClientRequest;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Domain\SupportPlan;
+use app\Modules\Support\Domain\SupportSettings;
 use DomainException;
 
 final class AdminClientService
@@ -29,6 +30,7 @@ final class AdminClientService
         $userId = $this->clients->create($request);
         $this->access->assignManagerRole($userId);
         $this->access->syncModuleAccess($userId, ['support' => 1]);
+        $this->supportSettings->save(new SupportSettings($userId));
     }
 
     public function deleteClient(int $userId): void

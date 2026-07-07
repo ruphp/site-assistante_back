@@ -230,6 +230,8 @@ $url_rules = [
     'GET api/support/manager/conversations' => 'api/support-manager/conversations',
     'GET api/support/manager/messages' => 'api/support-manager/messages',
     'POST api/support/manager/send-message' => 'api/support-manager/send-message',
+    'POST api/support/manager/device-token' => 'api/support-manager/device-token',
+    'POST api/support/manager/device-token/delete' => 'api/support-manager/device-token-delete',
 
 ];
 

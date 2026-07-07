@@ -35,6 +35,7 @@ for ($rank = 1; $rank <= $newRankLimit; $rank++) {
             <thead>
             <tr>
                 <th>Название</th>
+                <th>Ответ</th>
                 <th>Приоритет</th>
                 <th>Порядок</th>
                 <th>Включена</th>
@@ -50,9 +51,16 @@ for ($rank = 1; $rank <= $newRankLimit; $rank++) {
                     ]); ?>
                     <?= Html::hiddenInput('SupportEntryPoint[id]', (string)$entryPoint->id) ?>
                     <td>
-                        <?= Html::input('text', 'SupportEntryPoint[title]', $entryPoint->title, [
-                            'class' => 'uk-input uk-form-width-medium',
+                        <?= Html::textarea('SupportEntryPoint[title]', $entryPoint->title, [
+                            'class' => 'uk-textarea uk-form-width-medium',
+                            'rows' => 2,
                             'maxlength' => 255,
+                        ]) ?>
+                    </td>
+                    <td>
+                        <?= Html::textarea('SupportEntryPoint[description]', $entryPoint->description, [
+                            'class' => 'uk-textarea uk-form-width-large',
+                            'rows' => 2,
                         ]) ?>
                     </td>
                     <td>
@@ -99,11 +107,21 @@ for ($rank = 1; $rank <= $newRankLimit; $rank++) {
         <div class="uk-grid-small" uk-grid>
             <div class="uk-width-1-3@s">
                 <?= Html::label('Название', 'support-entry-title', ['class' => 'uk-form-label']) ?>
-                <?= Html::input('text', 'SupportEntryPoint[title]', '', [
+                <?= Html::textarea('SupportEntryPoint[title]', '', [
                     'id' => 'support-entry-title',
-                    'class' => 'uk-input',
+                    'class' => 'uk-textarea',
+                    'rows' => 2,
                     'maxlength' => 255,
                     'placeholder' => 'Не работает сервис',
+                ]) ?>
+            </div>
+            <div class="uk-width-1-3@s">
+                <?= Html::label('Ответ', 'support-entry-description', ['class' => 'uk-form-label']) ?>
+                <?= Html::textarea('SupportEntryPoint[description]', '', [
+                    'id' => 'support-entry-description',
+                    'class' => 'uk-textarea',
+                    'rows' => 3,
+                    'placeholder' => 'Что подставить в первое сообщение вместо названия проблемы',
                 ]) ?>
             </div>
             <div class="uk-width-1-6@s">

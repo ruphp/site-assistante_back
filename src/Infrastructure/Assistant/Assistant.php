@@ -6,6 +6,7 @@ use app\Application\Assistant\Dto\AssistantRequestContext;
 use app\Infrastructure\YiiActiveRecord\Params;
 use app\Infrastructure\YiiActiveRecord\Roles;
 use app\Infrastructure\YiiActiveRecord\UserUuid;
+use app\Modules\Support\Domain\SupportModule;
 use Yii;
 use yii\base\Model;
 
@@ -129,6 +130,9 @@ class Assistant extends Model
                         );
                     }
                 };
+                if (!in_array(SupportModule::NAME, $this->params['widget_modules'], true)) {
+                    $this->params['widget_modules'][] = SupportModule::NAME;
+                }
                 Yii::$app->cache->set('widget_modules_' . $public_key, $this->params['widget_modules']);
             }
         }

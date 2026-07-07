@@ -4,6 +4,8 @@ namespace app\Modules\Support\Infrastructure;
 
 use app\Infrastructure\YiiActiveRecord\Users;
 use app\Modules\Support\Application\Contract\SupportManagerNotifierInterface;
+use app\Modules\Support\Application\Contract\SupportPushDeviceRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportPushNotificationSenderInterface;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Domain\SupportConversation;
 use app\Modules\Support\Domain\SupportMessage;
@@ -14,6 +16,8 @@ final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
 {
     public function __construct(
         private readonly SupportSettingsRepositoryInterface $settings,
+        private readonly SupportPushDeviceRepositoryInterface $pushDevices,
+        private readonly SupportPushNotificationSenderInterface $pushSender,
     ) {
     }
 
@@ -33,6 +37,8 @@ final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
         if ($settings->notifyMax) {
             $this->notifyMax($settings->maxApiUrl, $settings->maxBotToken, $settings->maxChatId, $text);
         }
+
+        $this->notifyPush($conversation, $message);
     }
 
     private function notifyEmail(SupportConversation $conversation, string $text): void
@@ -165,5 +171,51 @@ final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
         $lines[] = $message->body;
 
         return implode("\n", $lines);
+    }
+
+    private function notifyPush(SupportConversation $conversation, SupportMessage $message): void
+    {
+        $tokens = $this->pushDevices->activeTokensForClient($conversation->publicKey);
+        if ($tokens === []) {
+            return;
+        }
+
+        $title = 'SiteWidget';
+        $visitor = $this->pushConversationLabel($conversation);
+        $snippet = trim((string)$message->body);
+        if (function_exists('mb_substr')) {
+            $snippet = mb_substr($snippet, 0, 120);
+        } elseif (strlen($snippet) > 120) {
+            $snippet = substr($snippet, 0, 120);
+        }
+
+        $body = $visitor !== '' ? $visitor . ': ' . $snippet : $snippet;
+
+        foreach ($tokens as $token) {
+            $this->pushSender->sendToToken($token, $title, $body, [
+                'conversation_id' => (string)$conversation->id,
+                'public_key' => (string)$conversation->publicKey,
+                'visitor_id' => (string)$conversation->visitorId,
+                'visitor_name' => (string)($conversation->visitorName ?? ''),
+                'visitor_email' => (string)($conversation->visitorEmail ?? ''),
+                'last_message_at' => (string)($conversation->lastMessageAt ?? $message->createdAt),
+                'sender_type' => (string)$message->senderType,
+            ]);
+        }
+    }
+
+    private function pushConversationLabel(SupportConversation $conversation): string
+    {
+        $label = trim((string)($conversation->visitorName ?? ''));
+        if ($label !== '') {
+            return $label;
+        }
+
+        $label = trim((string)($conversation->visitorEmail ?? ''));
+        if ($label !== '') {
+            return $label;
+        }
+
+        return 'Диалог #' . $conversation->id;
     }
 }

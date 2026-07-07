@@ -5,6 +5,7 @@ namespace app\Infrastructure\Admin;
 use app\Application\Admin\Contract\ClientRepositoryInterface;
 use app\Application\Admin\Dto\CreateClientRequest;
 use app\Application\Admin\Dto\UpdateClientRequest;
+use app\Infrastructure\YiiActiveRecord\Params;
 use app\Infrastructure\YiiActiveRecord\Users;
 
 final class YiiClientRepository implements ClientRepositoryInterface
@@ -24,6 +25,18 @@ final class YiiClientRepository implements ClientRepositoryInterface
         $user->setPassword($request->password);
         $user->status = 1;
         $user->save();
+        $user->refresh();
+
+        if ($user->public_key === null) {
+            $user->public_key = $user->id;
+            $user->save(false);
+        }
+
+        if (!Params::find()->where(['public_key' => (int)$user->public_key])->exists()) {
+            $params = new Params();
+            $params->public_key = (int)$user->public_key;
+            $params->save(false);
+        }
 
         return (int)$user->id;
     }

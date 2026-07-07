@@ -113,7 +113,7 @@ $this->title = 'Настройки подключения ';
     <ul>
         <li>Если на странице есть элементы, которые добавляются динамически.</br>
             То в коде js, вы можете вызвать функцию виджета для его обновления и он увидит новые элементы
-            <pre class="uk-resize еее"><code><code>window.Smartius.api.update();</code></code></pre>
+            <pre class="uk-resize еее"><code><code>window.SiteWidget.api.update();</code></code></pre>
         </li>
     </ul>
 

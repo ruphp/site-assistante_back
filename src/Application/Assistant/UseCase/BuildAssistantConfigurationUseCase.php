@@ -8,6 +8,7 @@ use app\Application\Assistant\Contract\AssistantContextRepositoryInterface;
 use app\Application\Assistant\Dto\BuildAssistantConfigurationRequest;
 use app\Application\Assistant\Dto\AssistantConfigurationResponse;
 use app\Application\Client\Contract\ClientModuleAccessRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 
 final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigurationUseCaseInterface
 {
@@ -15,16 +16,19 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
     private readonly AssistantConfigurationLoggerInterface $configurationLogger;
     private readonly AssistantAccessGuard $accessGuard;
     private readonly ClientModuleAccessRepositoryInterface $moduleAccessRepository;
+    private readonly SupportSettingsRepositoryInterface $supportSettingsRepository;
 
     public function __construct(
         AssistantContextRepositoryInterface $assistantContextRepository,
         AssistantConfigurationLoggerInterface $configurationLogger,
         ClientModuleAccessRepositoryInterface $moduleAccessRepository,
+        SupportSettingsRepositoryInterface $supportSettingsRepository,
         ?AssistantAccessGuard $accessGuard = null,
     ) {
         $this->assistantContextRepository = $assistantContextRepository;
         $this->configurationLogger = $configurationLogger;
         $this->moduleAccessRepository = $moduleAccessRepository;
+        $this->supportSettingsRepository = $supportSettingsRepository;
         $this->accessGuard = $accessGuard ?? new AssistantAccessGuard();
     }
 
@@ -34,6 +38,7 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
         $this->accessGuard->assertAllowed($context, $request->requestContext);
         $client = $context->client;
         $modules = $this->allowedEnabledModules($client->publicKey, $client->enabledModules());
+        $supportSettings = $this->supportSettingsRepository->getForClient($client->publicKey);
 
         $response = new AssistantConfigurationResponse(
             error: [],
@@ -46,6 +51,7 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
             zeroLogDelay: $client->params['timeout'],
             urlSmguideTp: $client->params['server_stp'],
             modules: array_values($modules),
+            autoOpenSnoozeMinutes: $supportSettings->autoOpenSnoozeMinutes,
         );
 
         try {

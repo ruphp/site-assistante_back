@@ -4,10 +4,11 @@ namespace app\Presentation\Http\Controller\api;
 
 use app\Infrastructure\User\UserIdentity;
 use app\Modules\Support\Application\Exception\SupportAccessDeniedException;
-use app\Modules\Support\Infrastructure\RedisSupportRealtimePublisher;
+use app\Modules\Support\Application\Contract\SupportPushDeviceRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportPushNotificationSenderInterface;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportMessageRecord;
-use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportConversationRecord;
 use app\Modules\Support\Infrastructure\YiiSupportConversationRepository;
+use app\Modules\Support\Application\UseCase\OperatorSupportUseCase;
 use app\Presentation\Http\MobileTokenAuth;
 use Yii;
 use yii\rest\Controller;
@@ -15,6 +16,17 @@ use yii\web\Response;
 
 class SupportManagerController extends Controller
 {
+    public function __construct(
+        $id,
+        $module,
+        private readonly OperatorSupportUseCase $operatorSupport,
+        private readonly SupportPushDeviceRepositoryInterface $pushDevices,
+        private readonly SupportPushNotificationSenderInterface $pushSender,
+        $config = [],
+    ) {
+        parent::__construct($id, $module, $config);
+    }
+
     public function behaviors()
     {
         return [
@@ -39,6 +51,9 @@ class SupportManagerController extends Controller
             if ($status === '' || $status === 'all') {
                 $status = null;
             }
+
+            $timeoutMinutes = (int)($_ENV['SUPPORT_AUTO_CLOSE_AFTER_OPERATOR_SEEN_MINUTES'] ?? 30);
+            $repo->closeExpiredAfterOperatorSeen(max(60, $timeoutMinutes * 60));
 
             $list = $repo->listForClient($user->public_key, $status, 50);
 
@@ -105,78 +120,89 @@ class SupportManagerController extends Controller
                 return $this->errorResponse(401, 'Токен недействителен');
             }
 
-            $conversationId = (int)Yii::$app->request->post('conversationId');
-            $body = trim(Yii::$app->request->post('body', ''));
+            $data = $this->requestData();
+            $conversationId = (int)($data['conversationId'] ?? $data['conversation_id'] ?? 0);
+            $body = trim((string)($data['body'] ?? ''));
 
             if (!$conversationId || !$body) {
-                return ['success' => false, 'message' => 'Заполните все поля'];
+                return $this->errorResponse(400, 'Заполните все поля');
             }
 
-            $conversation = SupportConversationRecord::findOne([
-                'id' => $conversationId,
-                'public_key' => $user->public_key,
-            ]);
-            if (!$conversation instanceof SupportConversationRecord) {
-                return $this->errorResponse(404, 'Диалог не найден');
-            }
-
-            $message = new SupportMessageRecord();
-            $message->public_key = $user->public_key;
-            $message->conversation_id = $conversationId;
-            $message->visitor_id = '';
-            $message->body = $body;
-            $message->sender_type = 'manager';
-            $message->save(false);
-
-            $conversation->updated_at = date('Y-m-d H:i:s');
-            $conversation->save(false);
-
-            try {
-                $publisher = new RedisSupportRealtimePublisher();
-                $publisher->publishMessage(
-                    new \app\Modules\Support\Domain\SupportConversation(
-                        id: (int)$conversation->id,
-                        publicKey: (int)$conversation->public_key,
-                        visitorId: (string)$conversation->visitor_id,
-                        visitorName: $conversation->visitor_name === null ? null : (string)$conversation->visitor_name,
-                        visitorEmail: $conversation->visitor_email === null ? null : (string)$conversation->visitor_email,
-                        pageUrl: $conversation->page_url === null ? null : (string)$conversation->page_url,
-                        status: (string)$conversation->status,
-                        createdAt: $conversation->created_at === null ? null : (string)$conversation->created_at,
-                        lastMessageAt: null,
-                        lastSenderType: null,
-                        operatorRepliedAt: $conversation->operator_replied_at === null ? null : (string)$conversation->operator_replied_at,
-                        operatorSeenAt: $conversation->operator_seen_at === null ? null : (string)$conversation->operator_seen_at,
-                        lastVisitorActivityAt: $conversation->last_visitor_activity_at === null ? null : (string)$conversation->last_visitor_activity_at,
-                        entryPointId: $conversation->entry_point_id === null ? null : (int)$conversation->entry_point_id,
-                        entryPointTitle: null,
-                        priority: (int)$conversation->priority,
-                    ),
-                    new \app\Modules\Support\Domain\SupportMessage(
-                        id: (int)$message->id,
-                        conversationId: (int)$message->conversation_id,
-                        publicKey: (int)$message->public_key,
-                        senderType: (string)$message->sender_type,
-                        senderId: $message->sender_id === null ? null : (string)$message->sender_id,
-                        body: (string)$message->body,
-                        createdAt: $message->created_at === null ? null : (string)$message->created_at,
-                    ),
-                );
-            } catch (\Throwable) {
-            }
+            $message = $this->operatorSupport->reply(
+                (int)$user->public_key,
+                $conversationId,
+                (int)$user->id,
+                $body,
+            );
 
             return [
                 'success' => true,
                 'message' => [
                     'id' => $message->id,
                     'body' => $message->body,
-                    'senderType' => $message->sender_type,
-                    'createdAt' => $message->created_at,
+                    'senderType' => $message->senderType,
+                    'createdAt' => $message->createdAt,
                 ],
             ];
+        } catch (SupportAccessDeniedException $e) {
+            return $this->errorResponse(403, $e->getMessage());
+        } catch (\InvalidArgumentException $e) {
+            return $this->errorResponse(400, $e->getMessage());
         } catch (\Throwable $e) {
             Yii::error($e->getMessage(), 'support-manager');
             return $this->errorResponse(500, 'Не удалось отправить сообщение');
+        }
+    }
+
+    public function actionDeviceToken(): array
+    {
+        try {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+
+            $user = Yii::$app->user->identity;
+            if (!$user instanceof UserIdentity) {
+                return $this->errorResponse(401, 'Токен недействителен');
+            }
+
+            $data = $this->requestData();
+            $token = trim((string)($data['token'] ?? ''));
+            $platform = trim((string)($data['platform'] ?? 'android'));
+
+            if ($token === '') {
+                return $this->errorResponse(400, 'Токен устройства не передан');
+            }
+
+            $this->pushDevices->upsertForUser($user, $token, $platform);
+
+            return [
+                'success' => true,
+                'push_enabled' => $this->pushSender->isConfigured(),
+            ];
+        } catch (\Throwable $e) {
+            Yii::error($e->getMessage(), 'support-manager');
+            return $this->errorResponse(500, 'Не удалось сохранить токен устройства');
+        }
+    }
+
+    public function actionDeviceTokenDelete(): array
+    {
+        try {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+
+            $data = $this->requestData();
+            $token = trim((string)($data['token'] ?? ''));
+            if ($token === '') {
+                return $this->errorResponse(400, 'Токен устройства не передан');
+            }
+
+            $this->pushDevices->deactivateByToken($token);
+
+            return [
+                'success' => true,
+            ];
+        } catch (\Throwable $e) {
+            Yii::error($e->getMessage(), 'support-manager');
+            return $this->errorResponse(500, 'Не удалось удалить токен устройства');
         }
     }
 
@@ -188,5 +214,21 @@ class SupportManagerController extends Controller
             'success' => false,
             'message' => $message,
         ];
+    }
+
+    private function requestData(): array
+    {
+        $data = Yii::$app->request->getBodyParams();
+        if (is_array($data) && $data !== []) {
+            return $data;
+        }
+
+        $raw = Yii::$app->request->getRawBody();
+        if ($raw === '') {
+            return Yii::$app->request->post();
+        }
+
+        $decoded = json_decode($raw, true);
+        return is_array($decoded) ? $decoded : Yii::$app->request->post();
     }
 }

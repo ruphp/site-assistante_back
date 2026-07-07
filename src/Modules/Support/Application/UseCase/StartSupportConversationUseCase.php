@@ -65,8 +65,18 @@ final class StartSupportConversationUseCase implements StartSupportConversationU
                 $firstMessage,
             );
             $this->usage->incrementMessages($request->publicKey, $month);
-            $this->managerNotifier->notifyVisitorMessage($conversation, $message);
             $this->realtimePublisher->publishMessage($conversation, $message);
+            if ($request->entryPointId === null) {
+                $this->managerNotifier->notifyVisitorMessage($conversation, $message);
+            } elseif ($entryPoint !== null && trim($entryPoint->description) !== '') {
+                $reply = $this->messages->addOperatorMessage(
+                    $request->publicKey,
+                    (int)$conversation->id,
+                    0,
+                    trim($entryPoint->description),
+                );
+                $this->realtimePublisher->publishMessage($conversation, $reply);
+            }
         }
 
         return new SupportConversationResponse($conversation);

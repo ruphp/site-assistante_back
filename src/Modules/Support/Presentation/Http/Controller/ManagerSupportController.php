@@ -133,9 +133,9 @@ final class ManagerSupportController extends ManagerController
         if ($conversationId > 0) {
             try {
                 $this->operatorSupport->closeConversation($publicKey, $conversationId);
-                Yii::$app->session->setFlash('success', 'Диалог завершён');
+                Yii::$app->session->setFlash('success', 'Диалог отправлен в архив');
             } catch (\Throwable $exception) {
-                Yii::$app->session->setFlash('error', 'Не удалось завершить диалог');
+                Yii::$app->session->setFlash('error', 'Не удалось отправить диалог в архив');
             }
         }
 

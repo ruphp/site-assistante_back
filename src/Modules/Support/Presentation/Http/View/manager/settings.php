@@ -71,9 +71,24 @@ if ($settings->timezone !== '' && !isset($timezones[$settings->timezone])) {
     <div class="uk-margin">
         <label class="uk-display-block">
             <?= Html::hiddenInput('SupportSettings[keepWidgetOpenWhenOnline]', '0') ?>
-            <?= Html::checkbox('SupportSettings[keepWidgetOpenWhenOnline]', $settings->keepWidgetOpenWhenOnline, ['value' => '1']) ?>
+            <?= Html::checkbox('SupportSettings[keepWidgetOpenWhenOnline]', $settings->keepWidgetOpenWhenOnline, [
+                'value' => '1',
+                'id' => 'support-keep-widget-open',
+            ]) ?>
             Когда операторы онлайн, держать виджет открытым
         </label>
+    </div>
+
+    <div class="uk-margin" id="support-auto-open-snooze-field">
+        <?= Html::label('Не открывать повторно после закрытия, минут', 'support-auto-open-snooze', ['class' => 'uk-form-label']) ?>
+        <?= Html::input('number', 'SupportSettings[autoOpenSnoozeMinutes]', (string)$settings->autoOpenSnoozeMinutes, [
+            'id' => 'support-auto-open-snooze',
+            'class' => 'uk-input uk-form-width-small',
+            'min' => 0,
+            'max' => 1440,
+            'step' => 1,
+        ]) ?>
+        <div class="uk-text-meta">0 - автооткрытие будет срабатывать каждый раз.</div>
     </div>
 
     <div class="uk-grid-small" uk-grid>
@@ -338,6 +353,8 @@ $this->registerJs(<<<'JS'
     var weekendKeys = ['sat', 'sun'];
     var modeInputs = document.querySelectorAll('.js-support-schedule-mode');
     var roundTheClock = document.getElementById('support-round-the-clock');
+    var keepWidgetOpen = document.getElementById('support-keep-widget-open');
+    var autoOpenSnoozeField = document.getElementById('support-auto-open-snooze-field');
 
     function selectedMode() {
         var checked = document.querySelector('.js-support-schedule-mode:checked');
@@ -428,6 +445,9 @@ $this->registerJs(<<<'JS'
     function updateAll() {
         updateWeekRows();
         updateHolidayRows();
+        if (autoOpenSnoozeField && keepWidgetOpen) {
+            autoOpenSnoozeField.hidden = !keepWidgetOpen.checked;
+        }
     }
 
     modeInputs.forEach(function (input) {
@@ -436,6 +456,10 @@ $this->registerJs(<<<'JS'
 
     if (roundTheClock) {
         roundTheClock.addEventListener('change', updateAll);
+    }
+
+    if (keepWidgetOpen) {
+        keepWidgetOpen.addEventListener('change', updateAll);
     }
 
     document.querySelectorAll('.js-support-day-enabled, .js-support-holiday-closed').forEach(function (input) {

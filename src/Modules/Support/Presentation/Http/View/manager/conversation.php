@@ -32,6 +32,8 @@ $visitorLabel = static function (?array $conversation): string {
 
     return $visitorId;
 };
+
+$isArchived = ($conversation['status'] ?? null) === 'closed';
 ?>
 
 <div class="uk-container uk-position-relative">
@@ -89,14 +91,22 @@ $visitorLabel = static function (?array $conversation): string {
         <?php endif; ?>
     </div>
 
+    <?php if ($isArchived): ?>
+        <div class="uk-alert-primary" uk-alert>
+            <p>Диалог находится в архиве.</p>
+        </div>
+    <?php endif; ?>
+
     <div class="uk-margin uk-flex uk-flex-gap-small">
-        <?= Html::beginForm(['/manager/support/conversation-close'], 'post', ['style' => 'display:inline']) ?>
-            <?= Html::hiddenInput('id', (string)$conversationId) ?>
-            <?= Html::submitButton('Завершить диалог', [
-                'class' => 'uk-button uk-button-default',
-                'onclick' => "return confirm('Завершить диалог?');",
-            ]) ?>
-        <?= Html::endForm() ?>
+        <?php if (!$isArchived): ?>
+            <?= Html::beginForm(['/manager/support/conversation-close'], 'post', ['style' => 'display:inline']) ?>
+                <?= Html::hiddenInput('id', (string)$conversationId) ?>
+                <?= Html::submitButton('В архив', [
+                    'class' => 'uk-button uk-button-default',
+                    'onclick' => "return confirm('Отправить диалог в архив?');",
+                ]) ?>
+            <?= Html::endForm() ?>
+        <?php endif; ?>
 
         <?= Html::beginForm(['/manager/support/conversation-delete'], 'post', ['style' => 'display:inline']) ?>
             <?= Html::hiddenInput('id', (string)$conversationId) ?>
@@ -107,18 +117,20 @@ $visitorLabel = static function (?array $conversation): string {
         <?= Html::endForm() ?>
     </div>
 
-    <?= Html::beginForm('/manager/support/reply', 'post', ['class' => 'uk-form-stacked']) ?>
-        <?= Html::hiddenInput('conversation_id', (string)$conversationId) ?>
-        <div class="uk-margin">
-            <?= Html::label('Ответ оператора', 'support-reply-body', ['class' => 'uk-form-label']) ?>
-            <?= Html::textarea('body', '', [
-                'id' => 'support-reply-body',
-                'class' => 'uk-textarea',
-                'rows' => 5,
-            ]) ?>
-        </div>
-        <?= Html::submitButton('Отправить', ['class' => 'uk-button uk-button-primary']) ?>
-    <?= Html::endForm() ?>
+    <?php if (!$isArchived): ?>
+        <?= Html::beginForm('/manager/support/reply', 'post', ['class' => 'uk-form-stacked']) ?>
+            <?= Html::hiddenInput('conversation_id', (string)$conversationId) ?>
+            <div class="uk-margin">
+                <?= Html::label('Ответ оператора', 'support-reply-body', ['class' => 'uk-form-label']) ?>
+                <?= Html::textarea('body', '', [
+                    'id' => 'support-reply-body',
+                    'class' => 'uk-textarea',
+                    'rows' => 5,
+                ]) ?>
+            </div>
+            <?= Html::submitButton('Отправить', ['class' => 'uk-button uk-button-primary']) ?>
+        <?= Html::endForm() ?>
+    <?php endif; ?>
 </div>
 
 <?php

@@ -47,6 +47,8 @@ final class YiiClientAccessRepository implements ClientAccessRepositoryInterface
                 $auth->revoke($permission, $userId);
             }
         }
+
+        Yii::$app->cache->delete('widget_modules_' . $userId);
     }
 
     public function getModuleAccessView(int $userId): ClientModuleAccessView

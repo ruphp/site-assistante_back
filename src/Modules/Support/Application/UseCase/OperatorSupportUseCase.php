@@ -13,6 +13,7 @@ use app\Modules\Support\Application\Dto\SupportMessageListResponse;
 use app\Modules\Support\Application\Exception\SupportAccessDeniedException;
 use app\Modules\Support\Application\Exception\SupportConversationNotFoundException;
 use app\Modules\Support\Domain\SupportConversation;
+use app\Modules\Support\Domain\SupportMessage;
 use app\Modules\Support\Domain\SupportModule;
 
 final class OperatorSupportUseCase
@@ -51,7 +52,7 @@ final class OperatorSupportUseCase
         );
     }
 
-    public function reply(int $publicKey, int $conversationId, int $operatorId, string $body): void
+    public function reply(int $publicKey, int $conversationId, int $operatorId, string $body): SupportMessage
     {
         $body = trim($body);
         if ($body === '') {
@@ -63,6 +64,8 @@ final class OperatorSupportUseCase
         $this->conversations->markOperatorReply($publicKey, $conversationId);
         $this->replyNotifier->notifyOperatorReply($conversation, $message);
         $this->realtimePublisher->publishMessage($conversation, $message);
+
+        return $message;
     }
 
     public function closeConversation(int $publicKey, int $conversationId): void

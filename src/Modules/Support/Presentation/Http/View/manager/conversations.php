@@ -56,7 +56,7 @@ $visitorLabel = static function (array $conversation): string {
         <?= Html::a('Открытые', ['/manager/support/conversations', 'status' => 'open'], [
             'class' => $status === 'open' ? 'uk-button uk-button-primary' : 'uk-button uk-button-default',
         ]) ?>
-        <?= Html::a('Закрытые', ['/manager/support/conversations', 'status' => 'closed'], [
+        <?= Html::a('Архив', ['/manager/support/conversations', 'status' => 'closed'], [
             'class' => $status === 'closed' ? 'uk-button uk-button-primary' : 'uk-button uk-button-default',
         ]) ?>
     </div>

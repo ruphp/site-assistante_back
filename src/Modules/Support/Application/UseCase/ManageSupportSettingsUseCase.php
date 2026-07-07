@@ -52,6 +52,7 @@ final class ManageSupportSettingsUseCase
             workSchedule: $schedule['work'],
             holidaySchedule: $schedule['holidays'],
             keepWidgetOpenWhenOnline: (bool)($data['keepWidgetOpenWhenOnline'] ?? false),
+            autoOpenSnoozeMinutes: max(0, min(1440, (int)($data['autoOpenSnoozeMinutes'] ?? 0))),
             askName: (bool)($data['askName'] ?? true),
             askEmail: true,
             askPhone: (bool)($data['askPhone'] ?? true),
