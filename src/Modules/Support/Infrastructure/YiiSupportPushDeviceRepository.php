@@ -84,4 +84,27 @@ final class YiiSupportPushDeviceRepository implements SupportPushDeviceRepositor
 
         return array_values(array_unique($tokens));
     }
+
+    public function activeTokensForUser(int $userId): array
+    {
+        $rows = SupportPushDeviceRecord::find()
+            ->select(['token'])
+            ->where([
+                'user_id' => $userId,
+                'is_active' => 1,
+            ])
+            ->andWhere(['not', ['token' => null]])
+            ->asArray()
+            ->all();
+
+        $tokens = [];
+        foreach ($rows as $row) {
+            $token = trim((string)($row['token'] ?? ''));
+            if ($token !== '') {
+                $tokens[] = $token;
+            }
+        }
+
+        return array_values(array_unique($tokens));
+    }
 }

@@ -14,8 +14,14 @@ final class ClientPanelMenuService
     ) {
     }
 
-    public function baseMenu(int $publicKey): array
+    public function baseMenu(int $publicKey, bool $isOwner = true): array
     {
+        if (!$isOwner) {
+            return [
+                'manager/support/conversations' => 'Диалоги',
+            ];
+        }
+
         $menu = [
             'manager/params' => 'Параметры',
             'manager/designe' => 'Оформление',
@@ -26,12 +32,21 @@ final class ClientPanelMenuService
             $menu['manager/roles'] = 'Роли';
         }
 
+        if ($this->operatorsEnabledForClient($publicKey)) {
+            $menu['manager/operators'] = 'Менеджеры';
+        }
+
         return $menu;
     }
 
     public function rolesEnabledForClient(int $publicKey): bool
     {
         return SupportPlan::normalize($this->supportSettings->getForClient($publicKey)->plan) === SupportPlan::PRO;
+    }
+
+    public function operatorsEnabledForClient(int $publicKey): bool
+    {
+        return SupportPlan::normalize($this->supportSettings->getForClient($publicKey)->plan) !== SupportPlan::FREE;
     }
 
     public function moduleMenusForClient(int $publicKey): array

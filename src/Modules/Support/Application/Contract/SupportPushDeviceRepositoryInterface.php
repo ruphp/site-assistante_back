@@ -14,4 +14,9 @@ interface SupportPushDeviceRepositoryInterface
      * @return string[]
      */
     public function activeTokensForClient(int $publicKey): array;
+
+    /**
+     * @return string[]
+     */
+    public function activeTokensForUser(int $userId): array;
 }

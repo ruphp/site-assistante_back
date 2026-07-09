@@ -4,12 +4,14 @@ namespace app\Presentation\Http\Controller\manager;
 
 use app\Application\Panel\ClientPanelMenuService;
 use app\Application\Panel\ClientProjectService;
+use app\Application\Panel\ManagerOperatorService;
 use app\Application\Role\Dto\RoleOperationResult;
 use app\Application\Role\ManagerRoleService;
 use app\Application\Panel\ManageAssistantSettingsService;
 use app\Application\Panel\Metrics\PanelMetricsService;
 use app\Modules\Support\Application\Reporting\SupportUsageReportService;
 use app\Presentation\Http\Controller\ManagerController;
+use app\Presentation\Http\Form\ManagerOperatorForm;
 use Exception;
 use Yii;
 use yii\web\Response;
@@ -25,6 +27,7 @@ class PanelController extends ManagerController
         private readonly ClientPanelMenuService $panelMenu,
         private readonly ClientProjectService $projects,
         private readonly SupportUsageReportService $usageReport,
+        private readonly ManagerOperatorService $operators,
         $config = []
     ) {
         parent::__construct($id, $module, $config);
@@ -117,6 +120,83 @@ class PanelController extends ManagerController
         return $this->render('limits', [
             'report' => $this->usageReport->clientReport(Yii::$app->user->identity->getPublicKey()),
         ]);
+    }
+
+    public function actionOperators(): Response|string
+    {
+        $ownerPublicKey = (int)Yii::$app->user->identity->getPublicKey();
+        if (!$this->operators->canManage($ownerPublicKey, (int)Yii::$app->user->id)) {
+            Yii::$app->session->setFlash('error', 'Управление менеджерами доступно владельцу на платном тарифе');
+
+            return $this->redirect('/manager');
+        }
+
+        $form = new ManagerOperatorForm();
+
+        if (Yii::$app->request->isPost) {
+            if ($form->load(Yii::$app->request->post()) && $form->validate()) {
+                $password = $this->operators->create($ownerPublicKey, $form);
+                if ($password !== null) {
+                    Yii::$app->session->setFlash(
+                        'success',
+                        'Менеджер создан. Временный пароль: ' . $password . '. Пароль также отправлен владельцу пуш-уведомлением.'
+                    );
+
+                    return $this->redirect('/manager/operators');
+                }
+            }
+
+            Yii::$app->session->setFlash('error', 'Не удалось создать менеджера');
+        }
+
+        return $this->render('operators', [
+            'operators' => $this->operators->listForOwner($ownerPublicKey),
+            'form' => $form,
+            'operatorLimit' => $this->operators->operatorLimit($ownerPublicKey),
+        ]);
+    }
+
+    public function actionOperatorResetPassword(): Response
+    {
+        $ownerPublicKey = (int)Yii::$app->user->identity->getPublicKey();
+        if (!$this->operators->canManage($ownerPublicKey, (int)Yii::$app->user->id)) {
+            Yii::$app->session->setFlash('error', 'Недостаточно прав');
+
+            return $this->redirect('/manager');
+        }
+
+        $operatorId = (int)Yii::$app->request->post('id', Yii::$app->request->get('id'));
+        $password = $this->operators->resetPassword($ownerPublicKey, $operatorId);
+
+        if ($password === null) {
+            Yii::$app->session->setFlash('error', 'Не удалось сбросить пароль');
+        } else {
+            Yii::$app->session->setFlash(
+                'success',
+                'Новый пароль менеджера: ' . $password . '. Пароль также отправлен владельцу пуш-уведомлением.'
+            );
+        }
+
+        return $this->redirect('/manager/operators');
+    }
+
+    public function actionOperatorDisable(): Response
+    {
+        $ownerPublicKey = (int)Yii::$app->user->identity->getPublicKey();
+        if (!$this->operators->canManage($ownerPublicKey, (int)Yii::$app->user->id)) {
+            Yii::$app->session->setFlash('error', 'Недостаточно прав');
+
+            return $this->redirect('/manager');
+        }
+
+        $operatorId = (int)Yii::$app->request->post('id', Yii::$app->request->get('id'));
+        if ($this->operators->disable($ownerPublicKey, $operatorId)) {
+            Yii::$app->session->setFlash('success', 'Менеджер отключен');
+        } else {
+            Yii::$app->session->setFlash('error', 'Не удалось отключить менеджера');
+        }
+
+        return $this->redirect('/manager/operators');
     }
 
     public function actionRoles(): Response|string

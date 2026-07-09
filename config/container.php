@@ -21,6 +21,7 @@ use app\Application\Assistant\UseCase\LogAssistantOpenUseCaseInterface;
 use app\Application\Panel\Contract\AssistantDesignStorageInterface;
 use app\Application\Panel\Contract\AssistantParamsRepositoryInterface;
 use app\Application\Panel\Contract\ClientModuleMenuRepositoryInterface;
+use app\Application\Panel\ManagerOperatorService;
 use app\Application\Panel\Metrics\Contract\PanelModuleMetricChartRepositoryInterface;
 use app\Application\User\Contract\UserAccountServiceInterface;
 use app\Modules\Support\Application\Contract\SupportConversationRepositoryInterface;
@@ -120,5 +121,6 @@ return [
         ManageSupportSettingsUseCase::class => ManageSupportSettingsUseCase::class,
         ManageSupportEntryPointsUseCase::class => ManageSupportEntryPointsUseCase::class,
         OperatorSupportUseCase::class => OperatorSupportUseCase::class,
+        ManagerOperatorService::class => ManagerOperatorService::class,
     ],
 ];
