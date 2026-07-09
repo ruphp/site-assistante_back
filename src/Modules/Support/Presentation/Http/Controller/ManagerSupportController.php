@@ -68,11 +68,11 @@ final class ManagerSupportController extends ManagerController
         if (Yii::$app->request->isPost) {
             try {
                 if ($this->entryPoints->saveFromPost($publicKey, Yii::$app->request->post())) {
-                    Yii::$app->session->setFlash('success', 'Кнопка обращения сохранена');
+                    Yii::$app->session->setFlash('success', 'Кнопка быстрого обращения сохранена');
                     return $this->redirect($this->projectUrl('/manager/support/entry-points', $projectId));
                 }
 
-                Yii::$app->session->setFlash('error', 'Не удалось сохранить кнопку обращения');
+                Yii::$app->session->setFlash('error', 'Не удалось сохранить кнопку быстрого обращения');
             } catch (\Throwable $exception) {
                 Yii::$app->session->setFlash('error', $exception->getMessage());
             }
@@ -93,9 +93,9 @@ final class ManagerSupportController extends ManagerController
         $id = (int)Yii::$app->request->post('id', Yii::$app->request->get('id'));
 
         if ($id > 0 && $this->entryPoints->delete($publicKey, $id)) {
-            Yii::$app->session->setFlash('success', 'Кнопка обращения удалена');
+            Yii::$app->session->setFlash('success', 'Кнопка быстрого обращения удалена');
         } else {
-            Yii::$app->session->setFlash('error', 'Не удалось удалить кнопку обращения');
+            Yii::$app->session->setFlash('error', 'Не удалось удалить кнопку быстрого обращения');
         }
 
         return $this->redirect($this->projectUrl('/manager/support/entry-points', $projectId));

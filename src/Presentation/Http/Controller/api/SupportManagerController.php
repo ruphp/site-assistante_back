@@ -4,6 +4,7 @@ namespace app\Presentation\Http\Controller\api;
 
 use app\Infrastructure\User\UserIdentity;
 use app\Modules\Support\Application\Exception\SupportAccessDeniedException;
+use app\Modules\Support\Application\Exception\SupportLimitExceededException;
 use app\Modules\Support\Application\Contract\SupportPushDeviceRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportPushNotificationSenderInterface;
 use app\Modules\Support\Infrastructure\YiiSupportConversationRepository;
@@ -54,27 +55,33 @@ class SupportManagerController extends Controller
             $timeoutMinutes = (int)($_ENV['SUPPORT_AUTO_CLOSE_AFTER_OPERATOR_SEEN_MINUTES'] ?? 30);
             $repo->closeExpiredAfterOperatorSeen(max(60, $timeoutMinutes * 60));
 
-            $list = $repo->listForClient($user->public_key, $status, 50);
+            $response = $this->operatorSupport
+                ->listConversations((int)$user->public_key, $status)
+                ->toArray();
 
-            return array_map(static function ($c) {
-                return [
-                    'id' => $c->id,
-                    'visitorId' => $c->visitorId,
-                    'visitorName' => $c->visitorName,
-                    'visitorEmail' => $c->visitorEmail,
-                    'visitorPhone' => $c->visitorPhone,
-                    'pageUrl' => $c->pageUrl,
-                    'projectName' => $c->projectName,
-                    'projectDomain' => $c->projectDomain,
-                    'projectPublicKey' => $c->publicKey,
-                    'status' => $c->status,
-                    'entryPointTitle' => $c->entryPointTitle,
-                    'lastMessageAt' => $c->lastMessageAt,
-                    'lastSenderType' => $c->lastSenderType,
-                    'priority' => $c->priority,
-                    'waitsForOperator' => $c->waitsForOperator(),
-                ];
-            }, $list);
+            return [
+                'conversations' => array_map(
+                    static fn(array $conversation): array => [
+                        'id' => $conversation['id'],
+                        'visitorId' => $conversation['visitor_id'],
+                        'visitorName' => $conversation['visitor_name'],
+                        'visitorEmail' => $conversation['visitor_email'],
+                        'visitorPhone' => $conversation['visitor_phone'],
+                        'pageUrl' => $conversation['page_url'],
+                        'projectName' => $conversation['project_name'],
+                        'projectDomain' => $conversation['project_domain'],
+                        'projectPublicKey' => $conversation['public_key'],
+                        'status' => $conversation['status'],
+                        'entryPointTitle' => $conversation['entry_point_title'],
+                        'lastMessageAt' => $conversation['last_message_at'],
+                        'lastSenderType' => $conversation['last_sender_type'],
+                        'priority' => $conversation['priority'],
+                        'waitsForOperator' => $conversation['waits_for_operator'],
+                    ],
+                    $response['conversations'] ?? [],
+                ),
+                'limits' => $response['limits'] ?? [],
+            ];
         } catch (SupportAccessDeniedException $e) {
             return $this->errorResponse(403, $e->getMessage());
         } catch (\Throwable $e) {
@@ -138,6 +145,11 @@ class SupportManagerController extends Controller
             return $this->errorResponse(403, $e->getMessage());
         } catch (\InvalidArgumentException $e) {
             return $this->errorResponse(400, $e->getMessage());
+        } catch (SupportLimitExceededException $e) {
+            return $this->errorResponse(
+                429,
+                'Лимит ответов оператора на сегодня исчерпан. Обновите тариф или дождитесь следующего дня.'
+            );
         } catch (\Throwable $e) {
             Yii::error($e->getMessage(), 'support-manager');
             return $this->errorResponse(500, 'Не удалось отправить сообщение');

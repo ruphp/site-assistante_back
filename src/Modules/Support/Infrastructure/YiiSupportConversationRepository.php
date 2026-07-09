@@ -210,6 +210,7 @@ final class YiiSupportConversationRepository implements SupportConversationRepos
             lastVisitorActivityAt: $record->last_visitor_activity_at === null ? null : (string)$record->last_visitor_activity_at,
             entryPointId: $record->entry_point_id === null ? null : (int)$record->entry_point_id,
             entryPointTitle: $this->entryPointTitle((int)$record->public_key, $record->entry_point_id),
+            entryPointResponseType: $this->entryPointResponseType((int)$record->public_key, $record->entry_point_id),
             priority: (int)$record->priority,
         );
     }
@@ -226,6 +227,22 @@ final class YiiSupportConversationRepository implements SupportConversationRepos
         ]);
 
         return $entryPoint?->title === null ? null : (string)$entryPoint->title;
+    }
+
+    private function entryPointResponseType(int $publicKey, mixed $entryPointId): ?string
+    {
+        if ($entryPointId === null) {
+            return null;
+        }
+
+        $entryPoint = SupportEntryPointRecord::findOne([
+            'id' => (int)$entryPointId,
+            'public_key' => $publicKey,
+        ]);
+
+        return $entryPoint === null
+            ? null
+            : SupportEntryPoint::normalizeResponseType((string)($entryPoint->response_type ?? SupportEntryPoint::RESPONSE_ANSWER));
     }
 
     private function projectPublicKeysForClient(int $ownerPublicKey): array

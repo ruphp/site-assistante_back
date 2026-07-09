@@ -35,12 +35,14 @@ final class SupportUsageReportService
     public function adminReports(): array
     {
         $reports = [];
+        $seenPublicKeys = [];
 
         foreach (Users::getListUsersManager() as $user) {
             $publicKey = (int)($user['public_key'] ?? 0);
-            if ($publicKey <= 0) {
+            if ($publicKey <= 0 || isset($seenPublicKeys[$publicKey])) {
                 continue;
             }
+            $seenPublicKeys[$publicKey] = true;
 
             $reports[] = $this->ownerReport(
                 $publicKey,
@@ -51,6 +53,15 @@ final class SupportUsageReportService
         }
 
         return $reports;
+    }
+
+    public function resetDailyOperatorRepliesForOwner(int $ownerPublicKey): void
+    {
+        $today = new \DateTimeImmutable('today');
+
+        foreach ($this->projects->projectsForOwner($ownerPublicKey) as $project) {
+            $this->usage->resetOperatorReplies($project->publicKey, $today);
+        }
     }
 
     private function ownerReport(int $ownerPublicKey, string $ownerName, string $ownerEmail, string $firm): SupportUsageOwnerReport

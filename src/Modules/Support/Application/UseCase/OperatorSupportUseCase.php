@@ -33,6 +33,7 @@ final class OperatorSupportUseCase
     {
         return new SupportConversationListResponse(
             $this->conversations->listForClient($publicKey, $status),
+            $this->operatorReplyLimit($publicKey),
         );
     }
 
@@ -97,5 +98,20 @@ final class OperatorSupportUseCase
         }
 
         return $conversation;
+    }
+
+    private function operatorReplyLimit(int $publicKey): array
+    {
+        $today = new \DateTimeImmutable('today');
+        $limit = SupportPlanLimit::forPlan($this->settings->getForClient($publicKey)->plan);
+        $used = $this->usage->dailyOperatorReplyCount($publicKey, $today);
+        $remaining = max(0, $limit->maxOperatorRepliesPerDay - $used);
+
+        return [
+            'operator_replies_per_day' => $limit->maxOperatorRepliesPerDay,
+            'used_operator_replies_today' => $used,
+            'operator_replies_remaining_today' => $remaining,
+            'operator_reply_limit_exhausted' => $remaining <= 0,
+        ];
     }
 }

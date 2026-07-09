@@ -30,6 +30,7 @@ final class YiiSupportSettingsRepository implements SupportSettingsRepositoryInt
             holidaySchedule: $this->json($record->holiday_schedule, []),
             keepWidgetOpenWhenOnline: (bool)$record->keep_widget_open_when_online,
             autoOpenSnoozeMinutes: max(0, (int)$record->auto_open_snooze_minutes),
+            showBranding: $record->hasAttribute('show_branding') ? (bool)$record->show_branding : true,
             askName: (bool)$record->ask_name,
             askEmail: (bool)$record->ask_email,
             askPhone: (bool)$record->ask_phone,
@@ -63,6 +64,9 @@ final class YiiSupportSettingsRepository implements SupportSettingsRepositoryInt
         $record->holiday_schedule = $settings->holidaySchedule;
         $record->keep_widget_open_when_online = $settings->keepWidgetOpenWhenOnline ? 1 : 0;
         $record->auto_open_snooze_minutes = max(0, $settings->autoOpenSnoozeMinutes);
+        if ($record->hasAttribute('show_branding')) {
+            $record->show_branding = $settings->showBranding ? 1 : 0;
+        }
         $record->ask_name = $settings->askName ? 1 : 0;
         $record->ask_email = $settings->askEmail ? 1 : 0;
         $record->ask_phone = $settings->askPhone ? 1 : 0;

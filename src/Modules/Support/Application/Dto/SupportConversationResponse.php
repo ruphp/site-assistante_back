@@ -28,6 +28,7 @@ final class SupportConversationResponse
                 'created_at' => $this->conversation->createdAt,
                 'entry_point_id' => $this->conversation->entryPointId,
                 'entry_point_title' => $this->conversation->entryPointTitle,
+                'entry_point_response_type' => $this->conversation->entryPointResponseType,
                 'priority' => $this->conversation->priority,
                 'operator_replied_at' => $this->conversation->operatorRepliedAt,
                 'operator_seen_at' => $this->conversation->operatorSeenAt,

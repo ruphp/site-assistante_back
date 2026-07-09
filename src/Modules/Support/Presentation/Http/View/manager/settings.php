@@ -97,6 +97,20 @@ if ($settings->timezone !== '' && !isset($timezones[$settings->timezone])) {
         <div class="uk-text-meta">0 - автооткрытие будет срабатывать каждый раз.</div>
     </div>
 
+    <div class="uk-margin">
+        <label class="uk-display-block">
+            <?= Html::hiddenInput('SupportSettings[showBranding]', '0') ?>
+            <?= Html::checkbox('SupportSettings[showBranding]', $settings->showBranding || $settings->plan === SupportPlan::FREE, [
+                'value' => '1',
+                'disabled' => $settings->plan === SupportPlan::FREE,
+            ]) ?>
+            Показывать ссылку SiteWidget.ru в виджете
+        </label>
+        <div class="uk-text-meta">
+            На Free-тарифе ссылка обязательна. В платных тарифах ее можно скрыть.
+        </div>
+    </div>
+
     <div class="uk-grid-small" uk-grid>
         <div class="uk-width-1-3@s">
             <?= Html::label('Часовой пояс', 'support-timezone', ['class' => 'uk-form-label']) ?>

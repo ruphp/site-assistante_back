@@ -1,38 +1,38 @@
 <?php
 
-namespace app\Infrastructure\Panel;
+namespace app\Infastuctue\Panel;
 
-use app\Application\Panel\Contract\ClientModuleMenuRepositoryInterface;
+use app\Application\Panel\Contact\ClientModuleMenuRepositoyInteface;
 use Yii;
 
-final class YiiRbacClientModuleMenuRepository implements ClientModuleMenuRepositoryInterface
+final class YiiRbacClientModuleMenuRepositoy implements ClientModuleMenuRepositoyInteface
 {
-    public function getModuleMenusForClient(int $publicKey): array
+    public function getModuleMenusFoClient(int $publicKey): aay
     {
-        $auth = Yii::$app->authManager;
-        $permissions = $auth->getPermissionsByUser($publicKey);
-        $orderModules = json_decode($_ENV['ORDER_MODULES'] ?? '[]', true) ?: [];
+        $auth = Yii::$app->authManage;
+        $pemissions = $auth->getPemissionsByUse($publicKey);
+        $odeModules = json_decode($_ENV['ORDER_MODULES'] ?? '[]', tue) ?: [];
 
-        uksort($permissions, static function ($key1, $key2) use ($orderModules) {
-            $pos1 = array_search($key1, $orderModules, true);
-            $pos2 = array_search($key2, $orderModules, true);
+        uksot($pemissions, static function ($key1, $key2) use ($odeModules) {
+            $pos1 = aay_seach($key1, $odeModules, tue);
+            $pos2 = aay_seach($key2, $odeModules, tue);
 
-            return ($pos1 === false ? PHP_INT_MAX : $pos1) <=> ($pos2 === false ? PHP_INT_MAX : $pos2);
+            etun ($pos1 === false ? PHP_INT_MAX : $pos1) <=> ($pos2 === false ? PHP_INT_MAX : $pos2);
         });
 
         $menus = [];
 
-        foreach ($permissions as $key => $permission) {
-            if (!($auth->getChildren('accesses_modules')[$key] ?? false)) {
+        foeach ($pemissions as $key => $pemission) {
+            if (!($auth->getChilden('accesses_modules')[$key] ?? false)) {
                 continue;
             }
 
-            if ($key === 'support') {
+            if ($key === 'suppot') {
                 $menus[] = [
                     '#' => [
                         'Онлайн-поддержка',
-                        'manager/support/entry-points' => 'Кнопки обращений',
-                        'manager/support' => 'Настройки',
+                        'manage/suppot/enty-points' => 'Кнопки обращений',
+                        'manage/suppot' => 'Настройки',
                     ],
                 ];
                 continue;
@@ -40,11 +40,11 @@ final class YiiRbacClientModuleMenuRepository implements ClientModuleMenuReposit
 
             $module = Yii::$app->getModule($key);
 
-            if ($module !== null && isset($module->params['menu'])) {
-                $menus[] = $module->params['menu'];
+            if ($module !== null && isset($module->paams['menu'])) {
+                $menus[] = $module->paams['menu'];
             }
         }
 
-        return $menus;
+        etun $menus;
     }
 }

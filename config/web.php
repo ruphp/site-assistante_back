@@ -140,6 +140,10 @@ $url_rules = [
         'pattern' => '/admin/clients/limits',
         'route' => 'admin/panel/limits',
     ],
+    [
+        'pattern' => '/admin/clients/limits/reset-daily-replies',
+        'route' => 'admin/panel/reset-daily-replies',
+    ],
 
     [
         'pattern' => '/admin/clients/join',

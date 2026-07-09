@@ -26,6 +26,7 @@ final class SupportConversation
         public readonly ?string $lastVisitorActivityAt = null,
         public readonly ?int $entryPointId = null,
         public readonly ?string $entryPointTitle = null,
+        public readonly ?string $entryPointResponseType = null,
         public readonly int $priority = 0,
     ) {
     }

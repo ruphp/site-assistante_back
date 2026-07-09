@@ -15,4 +15,6 @@ interface SupportUsageRepositoryInterface
     public function incrementMessages(int $publicKey, \DateTimeImmutable $month): void;
 
     public function incrementOperatorReplies(int $publicKey, \DateTimeImmutable $day): void;
+
+    public function resetOperatorReplies(int $publicKey, \DateTimeImmutable $day): void;
 }

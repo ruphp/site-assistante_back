@@ -139,6 +139,14 @@ class PanelController extends AdminController
         ]);
     }
 
+    public function actionResetDailyReplies(int $publicKey): Response
+    {
+        $this->usageReport->resetDailyOperatorRepliesForOwner((int)$publicKey);
+        Yii::$app->session->setFlash('success', 'Лимит ответов за сегодня сброшен');
+
+        return $this->redirect('/admin/clients/limits');
+    }
+
     public function actionJoin(): Response|string
     {
         $userJoinForm = new UserJoinForm();

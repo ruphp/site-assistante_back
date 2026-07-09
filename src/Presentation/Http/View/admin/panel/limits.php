@@ -30,6 +30,7 @@ $progress = static function (int $used, int $limit) use ($percent): string {
             <th>Операторы</th>
             <th>Диалоги за месяц</th>
             <th>Сообщения за месяц</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -60,6 +61,16 @@ $progress = static function (int $used, int $limit) use ($percent): string {
                 <td>
                     <?= $report->messagesMonth ?> / <?= $report->messagesMonthLimit ?>
                     <?= $progress($report->messagesMonth, $report->messagesMonthLimit) ?>
+                </td>
+                <td class="uk-text-nowrap">
+                    <?= Html::a('Сбросить ответы за сегодня', [
+                        '/admin/clients/limits/reset-daily-replies',
+                        'publicKey' => $report->ownerPublicKey,
+                    ], [
+                        'class' => 'uk-button uk-button-default uk-button-small',
+                        'data-method' => 'post',
+                        'data-confirm' => 'Сбросить дневной лимит ответов для клиента?',
+                    ]) ?>
                 </td>
             </tr>
         <?php endforeach; ?>

@@ -16,6 +16,7 @@ final class AssistantConfigurationResponse
         public readonly mixed $urlSmguideTp,
         public readonly array $modules,
         public readonly int $autoOpenSnoozeMinutes = 0,
+        public readonly array $branding = [],
     ) {
     }
 
@@ -36,6 +37,7 @@ final class AssistantConfigurationResponse
             $this->urlSmguideTp,
             $this->modules,
             $this->autoOpenSnoozeMinutes,
+            $this->branding,
         );
     }
 
@@ -53,6 +55,7 @@ final class AssistantConfigurationResponse
             'url_smguide_tp' => $this->urlSmguideTp,
             'modules' => $this->modules,
             'auto_open_snooze_minutes' => $this->autoOpenSnoozeMinutes,
+            'branding' => $this->branding,
         ];
     }
 }

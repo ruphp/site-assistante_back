@@ -51,6 +51,22 @@ final class YiiSupportUsageRepository implements SupportUsageRepositoryInterface
         )->execute();
     }
 
+    public function resetOperatorReplies(int $publicKey, \DateTimeImmutable $day): void
+    {
+        Yii::$app->db->createCommand()->upsert(
+            'support_usage_day',
+            [
+                'public_key' => $publicKey,
+                'period_day' => $this->day($day),
+                'operator_reply_count' => 0,
+            ],
+            [
+                'operator_reply_count' => 0,
+                'updated_at' => new \yii\db\Expression('NOW()'),
+            ],
+        )->execute();
+    }
+
     private function monthRecord(int $publicKey, \DateTimeImmutable $month): ?SupportUsageMonthRecord
     {
         return SupportUsageMonthRecord::findOne([

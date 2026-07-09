@@ -13,7 +13,7 @@ use yii\helpers\Html;
  * @var \app\Application\Panel\Dto\ClientProjectView $activeProject
  */
 
-$this->title = 'Кнопки обращений';
+$this->title = 'Кнопки быстрых обращений';
 $planLabel = SupportPlan::labels()[$plan] ?? $plan;
 $currentRankLimit = min($limit->entryPointRankLimit(), max(1, count($entryPoints)));
 $newRankLimit = min($limit->entryPointRankLimit(), max(1, count($entryPoints) + 1));
@@ -25,15 +25,19 @@ $newRankOptions = [];
 for ($rank = 1; $rank <= $newRankLimit; $rank++) {
     $newRankOptions[$rank] = (string)$rank;
 }
+$responseTypeOptions = [
+    SupportEntryPoint::RESPONSE_ANSWER => 'Готовый ответ',
+    SupportEntryPoint::RESPONSE_QUESTION => 'Уточняющий вопрос',
+];
 ?>
 
 <div class="uk-container uk-position-relative">
     <?= $this->render('@app/src/Presentation/Http/View/manager/panel/_projectTabs', compact('projects', 'activeProject')) ?>
 
-    <h3>Кнопки обращений</h3>
+    <h3>Кнопки быстрых обращений</h3>
 
     <div class="uk-alert-primary" uk-alert>
-        <p><?= Html::encode($planLabel) ?>-тариф: <?= Html::encode((string)$limit->maxEntryPoints) ?> кнопка обращения. Обычный чат без кнопки остается доступен всегда с приоритетом 0.</p>
+        <p><?= Html::encode($planLabel) ?>-тариф: количество кнопок быстрых обращений - <?= Html::encode((string)$limit->maxEntryPoints) ?>. Обычный чат без кнопки остается доступен всегда с приоритетом 0.</p>
     </div>
 
     <?php if ($entryPoints !== []): ?>
@@ -42,6 +46,7 @@ for ($rank = 1; $rank <= $newRankLimit; $rank++) {
             <tr>
                 <th>Название</th>
                 <th>Ответ</th>
+                <th>Тип ответа</th>
                 <th>Приоритет</th>
                 <th>Порядок</th>
                 <th>Включена</th>
@@ -67,6 +72,12 @@ for ($rank = 1; $rank <= $newRankLimit; $rank++) {
                         <?= Html::textarea('SupportEntryPoint[description]', $entryPoint->description, [
                             'class' => 'uk-textarea uk-form-width-large',
                             'rows' => 2,
+                        ]) ?>
+                        <div class="uk-text-meta">Для переноса строки используйте Enter. Ссылку можно вставить обычным URL.</div>
+                    </td>
+                    <td>
+                        <?= Html::dropDownList('SupportEntryPoint[responseType]', $entryPoint->responseType, $responseTypeOptions, [
+                            'class' => 'uk-select uk-form-width-medium',
                         ]) ?>
                     </td>
                     <td>
@@ -127,7 +138,15 @@ for ($rank = 1; $rank <= $newRankLimit; $rank++) {
                     'id' => 'support-entry-description',
                     'class' => 'uk-textarea',
                     'rows' => 3,
-                    'placeholder' => 'Что подставить в первое сообщение вместо названия проблемы',
+                    'placeholder' => 'Готовый ответ или уточняющий вопрос',
+                ]) ?>
+                <div class="uk-text-meta">Для переноса строки используйте Enter. Ссылку можно вставить обычным URL.</div>
+            </div>
+            <div class="uk-width-1-6@s">
+                <?= Html::label('Тип ответа', 'support-entry-response-type', ['class' => 'uk-form-label']) ?>
+                <?= Html::dropDownList('SupportEntryPoint[responseType]', SupportEntryPoint::RESPONSE_ANSWER, $responseTypeOptions, [
+                    'id' => 'support-entry-response-type',
+                    'class' => 'uk-select',
                 ]) ?>
             </div>
             <div class="uk-width-1-6@s">

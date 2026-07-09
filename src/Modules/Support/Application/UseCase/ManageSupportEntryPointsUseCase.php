@@ -36,7 +36,7 @@ final class ManageSupportEntryPointsUseCase
         $entryPointCount = $this->entryPoints->countForClient($publicKey);
 
         if ($isNew && !$limit->canAddEntryPoint($entryPointCount)) {
-            throw new \DomainException('На текущем тарифе достигнут лимит кнопок обращения');
+            throw new \DomainException('На текущем тарифе достигнут лимит кнопок быстрых обращения');
         }
 
         $title = trim((string)($data['title'] ?? ''));
@@ -52,6 +52,7 @@ final class ManageSupportEntryPointsUseCase
             publicKey: $publicKey,
             title: mb_substr($title, 0, 255),
             description: mb_substr($description, 0, 2000),
+            responseType: SupportEntryPoint::normalizeResponseType((string)($data['responseType'] ?? SupportEntryPoint::RESPONSE_ANSWER)),
             priority: max(1, min($rankLimit, (int)($data['priority'] ?? 1))),
             enabled: (bool)($data['enabled'] ?? false),
             sortOrder: max(1, min($rankLimit, (int)($data['sortOrder'] ?? 1))),

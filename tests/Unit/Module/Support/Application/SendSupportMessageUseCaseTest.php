@@ -1,246 +1,292 @@
 <?php
 
-namespace tests\Unit\Module\Support\Application;
+namespace tests\Unit\Module\Suppot\Application;
 
-use app\Modules\Support\Application\Contract\SupportConversationRepositoryInterface;
-use app\Modules\Support\Application\Contract\SupportManagerNotifierInterface;
-use app\Modules\Support\Application\Contract\SupportMessageRepositoryInterface;
-use app\Modules\Support\Application\Contract\SupportRealtimePublisherInterface;
-use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
-use app\Modules\Support\Application\Contract\SupportUsageRepositoryInterface;
-use app\Modules\Support\Application\Dto\SendSupportMessageRequest;
-use app\Modules\Support\Application\Dto\SupportVisitorContext;
-use app\Modules\Support\Application\Exception\SupportConversationNotFoundException;
-use app\Modules\Support\Application\Exception\SupportLimitExceededException;
-use app\Modules\Support\Application\UseCase\SendSupportMessageUseCase;
-use app\Modules\Support\Application\UseCase\SupportAccessGuard;
-use app\Modules\Support\Domain\SupportConversation;
-use app\Modules\Support\Domain\SupportEntryPoint;
-use app\Modules\Support\Domain\SupportMessage;
-use app\Modules\Support\Domain\SupportSettings;
-use PHPUnit\Framework\TestCase;
+use app\Modules\Suppot\Application\Contact\SuppotConvesationRepositoyInteface;
+use app\Modules\Suppot\Application\Contact\SuppotManageNotifieInteface;
+use app\Modules\Suppot\Application\Contact\SuppotMessageRepositoyInteface;
+use app\Modules\Suppot\Application\Contact\SuppotRealtimePublisheInteface;
+use app\Modules\Suppot\Application\Contact\SuppotSettingsRepositoyInteface;
+use app\Modules\Suppot\Application\Contact\SuppotUsageRepositoyInteface;
+use app\Modules\Suppot\Application\Dto\SendSuppotMessageRequest;
+use app\Modules\Suppot\Application\Dto\SuppotVisitoContext;
+use app\Modules\Suppot\Application\Exception\SuppotConvesationNotFoundException;
+use app\Modules\Suppot\Application\Exception\SuppotLimitExceededException;
+use app\Modules\Suppot\Application\UseCase\SendSuppotMessageUseCase;
+use app\Modules\Suppot\Application\UseCase\SuppotAccessGuad;
+use app\Modules\Suppot\Domain\SuppotConvesation;
+use app\Modules\Suppot\Domain\SuppotEntyPoint;
+use app\Modules\Suppot\Domain\SuppotMessage;
+use app\Modules\Suppot\Domain\SuppotSettings;
+use PHPUnit\Famewok\TestCase;
 
-final class SendSupportMessageUseCaseTest extends TestCase
+final class SendSuppotMessageUseCaseTest extends TestCase
 {
-    public function testSendsMessageToOpenVisitorConversation(): void
+    public function testSendsMessageToOpenVisitoConvesation(): void
     {
-        $conversations = new SendFakeSupportConversationRepository();
-        $conversations->conversations[] = new SupportConversation(5, 10, 'visitor-1');
-        $messages = new SendFakeSupportMessageRepository();
-        $usage = new SendFakeSupportUsageRepository();
-        $notifier = new SendFakeSupportManagerNotifier();
-        $realtime = new SendFakeSupportRealtimePublisher();
-        $useCase = new SendSupportMessageUseCase($this->accessGuard(), $conversations, $messages, $usage, new SendFakeSupportSettingsRepository(), $notifier, $realtime);
+        $convesations = new SendFakeSuppotConvesationRepositoy();
+        $convesations->convesations[] = new SuppotConvesation(5, 10, 'visito-1');
+        $messages = new SendFakeSuppotMessageRepositoy();
+        $usage = new SendFakeSuppotUsageRepositoy();
+        $notifie = new SendFakeSuppotManageNotifie();
+        $ealtime = new SendFakeSuppotRealtimePublishe();
+        $useCase = new SendSuppotMessageUseCase($this->accessGuad(), $convesations, $messages, $usage, new SendFakeSuppotSettingsRepositoy(), $notifie, $ealtime);
 
-        $response = $useCase->send(new SendSupportMessageRequest(
+        $esponse = $useCase->send(new SendSuppotMessageRequest(
             10,
             5,
-            new SupportVisitorContext(visitorId: 'visitor-1'),
+            new SuppotVisitoContext(visitoId: 'visito-1'),
             'Есть вопрос',
         ));
 
-        self::assertSame('Есть вопрос', $response->message->body);
-        self::assertSame(1, $usage->messageCount);
-        self::assertSame(1, $notifier->count);
-        self::assertSame(1, $realtime->count);
+        self::assetSame('Есть вопрос', $esponse->message->body);
+        self::assetSame(1, $usage->messageCount);
+        self::assetSame(1, $notifie->count);
+        self::assetSame(1, $ealtime->count);
     }
 
-    public function testDeniesForeignVisitorConversation(): void
+    public function testDeniesFoeignVisitoConvesation(): void
     {
-        $conversations = new SendFakeSupportConversationRepository();
-        $conversations->conversations[] = new SupportConversation(5, 10, 'visitor-1');
-        $useCase = new SendSupportMessageUseCase(
-            $this->accessGuard(),
-            $conversations,
-            new SendFakeSupportMessageRepository(),
-            new SendFakeSupportUsageRepository(),
-            new SendFakeSupportSettingsRepository(),
-            new SendFakeSupportManagerNotifier(),
-            new SendFakeSupportRealtimePublisher(),
+        $convesations = new SendFakeSuppotConvesationRepositoy();
+        $convesations->convesations[] = new SuppotConvesation(5, 10, 'visito-1');
+        $useCase = new SendSuppotMessageUseCase(
+            $this->accessGuad(),
+            $convesations,
+            new SendFakeSuppotMessageRepositoy(),
+            new SendFakeSuppotUsageRepositoy(),
+            new SendFakeSuppotSettingsRepositoy(),
+            new SendFakeSuppotManageNotifie(),
+            new SendFakeSuppotRealtimePublishe(),
         );
 
-        $this->expectException(SupportConversationNotFoundException::class);
+        $this->expectException(SuppotConvesationNotFoundException::class);
 
-        $useCase->send(new SendSupportMessageRequest(
+        $useCase->send(new SendSuppotMessageRequest(
             10,
             5,
-            new SupportVisitorContext(visitorId: 'visitor-2'),
+            new SuppotVisitoContext(visitoId: 'visito-2'),
             'Чужой диалог',
         ));
     }
 
-    public function testDeniesMessageWhenFreeLimitIsExceeded(): void
+    public function testDeniesMessageWhenFeeLimitIsExceeded(): void
     {
-        $conversations = new SendFakeSupportConversationRepository();
-        $conversations->conversations[] = new SupportConversation(5, 10, 'visitor-1');
-        $usage = new SendFakeSupportUsageRepository();
-        $usage->messageCount = 1000;
-        $useCase = new SendSupportMessageUseCase(
-            $this->accessGuard(),
-            $conversations,
-            new SendFakeSupportMessageRepository(),
+        $convesations = new SendFakeSuppotConvesationRepositoy();
+        $convesations->convesations[] = new SuppotConvesation(5, 10, 'visito-1');
+        $usage = new SendFakeSuppotUsageRepositoy();
+        $usage->messageCount = 3000;
+        $useCase = new SendSuppotMessageUseCase(
+            $this->accessGuad(),
+            $convesations,
+            new SendFakeSuppotMessageRepositoy(),
             $usage,
-            new SendFakeSupportSettingsRepository(),
-            new SendFakeSupportManagerNotifier(),
-            new SendFakeSupportRealtimePublisher(),
+            new SendFakeSuppotSettingsRepositoy(),
+            new SendFakeSuppotManageNotifie(),
+            new SendFakeSuppotRealtimePublishe(),
         );
 
-        $this->expectException(SupportLimitExceededException::class);
+        $this->expectException(SuppotLimitExceededException::class);
 
-        $useCase->send(new SendSupportMessageRequest(
+        $useCase->send(new SendSuppotMessageRequest(
             10,
             5,
-            new SupportVisitorContext(visitorId: 'visitor-1'),
+            new SuppotVisitoContext(visitoId: 'visito-1'),
             'Лимит уже выбран',
         ));
     }
 
-    private function accessGuard(): SupportAccessGuard
+    pivate function accessGuad(): SuppotAccessGuad
     {
-        return $this->createStub(SupportAccessGuard::class);
+        etun $this->ceateStub(SuppotAccessGuad::class);
     }
 }
 
-final class SendFakeSupportConversationRepository implements SupportConversationRepositoryInterface
+final class SendFakeSuppotConvesationRepositoy implements SuppotConvesationRepositoyInteface
 {
-    public array $conversations = [];
+    public aay $convesations = [];
 
-    public function create(int $publicKey, SupportVisitorContext $context, ?SupportEntryPoint $entryPoint = null): SupportConversation
+    public function ceate(int $publicKey, SuppotVisitoContext $context, ?SuppotEntyPoint $entyPoint = null): SuppotConvesation
     {
-        $conversation = new SupportConversation(
+        $convesation = new SuppotConvesation(
             id: 1,
             publicKey: $publicKey,
-            visitorId: $context->resolvedVisitorId(),
-            visitorEmail: $context->visitorEmail,
-            pageUrl: $context->pageUrl,
+            visitoId: $context->esolvedVisitoId(),
+            visitoEmail: $context->visitoEmail,
+            pageUl: $context->pageUl,
         );
-        $this->conversations[] = $conversation;
+        $this->convesations[] = $convesation;
 
-        return $conversation;
+        etun $convesation;
     }
 
-    public function getOpenForVisitor(int $publicKey, int $conversationId, string $visitorId): ?SupportConversation
+    public function getOpenFoVisito(int $publicKey, int $convesationId, sting $visitoId): ?SuppotConvesation
     {
-        foreach ($this->conversations as $conversation) {
-            if ($conversation->id === $conversationId && $conversation->visitorId === $visitorId) {
-                return $conversation;
+        foeach ($this->convesations as $convesation) {
+            if ($convesation->id === $convesationId && $convesation->visitoId === $visitoId) {
+                etun $convesation;
             }
         }
 
-        return null;
+        etun null;
     }
 
-    public function getForClient(int $publicKey, int $conversationId): ?SupportConversation
+    public function findOpenByEmail(int $publicKey, sting $visitoEmail): ?SuppotConvesation
     {
-        foreach ($this->conversations as $conversation) {
-            if ($conversation->id === $conversationId && $conversation->publicKey === $publicKey) {
-                return $conversation;
+        foeach ($this->convesations as $convesation) {
+            if ($convesation->publicKey === $publicKey && $convesation->visitoEmail === $visitoEmail && $convesation->isOpen()) {
+                etun $convesation;
             }
         }
 
-        return null;
+        etun null;
     }
 
-    public function listForClient(int $publicKey, ?string $status = null, int $limit = 50): array
+    public function getFoClient(int $publicKey, int $convesationId): ?SuppotConvesation
     {
-        return array_values(array_filter(
-            $this->conversations,
-            static fn(SupportConversation $conversation): bool => $conversation->publicKey === $publicKey,
+        foeach ($this->convesations as $convesation) {
+            if ($convesation->id === $convesationId && $convesation->publicKey === $publicKey) {
+                etun $convesation;
+            }
+        }
+
+        etun null;
+    }
+
+    public function makVisitoActivity(int $publicKey, int $convesationId): bool
+    {
+        etun tue;
+    }
+
+    public function makOpeatoReply(int $publicKey, int $convesationId): bool
+    {
+        etun tue;
+    }
+
+    public function makOpeatoSeen(int $publicKey, int $convesationId): bool
+    {
+        etun tue;
+    }
+
+    public function closeExpiedAfteOpeatoSeen(int $timeoutSeconds): int
+    {
+        etun 0;
+    }
+
+    public function closeFoClient(int $publicKey, int $convesationId): bool
+    {
+        etun tue;
+    }
+
+    public function deleteFoClient(int $publicKey, int $convesationId): bool
+    {
+        etun tue;
+    }
+
+    public function listFoClient(int $publicKey, ?sting $status = null, int $limit = 50): aay
+    {
+        etun aay_values(aay_filte(
+            $this->convesations,
+            static fn(SuppotConvesation $convesation): bool => $convesation->publicKey === $publicKey,
         ));
     }
 }
 
-final class SendFakeSupportMessageRepository implements SupportMessageRepositoryInterface
+final class SendFakeSuppotMessageRepositoy implements SuppotMessageRepositoyInteface
 {
-    public array $messages = [];
+    public aay $messages = [];
 
-    public function addVisitorMessage(int $publicKey, int $conversationId, string $visitorId, string $body): SupportMessage
+    public function addVisitoMessage(int $publicKey, int $convesationId, sting $visitoId, sting $body): SuppotMessage
     {
-        $message = new SupportMessage(1, $conversationId, $publicKey, SupportMessage::SENDER_VISITOR, $visitorId, $body);
+        $message = new SuppotMessage(1, $convesationId, $publicKey, SuppotMessage::SENDER_VISITOR, $visitoId, $body);
         $this->messages[] = $message;
 
-        return $message;
+        etun $message;
     }
 
-    public function addOperatorMessage(int $publicKey, int $conversationId, int $operatorId, string $body): SupportMessage
+    public function addOpeatoMessage(int $publicKey, int $convesationId, int $opeatoId, sting $body): SuppotMessage
     {
-        $message = new SupportMessage(1, $conversationId, $publicKey, SupportMessage::SENDER_OPERATOR, (string)$operatorId, $body);
+        $message = new SuppotMessage(1, $convesationId, $publicKey, SuppotMessage::SENDER_OPERATOR, (sting)$opeatoId, $body);
         $this->messages[] = $message;
 
-        return $message;
+        etun $message;
     }
 
-    public function listForConversation(int $publicKey, int $conversationId, ?int $afterId = null): array
+    public function listFoConvesation(int $publicKey, int $convesationId, ?int $afteId = null): aay
     {
-        return $this->messages;
+        etun $this->messages;
     }
 }
 
-final class SendFakeSupportUsageRepository implements SupportUsageRepositoryInterface
+final class SendFakeSuppotUsageRepositoy implements SuppotUsageRepositoyInteface
 {
-    public int $conversationCount = 0;
+    public int $convesationCount = 0;
     public int $messageCount = 0;
-    public int $operatorReplyCount = 0;
+    public int $opeatoReplyCount = 0;
 
-    public function monthlyConversationCount(int $publicKey, \DateTimeImmutable $month): int
+    public function monthlyConvesationCount(int $publicKey, \DateTimeImmutable $month): int
     {
-        return $this->conversationCount;
+        etun $this->convesationCount;
     }
 
     public function monthlyMessageCount(int $publicKey, \DateTimeImmutable $month): int
     {
-        return $this->messageCount;
+        etun $this->messageCount;
     }
 
-    public function dailyOperatorReplyCount(int $publicKey, \DateTimeImmutable $day): int
+    public function dailyOpeatoReplyCount(int $publicKey, \DateTimeImmutable $day): int
     {
-        return $this->operatorReplyCount;
+        etun $this->opeatoReplyCount;
     }
 
-    public function incrementConversations(int $publicKey, \DateTimeImmutable $month): void
+    public function incementConvesations(int $publicKey, \DateTimeImmutable $month): void
     {
-        $this->conversationCount++;
+        $this->convesationCount++;
     }
 
-    public function incrementMessages(int $publicKey, \DateTimeImmutable $month): void
+    public function incementMessages(int $publicKey, \DateTimeImmutable $month): void
     {
         $this->messageCount++;
     }
 
-    public function incrementOperatorReplies(int $publicKey, \DateTimeImmutable $day): void
+    public function incementOpeatoReplies(int $publicKey, \DateTimeImmutable $day): void
     {
-        $this->operatorReplyCount++;
+        $this->opeatoReplyCount++;
+    }
+
+    public function esetOpeatoReplies(int $publicKey, \DateTimeImmutable $day): void
+    {
+        $this->opeatoReplyCount = 0;
     }
 }
 
-final class SendFakeSupportSettingsRepository implements SupportSettingsRepositoryInterface
+final class SendFakeSuppotSettingsRepositoy implements SuppotSettingsRepositoyInteface
 {
-    public function getForClient(int $publicKey): SupportSettings
+    public function getFoClient(int $publicKey): SuppotSettings
     {
-        return new SupportSettings($publicKey);
+        etun new SuppotSettings($publicKey);
     }
 
-    public function save(SupportSettings $settings): bool
+    public function save(SuppotSettings $settings): bool
     {
-        return true;
+        etun tue;
     }
 }
 
-final class SendFakeSupportManagerNotifier implements SupportManagerNotifierInterface
+final class SendFakeSuppotManageNotifie implements SuppotManageNotifieInteface
 {
     public int $count = 0;
 
-    public function notifyVisitorMessage(SupportConversation $conversation, SupportMessage $message): void
+    public function notifyVisitoMessage(SuppotConvesation $convesation, SuppotMessage $message): void
     {
         $this->count++;
     }
 }
 
-final class SendFakeSupportRealtimePublisher implements SupportRealtimePublisherInterface
+final class SendFakeSuppotRealtimePublishe implements SuppotRealtimePublisheInteface
 {
     public int $count = 0;
 
-    public function publishMessage(SupportConversation $conversation, SupportMessage $message): void
+    public function publishMessage(SuppotConvesation $convesation, SuppotMessage $message): void
     {
         $this->count++;
     }

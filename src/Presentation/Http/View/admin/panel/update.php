@@ -53,7 +53,7 @@ $this->title = 'Изменение данных клиента';
 
             <h4>Тарифы</h4>
             <div class="uk-margin">
-                <?= Html::label('Тариф онлайн-поддержки', 'support-plan', ['class' => 'uk-form-label']) ?>
+                <?= Html::label('Тариф', 'support-plan', ['class' => 'uk-form-label']) ?>
                 <?= Html::dropDownList('Users[support_plan]', $supportPlan, $supportPlanLabels, [
                     'id' => 'support-plan',
                     'class' => 'uk-select',

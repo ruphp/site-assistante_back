@@ -97,7 +97,7 @@ p.uk-text-primary {
     max-width: 560px;
     border: 1px solid var(--sw-line);
     border-radius: 4px;
-    box-shadow: 0 10px 20px rgba(43, 36, 92, 0.06);
+    box-shadow: var(--sw-shadow-card);
     background: var(--sw-surface);
 }
 
@@ -404,6 +404,14 @@ ul.ticket-messages-list {
     --sw-text: #18181B;
     --sw-muted: #66627A;
     --sw-line: #E7E1F5;
+    --sw-shadow-card: 0 16px 36px rgba(43, 36, 92, .14), 0 2px 8px rgba(43, 36, 92, .08);
+    --sw-shadow-card-hover: 0 20px 44px rgba(43, 36, 92, .18), 0 3px 10px rgba(43, 36, 92, .1);
+}
+
+.uk-card.uk-card-default,
+.uk-cad.uk-cad-default {
+    border: 1px solid var(--sw-line);
+    box-shadow: var(--sw-shadow-card);
 }
 
 .sw-header {
@@ -927,6 +935,7 @@ ul.ticket-messages-list {
     background: #fff;
     border: 1px solid var(--sw-line);
     border-top: 5px solid var(--sw-primary);
+    box-shadow: var(--sw-shadow-card);
 }
 
 .site-landing__card-icon {
@@ -959,6 +968,7 @@ ul.ticket-messages-list {
     padding: 26px;
     color: #fff;
     background: var(--sw-base);
+    box-shadow: var(--sw-shadow-card);
 }
 
 .site-landing__step strong {
@@ -993,6 +1003,7 @@ ul.ticket-messages-list {
     background: #fff;
     border-left: 5px solid var(--sw-primary);
     color: #343044;
+    box-shadow: var(--sw-shadow-card);
 }
 
 .site-landing__download {
@@ -1011,6 +1022,7 @@ ul.ticket-messages-list {
     background: #fff;
     border: 1px solid var(--sw-line);
     border-top: 5px solid var(--sw-warm);
+    box-shadow: var(--sw-shadow-card);
     text-decoration: none;
     transition: border-color .15s, box-shadow .15s, transform .15s;
 }
@@ -1019,7 +1031,7 @@ ul.ticket-messages-list {
 .site-landing__download a:focus {
     color: var(--sw-base);
     border-color: var(--sw-primary);
-    box-shadow: 0 12px 28px rgba(43, 36, 92, .12);
+    box-shadow: var(--sw-shadow-card-hover);
     transform: translateY(-2px);
 }
 
@@ -1056,6 +1068,7 @@ ul.ticket-messages-list {
     background: #fff;
     border: 1px solid var(--sw-line);
     border-top: 5px solid var(--sw-primary);
+    box-shadow: var(--sw-shadow-card);
 }
 
 .site-docs__card-head {
@@ -1139,6 +1152,7 @@ ul.ticket-messages-list {
     background: #fff;
     border: 1px solid var(--sw-line);
     border-top: 5px solid var(--sw-warm);
+    box-shadow: var(--sw-shadow-card);
 }
 
 .site-landing__install-card img {
@@ -1180,6 +1194,7 @@ ul.ticket-messages-list {
     background: #fff;
     border: 1px solid var(--sw-line);
     border-top: 5px solid var(--sw-primary);
+    box-shadow: var(--sw-shadow-card);
 }
 
 .site-landing__price-card--accent {
@@ -1247,6 +1262,7 @@ ul.ticket-messages-list {
     padding: 24px;
     background: #fff;
     border: 1px solid var(--sw-line);
+    box-shadow: var(--sw-shadow-card);
 }
 
 .site-landing__addons h3 {
@@ -1292,6 +1308,7 @@ ul.ticket-messages-list {
     padding: 22px 24px;
     color: #fff;
     background: var(--sw-base);
+    box-shadow: var(--sw-shadow-card);
 }
 
 .site-landing__business strong {
@@ -1308,6 +1325,7 @@ ul.ticket-messages-list {
     padding: 48px;
     color: #fff;
     background: var(--sw-base);
+    box-shadow: var(--sw-shadow-card);
 }
 
 .site-landing__cta h2 {

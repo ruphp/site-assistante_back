@@ -8,7 +8,9 @@ use app\Application\Assistant\Contract\AssistantContextRepositoryInterface;
 use app\Application\Assistant\Dto\BuildAssistantConfigurationRequest;
 use app\Application\Assistant\Dto\AssistantConfigurationResponse;
 use app\Application\Client\Contract\ClientModuleAccessRepositoryInterface;
+use app\Modules\Support\Domain\SupportSettings;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
+use app\Modules\Support\Domain\SupportPlan;
 
 final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigurationUseCaseInterface
 {
@@ -52,6 +54,7 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
             urlSmguideTp: $client->params['server_stp'],
             modules: array_values($modules),
             autoOpenSnoozeMinutes: $supportSettings->autoOpenSnoozeMinutes,
+            branding: $this->brandingForSettings($supportSettings),
         );
 
         try {
@@ -66,5 +69,15 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
     private function allowedEnabledModules(int $publicKey, array $enabledModules): array
     {
         return $this->moduleAccessRepository->getForClient($publicKey)->filterAllowed($enabledModules);
+    }
+
+    private function brandingForSettings(SupportSettings $settings): array
+    {
+        $isFree = SupportPlan::normalize($settings->plan) === SupportPlan::FREE;
+
+        return [
+            'enabled' => $isFree || $settings->showBranding,
+            'can_disable' => !$isFree,
+        ];
     }
 }

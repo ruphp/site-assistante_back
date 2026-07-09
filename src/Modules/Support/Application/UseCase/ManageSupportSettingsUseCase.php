@@ -5,6 +5,7 @@ namespace app\Modules\Support\Application\UseCase;
 use app\Modules\Support\Application\Contract\SupportManagerRecipientRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Application\Dto\SupportSettingsViewData;
+use app\Modules\Support\Domain\SupportPlan;
 use app\Modules\Support\Domain\SupportPlanLimit;
 use app\Modules\Support\Domain\SupportSettings;
 
@@ -32,10 +33,13 @@ final class ManageSupportSettingsUseCase
     {
         $data = $post['SupportSettings'] ?? [];
         $schedule = $this->schedule($post['SupportSchedule'] ?? []);
+        $currentSettings = $this->settings->getForClient($publicKey);
+        $plan = $currentSettings->plan;
+        $canDisableBranding = $plan !== SupportPlan::FREE;
 
         return $this->settings->save(new SupportSettings(
             publicKey: $publicKey,
-            plan: $this->settings->getForClient($publicKey)->plan,
+            plan: $plan,
             enabled: true,
             title: $this->text($data, 'title', 'Онлайн-поддержка'),
             welcomeMessage: $this->text($data, 'welcomeMessage', 'Здравствуйте! Напишите нам, мы поможем.'),
@@ -46,6 +50,7 @@ final class ManageSupportSettingsUseCase
             holidaySchedule: $schedule['holidays'],
             keepWidgetOpenWhenOnline: (bool)($data['keepWidgetOpenWhenOnline'] ?? false),
             autoOpenSnoozeMinutes: max(0, min(1440, (int)($data['autoOpenSnoozeMinutes'] ?? 0))),
+            showBranding: $canDisableBranding ? (bool)($data['showBranding'] ?? false) : true,
             askName: (bool)($data['askName'] ?? true),
             askEmail: true,
             askPhone: (bool)($data['askPhone'] ?? true),
