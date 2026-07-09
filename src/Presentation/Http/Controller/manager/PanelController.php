@@ -2,10 +2,13 @@
 
 namespace app\Presentation\Http\Controller\manager;
 
+use app\Application\Panel\ClientPanelMenuService;
+use app\Application\Panel\ClientProjectService;
 use app\Application\Role\Dto\RoleOperationResult;
 use app\Application\Role\ManagerRoleService;
 use app\Application\Panel\ManageAssistantSettingsService;
 use app\Application\Panel\Metrics\PanelMetricsService;
+use app\Modules\Support\Application\Reporting\SupportUsageReportService;
 use app\Presentation\Http\Controller\ManagerController;
 use Exception;
 use Yii;
@@ -19,6 +22,9 @@ class PanelController extends ManagerController
         private readonly ManageAssistantSettingsService $assistantSettings,
         private readonly ManagerRoleService $roles,
         private readonly PanelMetricsService $metrics,
+        private readonly ClientPanelMenuService $panelMenu,
+        private readonly ClientProjectService $projects,
+        private readonly SupportUsageReportService $usageReport,
         $config = []
     ) {
         parent::__construct($id, $module, $config);
@@ -26,28 +32,58 @@ class PanelController extends ManagerController
 
     public function actionIndex(): string
     {
-        return $this->render('index');
+        $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
+
+        return $this->render('index', $this->projects->tabsData(
+            $ownerPublicKey,
+            (int)Yii::$app->request->get('projectId') ?: null,
+        ));
+    }
+
+    public function actionProjectCreate(): Response
+    {
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect('/user/login');
+        }
+
+        $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
+        $name = (string)Yii::$app->request->post('name', '');
+        $domain = (string)Yii::$app->request->post('domain', '');
+
+        if ($this->projects->create($ownerPublicKey, $name, $domain)) {
+            Yii::$app->session->setFlash('success', 'Проект создан');
+        } else {
+            Yii::$app->session->setFlash('error', 'Не удалось создать проект');
+        }
+
+        return $this->redirect('/manager');
     }
 
     public function actionDesigne(): Response|string
     {
-        $publicKey = Yii::$app->user->identity->getPublicKey();
+        $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
+        $projectId = (int)Yii::$app->request->get('projectId') ?: null;
+        $publicKey = $this->projects->publicKeyForProject($ownerPublicKey, $projectId);
 
         if (Yii::$app->request->isPost) {
             try {
                 if ($this->assistantSettings->saveDesign($publicKey, Yii::$app->request->post())) {
                     Yii::$app->session->setFlash('success', 'Настройки оформления сохранены');
-                    return $this->redirect('/manager/designe');
+                    return $this->redirect($this->projectUrl('/manager/designe', $projectId));
                 }
             } catch (Exception $e) {
                 Yii::$app->session->setFlash('error', $e->getMessage());
-                return $this->redirect('/manager/designe');
+                return $this->redirect($this->projectUrl('/manager/designe', $projectId));
             }
 
             Yii::$app->session->setFlash('error', 'Не удалось сохранить');
         }
 
-        return $this->render('designe', $this->assistantSettings->getDesignViewData($publicKey)->toArray());
+        return $this->render(
+            'designe',
+            $this->assistantSettings->getDesignViewData($publicKey)->toArray()
+            + $this->projects->tabsData($ownerPublicKey, $projectId),
+        );
     }
 
     public function actionParams(): Response|string
@@ -56,18 +92,31 @@ class PanelController extends ManagerController
             return $this->redirect('/user/login');
         }
 
-        $publicKey = Yii::$app->user->identity->getPublicKey();
+        $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
+        $projectId = (int)Yii::$app->request->get('projectId') ?: null;
+        $publicKey = $this->projects->publicKeyForProject($ownerPublicKey, $projectId);
 
         if (Yii::$app->request->isPost) {
             if ($this->assistantSettings->saveParams($publicKey, Yii::$app->request->post())) {
                 Yii::$app->session->setFlash('success', 'Настройки подключения сохранены');
-                return $this->redirect('/manager/params');
+                return $this->redirect($this->projectUrl('/manager/params', $projectId));
             }
 
             Yii::$app->session->setFlash('error', 'Ошибка');
         }
 
-        return $this->render('settings', $this->assistantSettings->getParamsViewData($publicKey)->toArray());
+        return $this->render(
+            'settings',
+            $this->assistantSettings->getParamsViewData($publicKey)->toArray()
+            + $this->projects->tabsData($ownerPublicKey, $projectId),
+        );
+    }
+
+    public function actionLimits(): string
+    {
+        return $this->render('limits', [
+            'report' => $this->usageReport->clientReport(Yii::$app->user->identity->getPublicKey()),
+        ]);
     }
 
     public function actionRoles(): Response|string
@@ -78,6 +127,11 @@ class PanelController extends ManagerController
 
         $post = Yii::$app->request->post();
         $publicKey = Yii::$app->user->identity->getPublicKey();
+        if (!$this->panelMenu->rolesEnabledForClient($publicKey)) {
+            Yii::$app->session->setFlash('error', 'Управление ролями доступно на платном тарифе');
+
+            return $this->redirect('/manager/params');
+        }
 
         if (Yii::$app->request->isPost) {
             $result = $this->roles->saveFromPost($publicKey, $post);
@@ -99,7 +153,14 @@ class PanelController extends ManagerController
             return $this->redirect('/user/login');
         }
 
-        $result = $this->roles->deleteById((int)$id, Yii::$app->user->identity->getPublicKey());
+        $publicKey = Yii::$app->user->identity->getPublicKey();
+        if (!$this->panelMenu->rolesEnabledForClient($publicKey)) {
+            Yii::$app->session->setFlash('error', 'Управление ролями доступно на платном тарифе');
+
+            return $this->redirect('/manager/params');
+        }
+
+        $result = $this->roles->deleteById((int)$id, $publicKey);
         $this->setRoleOperationFlash($result);
 
         return $this->redirect(['/manager/roles']);
@@ -149,5 +210,10 @@ class PanelController extends ManagerController
         }
 
         Yii::$app->session->setFlash('error', 'Ошибка');
+    }
+
+    private function projectUrl(string $path, ?int $projectId): string
+    {
+        return $projectId === null ? $path : $path . '?projectId=' . $projectId;
     }
 }

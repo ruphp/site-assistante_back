@@ -22,4 +22,11 @@ final class SupportPlanLimitTest extends TestCase
         self::assertFalse($limit->canStartConversation(100));
         self::assertFalse($limit->canSendMessage(1000));
     }
+
+    public function testPlanSpecificDailyReplyLimits(): void
+    {
+        self::assertSame(10, SupportPlanLimit::free()->maxOperatorRepliesPerDay);
+        self::assertSame(100, SupportPlanLimit::start()->maxOperatorRepliesPerDay);
+        self::assertSame(300, SupportPlanLimit::pro()->maxOperatorRepliesPerDay);
+    }
 }

@@ -17,12 +17,15 @@ use yii\helpers\Html;
  * @var $posts
  * @var $code
  * @var \app\Domain\Client\ClientModuleAccess $moduleAccess
+ * @var \app\Application\Panel\Dto\ClientProjectView[] $projects
+ * @var \app\Application\Panel\Dto\ClientProjectView $activeProject
  */
 
 $this->title = 'Настройки подключения ';
 ?>
 
 <div class="uk-container uk-position-relative">
+    <?= $this->render('_projectTabs', compact('projects', 'activeProject')) ?>
 
 
     <?php

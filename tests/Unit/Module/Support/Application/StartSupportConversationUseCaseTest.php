@@ -252,6 +252,7 @@ final class FakeSupportUsageRepository implements SupportUsageRepositoryInterfac
 {
     public int $conversationCount = 0;
     public int $messageCount = 0;
+    public int $operatorReplyCount = 0;
 
     public function monthlyConversationCount(int $publicKey, \DateTimeImmutable $month): int
     {
@@ -263,6 +264,11 @@ final class FakeSupportUsageRepository implements SupportUsageRepositoryInterfac
         return $this->messageCount;
     }
 
+    public function dailyOperatorReplyCount(int $publicKey, \DateTimeImmutable $day): int
+    {
+        return $this->operatorReplyCount;
+    }
+
     public function incrementConversations(int $publicKey, \DateTimeImmutable $month): void
     {
         $this->conversationCount++;
@@ -271,6 +277,11 @@ final class FakeSupportUsageRepository implements SupportUsageRepositoryInterfac
     public function incrementMessages(int $publicKey, \DateTimeImmutable $month): void
     {
         $this->messageCount++;
+    }
+
+    public function incrementOperatorReplies(int $publicKey, \DateTimeImmutable $day): void
+    {
+        $this->operatorReplyCount++;
     }
 }
 

@@ -4,12 +4,13 @@ use app\Modules\Support\Domain\SupportEntryPoint;
 use app\Modules\Support\Domain\SupportPlan;
 use app\Modules\Support\Domain\SupportPlanLimit;
 use yii\helpers\Html;
-use yii\helpers\Url;
 
 /**
  * @var SupportEntryPoint[] $entryPoints
  * @var SupportPlanLimit $limit
  * @var string $plan
+ * @var \app\Application\Panel\Dto\ClientProjectView[] $projects
+ * @var \app\Application\Panel\Dto\ClientProjectView $activeProject
  */
 
 $this->title = 'Кнопки обращений';
@@ -27,6 +28,8 @@ for ($rank = 1; $rank <= $newRankLimit; $rank++) {
 ?>
 
 <div class="uk-container uk-position-relative">
+    <?= $this->render('@app/src/Presentation/Http/View/manager/panel/_projectTabs', compact('projects', 'activeProject')) ?>
+
     <h3>Кнопки обращений</h3>
 
     <div class="uk-alert-primary" uk-alert>
@@ -49,7 +52,7 @@ for ($rank = 1; $rank <= $newRankLimit; $rank++) {
             <?php foreach ($entryPoints as $entryPoint): ?>
                 <tr>
                     <?php $form = \ruwmapps\yii2_uikit3\ActiveForm::begin([
-                        'action' => Url::to(['/manager/support/entry-points']),
+                        'action' => '/manager/support/entry-points?projectId=' . $activeProject->id,
                         'options' => ['class' => 'uk-form-stacked'],
                     ]); ?>
                     <?= Html::hiddenInput('SupportEntryPoint[id]', (string)$entryPoint->id) ?>
@@ -82,7 +85,7 @@ for ($rank = 1; $rank <= $newRankLimit; $rank++) {
                     </td>
                     <td class="uk-text-nowrap">
                         <?= Html::submitButton('Сохранить', ['class' => 'uk-button uk-button-primary uk-button-small']) ?>
-                        <?= Html::a('Удалить', ['/manager/support/entry-point/delete', 'id' => $entryPoint->id], [
+                        <?= Html::a('Удалить', '/manager/support/entry-point/delete?id=' . $entryPoint->id . '&projectId=' . $activeProject->id, [
                             'class' => 'uk-button uk-button-danger uk-button-small',
                             'data-method' => 'post',
                             'data-confirm' => 'Удалить кнопку обращения?',
@@ -103,7 +106,7 @@ for ($rank = 1; $rank <= $newRankLimit; $rank++) {
         <hr>
         <h4>Новая кнопка</h4>
         <?php $form = \ruwmapps\yii2_uikit3\ActiveForm::begin([
-            'action' => Url::to(['/manager/support/entry-points']),
+            'action' => '/manager/support/entry-points?projectId=' . $activeProject->id,
             'options' => ['class' => 'uk-form-stacked'],
         ]); ?>
         <?= Html::hiddenInput('SupportEntryPoint[id]', '') ?>

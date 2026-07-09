@@ -8,7 +8,11 @@ interface SupportUsageRepositoryInterface
 
     public function monthlyMessageCount(int $publicKey, \DateTimeImmutable $month): int;
 
+    public function dailyOperatorReplyCount(int $publicKey, \DateTimeImmutable $day): int;
+
     public function incrementConversations(int $publicKey, \DateTimeImmutable $month): void;
 
     public function incrementMessages(int $publicKey, \DateTimeImmutable $month): void;
+
+    public function incrementOperatorReplies(int $publicKey, \DateTimeImmutable $day): void;
 }

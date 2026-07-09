@@ -2,6 +2,7 @@
 
 namespace app\Modules\Support\Presentation\Http\Controller;
 
+use app\Application\Panel\ClientProjectService;
 use app\Modules\Support\Application\Contract\SupportRealtimeTokenIssuerInterface;
 use app\Modules\Support\Application\UseCase\ManageSupportEntryPointsUseCase;
 use app\Modules\Support\Application\UseCase\ManageSupportSettingsUseCase;
@@ -19,6 +20,7 @@ final class ManagerSupportController extends ManagerController
         private readonly ManageSupportEntryPointsUseCase $entryPoints,
         private readonly OperatorSupportUseCase $operatorSupport,
         private readonly SupportRealtimeTokenIssuerInterface $realtimeTokenIssuer,
+        private readonly ClientProjectService $projects,
         $config = [],
     ) {
         parent::__construct($id, $module, $config);
@@ -26,20 +28,23 @@ final class ManagerSupportController extends ManagerController
 
     public function actionIndex(): Response|string
     {
-        $publicKey = Yii::$app->user->identity->getPublicKey();
+        $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
+        $projectId = (int)Yii::$app->request->get('projectId') ?: null;
+        $publicKey = $this->projects->publicKeyForProject($ownerPublicKey, $projectId);
 
         if (Yii::$app->request->isPost) {
             if ($this->settings->saveFromPost($publicKey, Yii::$app->request->post())) {
                 Yii::$app->session->setFlash('success', 'Настройки онлайн-поддержки сохранены');
-                return $this->redirect('/manager/support');
+                return $this->redirect($this->projectUrl('/manager/support', $projectId));
             }
 
-            Yii::$app->session->setFlash('error', 'Модуль онлайн-поддержки недоступен клиенту');
+            Yii::$app->session->setFlash('error', 'Не удалось сохранить настройки онлайн-поддержки');
         }
 
         return $this->render(
             '@app/src/Modules/Support/Presentation/Http/View/manager/settings',
-            $this->settings->viewData($publicKey, (string)Yii::$app->user->identity->email)->toArray(),
+            $this->settings->viewData($publicKey, (string)Yii::$app->user->identity->email)->toArray()
+            + $this->projects->tabsData($ownerPublicKey, $projectId),
         );
     }
 
@@ -56,16 +61,18 @@ final class ManagerSupportController extends ManagerController
 
     public function actionEntryPoints(): Response|string
     {
-        $publicKey = Yii::$app->user->identity->getPublicKey();
+        $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
+        $projectId = (int)Yii::$app->request->get('projectId') ?: null;
+        $publicKey = $this->projects->publicKeyForProject($ownerPublicKey, $projectId);
 
         if (Yii::$app->request->isPost) {
             try {
                 if ($this->entryPoints->saveFromPost($publicKey, Yii::$app->request->post())) {
                     Yii::$app->session->setFlash('success', 'Кнопка обращения сохранена');
-                    return $this->redirect('/manager/support/entry-points');
+                    return $this->redirect($this->projectUrl('/manager/support/entry-points', $projectId));
                 }
 
-                Yii::$app->session->setFlash('error', 'Модуль онлайн-поддержки недоступен клиенту');
+                Yii::$app->session->setFlash('error', 'Не удалось сохранить кнопку обращения');
             } catch (\Throwable $exception) {
                 Yii::$app->session->setFlash('error', $exception->getMessage());
             }
@@ -73,13 +80,16 @@ final class ManagerSupportController extends ManagerController
 
         return $this->render(
             '@app/src/Modules/Support/Presentation/Http/View/manager/entry-points',
-            $this->entryPoints->viewData($publicKey),
+            $this->entryPoints->viewData($publicKey)
+            + $this->projects->tabsData($ownerPublicKey, $projectId),
         );
     }
 
     public function actionEntryPointDelete(): Response
     {
-        $publicKey = Yii::$app->user->identity->getPublicKey();
+        $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
+        $projectId = (int)Yii::$app->request->get('projectId') ?: null;
+        $publicKey = $this->projects->publicKeyForProject($ownerPublicKey, $projectId);
         $id = (int)Yii::$app->request->post('id', Yii::$app->request->get('id'));
 
         if ($id > 0 && $this->entryPoints->delete($publicKey, $id)) {
@@ -88,7 +98,7 @@ final class ManagerSupportController extends ManagerController
             Yii::$app->session->setFlash('error', 'Не удалось удалить кнопку обращения');
         }
 
-        return $this->redirect('/manager/support/entry-points');
+        return $this->redirect($this->projectUrl('/manager/support/entry-points', $projectId));
     }
 
     public function actionConversation(): Response|string
@@ -169,5 +179,10 @@ final class ManagerSupportController extends ManagerController
             'publicKey' => $publicKey,
             'wsUrl' => $_ENV['DOMAINWSWIDGET'] ?? '',
         ];
+    }
+
+    private function projectUrl(string $path, ?int $projectId): string
+    {
+        return $projectId === null ? $path : $path . '?projectId=' . $projectId;
     }
 }

@@ -2,11 +2,9 @@
 
 namespace app\Modules\Support\Application\UseCase;
 
-use app\Application\Client\Contract\ClientModuleAccessRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportManagerRecipientRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Application\Dto\SupportSettingsViewData;
-use app\Modules\Support\Domain\SupportModule;
 use app\Modules\Support\Domain\SupportPlanLimit;
 use app\Modules\Support\Domain\SupportSettings;
 
@@ -14,7 +12,6 @@ final class ManageSupportSettingsUseCase
 {
     public function __construct(
         private readonly SupportSettingsRepositoryInterface $settings,
-        private readonly ClientModuleAccessRepositoryInterface $moduleAccess,
         private readonly SupportManagerRecipientRepositoryInterface $managerRecipients,
     ) {
     }
@@ -33,10 +30,6 @@ final class ManageSupportSettingsUseCase
 
     public function saveFromPost(int $publicKey, array $post): bool
     {
-        if (!$this->moduleAccess->getForClient($publicKey)->allows(SupportModule::NAME)) {
-            return false;
-        }
-
         $data = $post['SupportSettings'] ?? [];
         $schedule = $this->schedule($post['SupportSchedule'] ?? []);
 

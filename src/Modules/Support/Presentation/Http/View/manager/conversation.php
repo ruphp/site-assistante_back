@@ -48,9 +48,22 @@ $isArchived = ($conversation['status'] ?? null) === 'closed';
     <?php if ($conversation !== null): ?>
         <div class="uk-alert-primary" uk-alert>
             <p>
+                Проект:
+                <strong><?= Html::encode(trim((string)($conversation['project_name'] ?? '')) ?: 'Основной сайт') ?></strong>
+                <?php if (trim((string)($conversation['project_domain'] ?? '')) !== ''): ?>
+                    <span class="uk-text-meta">· <?= Html::encode((string)$conversation['project_domain']) ?></span>
+                <?php endif; ?>
+            </p>
+            <p>
                 Посетитель:
                 <strong style="display:inline-block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;"><?= Html::encode($visitorLabel($conversation)) ?></strong>
             </p>
+            <?php if (trim((string)($conversation['visitor_email'] ?? '')) !== ''): ?>
+                <p>Email: <?= Html::encode((string)$conversation['visitor_email']) ?></p>
+            <?php endif; ?>
+            <?php if (trim((string)($conversation['visitor_phone'] ?? '')) !== ''): ?>
+                <p>Телефон: <?= Html::encode((string)$conversation['visitor_phone']) ?></p>
+            <?php endif; ?>
             <?php if ($conversation['page_url']): ?>
                 <p>
                     Страница:

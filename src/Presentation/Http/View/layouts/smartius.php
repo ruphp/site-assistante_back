@@ -43,6 +43,9 @@ if (Yii::$app->user->isGuest) {
     $name_user = Yii::$app->user->identity->name;
     $id_user = Yii::$app->user->identity->id;
     $menu = [
+            ['label' => 'Диалоги', 'url' => ['/manager/support/conversations']],
+            ['label' => 'Панель управления', 'url' => ['/manager']],
+            ['label' => 'Инструкции', 'url' => ['/cms-plugins']],
             ['label' => 'Выход', 'url' => ['/logout']],
     ];
 }
@@ -97,6 +100,7 @@ $this->beginPage();
                     <?php else: ?>
                         <a href="/manager/support/conversations">Диалоги</a>
                         <a href="/manager">Панель управления</a>
+                        <a href="/cms-plugins">Инструкции</a>
                     <?php endif; ?>
                 </nav>
                 <div class="sw-header__actions">

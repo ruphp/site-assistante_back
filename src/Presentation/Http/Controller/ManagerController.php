@@ -11,8 +11,10 @@ class ManagerController extends SmartiusController
 {
     protected function leftMenu(array $lists): string
     {
+        $publicKey = Yii::$app->user->identity->getPublicKey();
+
         return LeftMenu::widget([
-            'list' => $this->clientPanelMenu()->baseMenu(),
+            'list' => $this->clientPanelMenu()->baseMenu($publicKey),
             'lists' => $lists,
         ]);
     }

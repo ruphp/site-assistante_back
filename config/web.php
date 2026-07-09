@@ -22,6 +22,10 @@ $url_rules = [
         'pattern' => '/join',
         'route' => 'site/join',
     ],
+    [
+        'pattern' => '/cms-plugins',
+        'route' => 'site/cms-plugins',
+    ],
 
     [
         'pattern' => '/confirm-email',
@@ -46,6 +50,10 @@ $url_rules = [
         'pattern' => '/manager',
         'route' => 'manager/panel/index',
     ],
+    [
+        'pattern' => '/manager/project-create',
+        'route' => 'manager/panel/project-create',
+    ],
 
     [
         'pattern' => '/manager/designe',
@@ -60,6 +68,10 @@ $url_rules = [
     [
         'pattern' => '/manager/statistics',
         'route' => 'manager/panel/statistics',
+    ],
+    [
+        'pattern' => '/manager/limits',
+        'route' => 'manager/panel/limits',
     ],
     [
         'pattern' => '/manager/support',
@@ -123,6 +135,10 @@ $url_rules = [
     [
         'pattern' => '/admin/clients',
         'route' => 'admin/panel/clients',
+    ],
+    [
+        'pattern' => '/admin/clients/limits',
+        'route' => 'admin/panel/limits',
     ],
 
     [

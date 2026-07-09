@@ -9,6 +9,7 @@ use app\Modules\Support\Application\Contract\SupportPushNotificationSenderInterf
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Domain\SupportConversation;
 use app\Modules\Support\Domain\SupportMessage;
+use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportProjectRecord;
 use Yii;
 use yii\httpclient\Client;
 
@@ -123,11 +124,16 @@ final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
 
     private function managerEmails(int $publicKey): array
     {
+        $ownerPublicKey = (int)(SupportProjectRecord::find()
+            ->select('owner_public_key')
+            ->where(['public_key' => $publicKey, 'enabled' => 1])
+            ->scalar() ?: $publicKey);
+
         $rows = Users::find()
             ->select('users.email')
             ->innerJoin('auth_assignment', 'auth_assignment.user_id = users.id')
             ->where([
-                'users.public_key' => $publicKey,
+                'users.public_key' => $ownerPublicKey,
                 'users.status' => 1,
                 'auth_assignment.item_name' => 'manager',
             ])

@@ -5,6 +5,7 @@ namespace app\Modules\Support\Infrastructure;
 use app\Infrastructure\User\UserIdentity;
 use app\Modules\Support\Application\Contract\SupportPushDeviceRepositoryInterface;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportPushDeviceRecord;
+use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportProjectRecord;
 
 final class YiiSupportPushDeviceRepository implements SupportPushDeviceRepositoryInterface
 {
@@ -58,10 +59,15 @@ final class YiiSupportPushDeviceRepository implements SupportPushDeviceRepositor
 
     public function activeTokensForClient(int $publicKey): array
     {
+        $ownerPublicKey = (int)(SupportProjectRecord::find()
+            ->select('owner_public_key')
+            ->where(['public_key' => $publicKey, 'enabled' => 1])
+            ->scalar() ?: $publicKey);
+
         $rows = SupportPushDeviceRecord::find()
             ->select(['token'])
             ->where([
-                'public_key' => $publicKey,
+                'public_key' => $ownerPublicKey,
                 'is_active' => 1,
             ])
             ->andWhere(['not', ['token' => null]])

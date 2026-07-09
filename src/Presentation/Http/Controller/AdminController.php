@@ -18,6 +18,7 @@ class AdminController extends SmartiusController
         LeftMenu::widget([
             'list' => [
                 'admin/clients' => 'Панель администратора',
+                'admin/clients/limits' => 'Лимиты клиентов',
             ],
             'lists' => [
                 '#' => [

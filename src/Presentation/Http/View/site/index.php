@@ -184,21 +184,21 @@ $this->registerMetaTag([
                 <li>Настройка доступа к контенту по ролям пользователя сайта.</li>
             </ul>
             <div class="site-landing__download">
-                <a href="https://github.com/ruphp/sitewidget_integrations/raw/main/dist/sitewidget-wordpress-0.1.0.zip">
+                <a href="/cms-plugins#wordpress">
                     <strong>WordPress</strong>
-                    <span>Скачать плагин .zip</span>
+                    <span>Скачать плагин, установить и указать public key</span>
                 </a>
-                <a href="https://github.com/ruphp/sitewidget_integrations/raw/main/dist/sitewidget-joomla-system-0.1.0.zip">
+                <a href="/cms-plugins#joomla">
                     <strong>Joomla</strong>
-                    <span>Скачать system plugin .zip</span>
+                    <span>Скачать system plugin и включить его в админке</span>
                 </a>
-                <a href="https://github.com/ruphp/sitewidget_integrations/raw/main/dist/sitewidget-opencart-0.1.0.ocmod.zip">
+                <a href="/cms-plugins#opencart">
                     <strong>OpenCart</strong>
-                    <span>Скачать модуль .ocmod.zip</span>
+                    <span>Установить модуль .ocmod.zip и настроить витрину</span>
                 </a>
-                <a href="https://github.com/ruphp/sitewidget_integrations">
+                <a href="/cms-plugins">
                     <strong>GitHub</strong>
-                    <span>Исходники и инструкции</span>
+                    <span>Все ссылки, версии и короткая инструкция по установке</span>
                 </a>
             </div>
         </div>
@@ -223,6 +223,86 @@ $this->registerMetaTag([
                     <strong>Понимание</strong>
                     <p>Видно, где посетители чаще всего застревают и какие сценарии требуют доработки.</p>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="site-landing__section site-landing__section--tint">
+        <div class="site-landing__inner">
+            <h2>Тарифы под рост обращений</h2>
+            <p class="site-landing__section-lead">
+                Онлайн-поддержка доступна сразу. Платные тарифы открывают больше ответов, проекты, операторов и
+                дополнительные модули. Оплату подключим позже, сейчас тариф можно включить вручную после обращения.
+            </p>
+
+            <div class="site-landing__pricing">
+                <article class="site-landing__price-card">
+                    <div class="site-landing__price-head">
+                        <span>Free</span>
+                        <strong>0 ₽</strong>
+                    </div>
+                    <p>Для первого подключения и проверки виджета на сайте.</p>
+                    <ul>
+                        <li>10 ответов оператора в день</li>
+                        <li>1 проект</li>
+                        <li>1 оператор</li>
+                        <li>Android-уведомления</li>
+                        <li>1 кнопка обращения</li>
+                        <li>История 30 дней</li>
+                    </ul>
+                </article>
+
+                <article class="site-landing__price-card site-landing__price-card--accent">
+                    <div class="site-landing__price-head">
+                        <span>Start</span>
+                        <strong>499 ₽/мес</strong>
+                    </div>
+                    <p>Для сайта, где обращения уже идут регулярно.</p>
+                    <ul>
+                        <li>100 ответов оператора в день</li>
+                        <li>Основные модули SiteWidget</li>
+                        <li>До 3 операторов</li>
+                        <li>До 3 кнопок обращения</li>
+                        <li>CMS-интеграции</li>
+                        <li>История 90 дней</li>
+                    </ul>
+                </article>
+
+                <article class="site-landing__price-card">
+                    <div class="site-landing__price-head">
+                        <span>Pro</span>
+                        <strong>999 ₽/мес</strong>
+                    </div>
+                    <p>Для нескольких проектов, операторов и расширенных сценариев.</p>
+                    <ul>
+                        <li>300 ответов оператора в день</li>
+                        <li>До 5 проектов</li>
+                        <li>До 10 операторов</li>
+                        <li>До 5 кнопок обращения</li>
+                        <li>Роли пользователей сайта</li>
+                        <li>Расширенные модули и отчеты</li>
+                    </ul>
+                </article>
+            </div>
+
+            <div class="site-landing__addons">
+                <div>
+                    <h3>Пакеты сверх тарифа</h3>
+                    <p>Если стандартного лимита не хватает, можно добавить ответы без смены тарифа.</p>
+                </div>
+                <ul>
+                    <li><strong>+100 ответов/день</strong><span>300 ₽/мес</span></li>
+                    <li><strong>+300 ответов/день</strong><span>700 ₽/мес</span></li>
+                    <li><strong>+1000 ответов/день</strong><span>индивидуально</span></li>
+                </ul>
+            </div>
+
+            <div class="site-landing__business">
+                <strong>Для высоконагруженных сайтов</strong>
+                <span>
+                    Можно согласовать индивидуальный лимит, отдельные условия хранения истории и расширенные настройки
+                    нагрузки. Для подключения тарифа или пакета напишите через виджет на сайте.
+                </span>
             </div>
         </div>
     </section>

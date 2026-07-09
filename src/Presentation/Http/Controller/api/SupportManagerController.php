@@ -6,7 +6,6 @@ use app\Infrastructure\User\UserIdentity;
 use app\Modules\Support\Application\Exception\SupportAccessDeniedException;
 use app\Modules\Support\Application\Contract\SupportPushDeviceRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportPushNotificationSenderInterface;
-use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportMessageRecord;
 use app\Modules\Support\Infrastructure\YiiSupportConversationRepository;
 use app\Modules\Support\Application\UseCase\OperatorSupportUseCase;
 use app\Presentation\Http\MobileTokenAuth;
@@ -63,7 +62,11 @@ class SupportManagerController extends Controller
                     'visitorId' => $c->visitorId,
                     'visitorName' => $c->visitorName,
                     'visitorEmail' => $c->visitorEmail,
+                    'visitorPhone' => $c->visitorPhone,
                     'pageUrl' => $c->pageUrl,
+                    'projectName' => $c->projectName,
+                    'projectDomain' => $c->projectDomain,
+                    'projectPublicKey' => $c->publicKey,
                     'status' => $c->status,
                     'entryPointTitle' => $c->entryPointTitle,
                     'lastMessageAt' => $c->lastMessageAt,
@@ -90,20 +93,7 @@ class SupportManagerController extends Controller
                 return $this->errorResponse(401, 'Токен недействителен');
             }
 
-            $messages = SupportMessageRecord::find()
-                ->where([
-                    'public_key' => $user->public_key,
-                    'conversation_id' => (int)$conversationId,
-                ])
-                ->orderBy(['id' => SORT_ASC])
-                ->all();
-
-            return array_map(static fn($m) => [
-                'id' => $m->id,
-                'body' => $m->body,
-                'senderType' => $m->sender_type,
-                'createdAt' => $m->created_at,
-            ], $messages);
+            return $this->operatorSupport->listMessages((int)$user->public_key, (int)$conversationId)->toArray()['messages'];
         } catch (\Throwable $e) {
             Yii::error($e->getMessage(), 'support-manager');
             return $this->errorResponse(500, 'Не удалось загрузить сообщения');

@@ -165,6 +165,11 @@ HTML;
         return $this->render('index');
     }
 
+    public function actionCmsPlugins(): string
+    {
+        return $this->render('cms-plugins');
+    }
+
     public function actionLogin(): Response|string
     {
         if (Yii::$app->request->isPost)

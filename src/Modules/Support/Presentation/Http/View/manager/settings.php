@@ -11,6 +11,8 @@ use yii\helpers\Html;
  * @var SupportPlanLimit $limit
  * @var array<int, \app\Modules\Support\Application\Dto\SupportManagerRecipient> $managerRecipients
  * @var string $defaultNotificationEmail
+ * @var \app\Application\Panel\Dto\ClientProjectView[] $projects
+ * @var \app\Application\Panel\Dto\ClientProjectView $activeProject
  */
 
 $this->title = 'Онлайн-поддержка';
@@ -35,6 +37,8 @@ if ($settings->timezone !== '' && !isset($timezones[$settings->timezone])) {
 ?>
 
 <div class="uk-container uk-position-relative">
+    <?= $this->render('@app/src/Presentation/Http/View/manager/panel/_projectTabs', compact('projects', 'activeProject')) ?>
+
     <h3>Онлайн-поддержка</h3>
 
     <div class="uk-alert-primary" uk-alert>

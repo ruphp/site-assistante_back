@@ -6,6 +6,7 @@ use app\Application\Admin\AdminClientService;
 use app\Application\Admin\Dto\CreateClientRequest;
 use app\Application\Admin\Dto\UpdateClientRequest;
 use app\Application\Admin\Monitoring\AdminMonitoringService;
+use app\Modules\Support\Application\Reporting\SupportUsageReportService;
 use app\Presentation\Http\Controller\AdminController;
 use app\Presentation\Http\Form\UserJoinForm;
 use Exception;
@@ -21,6 +22,7 @@ class PanelController extends AdminController
         $module,
         private readonly AdminClientService $clientService,
         private readonly AdminMonitoringService $monitoring,
+        private readonly SupportUsageReportService $usageReport,
         $config = []
     ) {
         parent::__construct($id, $module, $config);
@@ -128,6 +130,13 @@ class PanelController extends AdminController
         $pages = new Pagination(['totalCount' => count($users), 'pageSize' => 10]);
 
         return $this->render('clients', compact('users', 'pages'));
+    }
+
+    public function actionLimits(): string
+    {
+        return $this->render('limits', [
+            'reports' => $this->usageReport->adminReports(),
+        ]);
     }
 
     public function actionJoin(): Response|string

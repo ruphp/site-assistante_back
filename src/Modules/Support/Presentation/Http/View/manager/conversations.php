@@ -70,6 +70,7 @@ $visitorLabel = static function (array $conversation): string {
             <thead>
             <tr>
                 <th>ID</th>
+                <th>Проект</th>
                 <th>Посетитель</th>
                 <th>Кнопка</th>
                 <th>Страница</th>
@@ -84,9 +85,18 @@ $visitorLabel = static function (array $conversation): string {
                 <tr>
                     <td><?= Html::encode((string)$conversation['id']) ?></td>
                     <td>
+                        <div><?= Html::encode(trim((string)($conversation['project_name'] ?? '')) ?: 'Основной сайт') ?></div>
+                        <?php if (trim((string)($conversation['project_domain'] ?? '')) !== ''): ?>
+                            <div class="uk-text-meta"><?= Html::encode((string)$conversation['project_domain']) ?></div>
+                        <?php endif; ?>
+                    </td>
+                    <td>
                         <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <?= Html::encode($visitorLabel($conversation)) ?>
                         </div>
+                        <?php if (trim((string)($conversation['visitor_phone'] ?? '')) !== ''): ?>
+                            <div class="uk-text-meta"><?= Html::encode((string)$conversation['visitor_phone']) ?></div>
+                        <?php endif; ?>
                     </td>
                     <td>
                         <?php $entryPointTitle = trim((string)($conversation['entry_point_title'] ?? '')); ?>

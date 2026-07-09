@@ -2,11 +2,9 @@
 
 namespace app\Modules\Support\Application\UseCase;
 
-use app\Application\Client\Contract\ClientModuleAccessRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportEntryPointRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Domain\SupportEntryPoint;
-use app\Modules\Support\Domain\SupportModule;
 use app\Modules\Support\Domain\SupportPlanLimit;
 
 final class ManageSupportEntryPointsUseCase
@@ -14,7 +12,6 @@ final class ManageSupportEntryPointsUseCase
     public function __construct(
         private readonly SupportEntryPointRepositoryInterface $entryPoints,
         private readonly SupportSettingsRepositoryInterface $settings,
-        private readonly ClientModuleAccessRepositoryInterface $moduleAccess,
     ) {
     }
 
@@ -31,10 +28,6 @@ final class ManageSupportEntryPointsUseCase
 
     public function saveFromPost(int $publicKey, array $post): bool
     {
-        if (!$this->moduleAccess->getForClient($publicKey)->allows(SupportModule::NAME)) {
-            return false;
-        }
-
         $data = is_array($post['SupportEntryPoint'] ?? null) ? $post['SupportEntryPoint'] : [];
         $id = (int)($data['id'] ?? 0);
         $isNew = $id <= 0;
@@ -67,10 +60,6 @@ final class ManageSupportEntryPointsUseCase
 
     public function delete(int $publicKey, int $id): bool
     {
-        if (!$this->moduleAccess->getForClient($publicKey)->allows(SupportModule::NAME)) {
-            return false;
-        }
-
         return $this->entryPoints->deleteForClient($publicKey, $id);
     }
 }

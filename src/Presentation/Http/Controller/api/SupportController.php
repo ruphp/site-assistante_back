@@ -259,6 +259,9 @@ class SupportController extends ApiController
         $visitorName = $this->firstRequestValue($request, ['visitorName', 'userName', 'visitor_name', 'user_name', 'name'])
             ?? $this->bodyFirstRequestValue($request, ['visitorName', 'userName', 'visitor_name', 'user_name', 'name']);
 
+        $visitorPhone = $this->firstRequestValue($request, ['visitorPhone', 'userPhone', 'visitor_phone', 'user_phone', 'phone', 'tel', 'telephone'])
+            ?? $this->bodyFirstRequestValue($request, ['visitorPhone', 'userPhone', 'visitor_phone', 'user_phone', 'phone', 'tel', 'telephone']);
+
         $visitorId = $this->firstRequestValue($request, ['visitorId', 'userId', 'visitor_id', 'user_id', 'id'])
             ?? $this->bodyFirstRequestValue($request, ['visitorId', 'userId', 'visitor_id', 'user_id', 'id']);
 
@@ -266,6 +269,7 @@ class SupportController extends ApiController
             visitorId: $visitorId === null ? null : (string)$visitorId,
             visitorName: $visitorName === null ? null : (string)$visitorName,
             visitorEmail: $visitorEmail === null ? null : (string)$visitorEmail,
+            visitorPhone: $visitorPhone === null ? null : (string)$visitorPhone,
             originHost: $this->originHost(),
             remoteAddr: $request->userIP ?? '0.0.0.0',
             pathname: (string)$request->get('pathname', ''),
