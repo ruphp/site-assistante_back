@@ -1,5 +1,6 @@
 <?php
 
+use app\Modules\Support\Domain\SupportPlan;
 use app\Modules\Support\Domain\SupportPlanLimit;
 use app\Modules\Support\Domain\SupportSettings;
 use ruwmapps\yii2_uikit3\ActiveForm;
@@ -13,6 +14,7 @@ use yii\helpers\Html;
  */
 
 $this->title = 'Онлайн-поддержка';
+$planLabel = SupportPlan::labels()[$settings->plan] ?? $settings->plan;
 $notificationEmails = $settings->notificationEmails !== '' ? $settings->notificationEmails : $defaultNotificationEmail;
 $schedule = $settings->normalizedWorkSchedule();
 $scheduleDays = $schedule['days'] ?? [];
@@ -36,7 +38,7 @@ if ($settings->timezone !== '' && !isset($timezones[$settings->timezone])) {
     <h3>Онлайн-поддержка</h3>
 
     <div class="uk-alert-primary" uk-alert>
-        <p>Free-тариф: <?= Html::encode((string)$limit->maxOperators) ?> оператор, <?= Html::encode((string)$limit->maxConversationsPerMonth) ?> диалогов в месяц, <?= Html::encode((string)$limit->maxMessagesPerMonth) ?> сообщений в месяц, история <?= Html::encode((string)$limit->historyDays) ?> дней.</p>
+        <p><?= Html::encode($planLabel) ?>-тариф: <?= Html::encode((string)$limit->maxOperators) ?> оператор, <?= Html::encode((string)$limit->maxConversationsPerMonth) ?> диалогов в месяц, <?= Html::encode((string)$limit->maxMessagesPerMonth) ?> сообщений в месяц, история <?= Html::encode((string)$limit->historyDays) ?> дней.</p>
     </div>
 
     <?php $form = ActiveForm::begin(['options' => ['class' => 'uk-form-stacked']]); ?>

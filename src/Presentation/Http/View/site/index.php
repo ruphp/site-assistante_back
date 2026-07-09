@@ -120,6 +120,55 @@ $this->registerMetaTag([
         </div>
     </section>
 
+    <section id="android-app" class="site-landing__section site-landing__section--tint">
+        <div class="site-landing__inner">
+            <div class="site-landing__app-head">
+                <div>
+                    <h2>Приложение для менеджера</h2>
+                    <p class="site-landing__section-lead">
+                        Android-приложение помогает не пропускать обращения: менеджер получает уведомления о новых
+                        и неотвеченных диалогах, даже если сайт открыт не на компьютере.
+                    </p>
+                </div>
+                <?= Html::a('Скачать APK', ['/sitewidgetmanager.apk'], [
+                    'class' => 'site-landing__button site-landing__button--primary',
+                    'download' => true,
+                ]) ?>
+            </div>
+
+            <div class="site-landing__install-grid">
+                <article class="site-landing__install-card">
+                    <img src="/img/android-install/check.webp" alt="Проверка приложения Google Play Защитой">
+                    <div>
+                        <strong>01. Скачайте файл</strong>
+                        <p>Откройте ссылку на APK с телефона. Если Android предложит проверку, запустите ее или продолжите установку.</p>
+                    </div>
+                </article>
+                <article class="site-landing__install-card">
+                    <img src="/img/android-install/checking.webp" alt="Процесс проверки приложения">
+                    <div>
+                        <strong>02. Дождитесь проверки</strong>
+                        <p>Проверка может занять немного времени. После нее Android покажет, можно ли установить приложение.</p>
+                    </div>
+                </article>
+                <article class="site-landing__install-card">
+                    <img src="/img/android-install/safe.webp" alt="Приложение безопасное">
+                    <div>
+                        <strong>03. Разрешите установку</strong>
+                        <p>Если установка из браузера еще не разрешена, Android попросит разрешить установку из неизвестного источника.</p>
+                    </div>
+                </article>
+                <article class="site-landing__install-card">
+                    <img src="/img/android-install/installed.webp" alt="Приложение установлено">
+                    <div>
+                        <strong>04. Откройте приложение</strong>
+                        <p>После установки нажмите «Открыть», войдите в аккаунт владельца сайта и разрешите уведомления.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
     <section id="integrations" class="site-landing__section site-landing__section--tint">
         <div class="site-landing__inner site-landing__split">
             <div>
@@ -134,6 +183,24 @@ $this->registerMetaTag([
                 <li>Интеграция авторизованного посетителя с виджетом без лишней настройки кода.</li>
                 <li>Настройка доступа к контенту по ролям пользователя сайта.</li>
             </ul>
+            <div class="site-landing__download">
+                <a href="https://github.com/ruphp/sitewidget_integrations/raw/main/dist/sitewidget-wordpress-0.1.0.zip">
+                    <strong>WordPress</strong>
+                    <span>Скачать плагин .zip</span>
+                </a>
+                <a href="https://github.com/ruphp/sitewidget_integrations/raw/main/dist/sitewidget-joomla-system-0.1.0.zip">
+                    <strong>Joomla</strong>
+                    <span>Скачать system plugin .zip</span>
+                </a>
+                <a href="https://github.com/ruphp/sitewidget_integrations/raw/main/dist/sitewidget-opencart-0.1.0.ocmod.zip">
+                    <strong>OpenCart</strong>
+                    <span>Скачать модуль .ocmod.zip</span>
+                </a>
+                <a href="https://github.com/ruphp/sitewidget_integrations">
+                    <strong>GitHub</strong>
+                    <span>Исходники и инструкции</span>
+                </a>
+            </div>
         </div>
     </section>
 

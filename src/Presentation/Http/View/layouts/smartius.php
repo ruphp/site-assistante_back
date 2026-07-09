@@ -32,6 +32,10 @@ $str_role = implode(",", $role);
 
 if (Yii::$app->user->isGuest) {
     $menu = [
+            ['label' => 'Модули', 'url' => '/#modules'],
+            ['label' => 'Как работает', 'url' => '/#how'],
+            ['label' => 'Интеграции', 'url' => '/#integrations'],
+            ['label' => 'Приложение', 'url' => '/#android-app'],
             ['label' => 'Вход', 'url' => ['/login']],
     ];
 } else {
@@ -89,6 +93,7 @@ $this->beginPage();
                         <a href="/#modules">Модули</a>
                         <a href="/#how">Как работает</a>
                         <a href="/#integrations">Интеграции</a>
+                        <a href="/#android-app">Приложение</a>
                     <?php else: ?>
                         <a href="/manager/support/conversations">Диалоги</a>
                         <a href="/manager">Панель управления</a>

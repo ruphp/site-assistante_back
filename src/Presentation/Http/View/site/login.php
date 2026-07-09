@@ -19,7 +19,11 @@ $this->registerMetaTag([
 <div class="auth-page uk-container uk-container-xsmall">
     <div class="uk-flex uk-flex-center">
         <div class="uk-card uk-card-default uk-card-body auth-card">
-            <h2 class="auth-title">Вход</h2>
+            <div class="auth-brand">
+                <span class="auth-brand__name">SiteWidget</span>
+                <span class="auth-brand__text">Панель управления виджетом для сайта</span>
+            </div>
+            <h2 class="auth-title">Вход в панель управления</h2>
 
             <?php
             $oauthClients = Yii::$app->authClientCollection->clients;

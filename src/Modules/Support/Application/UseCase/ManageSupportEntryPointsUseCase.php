@@ -43,7 +43,7 @@ final class ManageSupportEntryPointsUseCase
         $entryPointCount = $this->entryPoints->countForClient($publicKey);
 
         if ($isNew && !$limit->canAddEntryPoint($entryPointCount)) {
-            throw new \DomainException('На Free-тарифе можно создать только одну кнопку обращения');
+            throw new \DomainException('На текущем тарифе достигнут лимит кнопок обращения');
         }
 
         $title = trim((string)($data['title'] ?? ''));

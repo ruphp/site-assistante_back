@@ -1,6 +1,7 @@
 <?php
 
 use app\Modules\Support\Domain\SupportEntryPoint;
+use app\Modules\Support\Domain\SupportPlan;
 use app\Modules\Support\Domain\SupportPlanLimit;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -8,9 +9,11 @@ use yii\helpers\Url;
 /**
  * @var SupportEntryPoint[] $entryPoints
  * @var SupportPlanLimit $limit
+ * @var string $plan
  */
 
 $this->title = 'Кнопки обращений';
+$planLabel = SupportPlan::labels()[$plan] ?? $plan;
 $currentRankLimit = min($limit->entryPointRankLimit(), max(1, count($entryPoints)));
 $newRankLimit = min($limit->entryPointRankLimit(), max(1, count($entryPoints) + 1));
 $currentRankOptions = [];
@@ -27,7 +30,7 @@ for ($rank = 1; $rank <= $newRankLimit; $rank++) {
     <h3>Кнопки обращений</h3>
 
     <div class="uk-alert-primary" uk-alert>
-        <p>Free-тариф: <?= Html::encode((string)$limit->maxEntryPoints) ?> кнопка обращения. Обычный чат без кнопки остается доступен всегда с приоритетом 0.</p>
+        <p><?= Html::encode($planLabel) ?>-тариф: <?= Html::encode((string)$limit->maxEntryPoints) ?> кнопка обращения. Обычный чат без кнопки остается доступен всегда с приоритетом 0.</p>
     </div>
 
     <?php if ($entryPoints !== []): ?>
