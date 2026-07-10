@@ -9,6 +9,7 @@ use app\Modules\Support\Application\Contract\SupportPushNotificationSenderInterf
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Domain\SupportPlanLimit;
 use app\Presentation\Http\Form\ManagerOperatorForm;
+use app\Presentation\Http\Form\ManagerOwnerContactForm;
 use Yii;
 
 final class ManagerOperatorService
@@ -69,6 +70,45 @@ final class ManagerOperatorService
         $settings = $this->supportSettings->getForClient($ownerPublicKey);
 
         return SupportPlanLimit::forPlan($settings->plan)->maxOperators;
+    }
+
+    public function ownerContactForm(int $ownerPublicKey): ManagerOwnerContactForm
+    {
+        $owner = Users::findOne(['id' => $ownerPublicKey, 'public_key' => $ownerPublicKey]);
+        $form = new ManagerOwnerContactForm();
+
+        if ($owner instanceof Users) {
+            $form->name = (string)$owner->name;
+            $form->phone = (string)($owner->phone ?? '');
+            $form->telegram = (string)($owner->telegram ?? '');
+            $form->maxContact = (string)($owner->max_contact ?? '');
+        }
+
+        return $form;
+    }
+
+    public function updateOwnerContacts(int $ownerPublicKey, ManagerOwnerContactForm $form): bool
+    {
+        $owner = Users::findOne(['id' => $ownerPublicKey, 'public_key' => $ownerPublicKey]);
+        if (!$owner instanceof Users) {
+            $form->addError('name', 'Владелец не найден');
+            return false;
+        }
+
+        $owner->name = trim($form->name);
+        $owner->phone = trim($form->phone);
+        $owner->telegram = trim($form->telegram);
+        $owner->max_contact = trim($form->maxContact);
+
+        if ($owner->save(false, ['name', 'phone', 'telegram', 'max_contact'])) {
+            return true;
+        }
+
+        foreach ($owner->getFirstErrors() as $error) {
+            $form->addError('name', $error);
+        }
+
+        return false;
     }
 
     public function create(int $ownerPublicKey, ManagerOperatorForm $form): ?string

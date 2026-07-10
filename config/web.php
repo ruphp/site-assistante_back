@@ -74,6 +74,22 @@ $url_rules = [
         'route' => 'manager/panel/limits',
     ],
     [
+        'pattern' => '/manager/operators',
+        'route' => 'manager/panel/operators',
+    ],
+    [
+        'pattern' => '/manager/operator/owner-contacts',
+        'route' => 'manager/panel/operator-owner-contacts',
+    ],
+    [
+        'pattern' => '/manager/operator/reset-password',
+        'route' => 'manager/panel/operator-reset-password',
+    ],
+    [
+        'pattern' => '/manager/operator/disable',
+        'route' => 'manager/panel/operator-disable',
+    ],
+    [
         'pattern' => '/manager/support',
         'route' => 'manager-support/index',
     ],

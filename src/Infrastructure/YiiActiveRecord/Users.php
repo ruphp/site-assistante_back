@@ -16,6 +16,9 @@ use yii\db\Exception;
  * @property int $status
  * @property string $passhash
  * @property string|null $mobile_auth_token
+ * @property string|null $phone
+ * @property string|null $telegram
+ * @property string|null $max_contact
  */
 class Users extends ActiveRecord
 {

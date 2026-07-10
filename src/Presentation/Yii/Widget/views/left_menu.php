@@ -9,7 +9,7 @@
 $this->beginBlock('block_left_menu');
 if (count($list) || count($lists)) {
     ?>
-    <div class="uk-width-1-6@s">
+    <div class="sw-manager-sidebar uk-width-1-4@s uk-width-1-5@l">
         <ul class="uk-nav uk-nav-default uk-nav-parent-icon" uk-nav>
             <?php
             $li = '';

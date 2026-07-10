@@ -125,11 +125,11 @@ $this->beginPage();
         <section class="osn uk-section uk-section-default uk-margin-remove uk-padding-remove"
                  uk-height-viewport="expand:true">
             <div class="uk-container uk-container-medium">
-                <div class="uk-grid-divider uk-child-width-expand@s" uk-grid>
+                <div class="uk-grid-divider" uk-grid>
                     <?php if (isset($this->blocks['block_left_menu'])): ?>
                         <?= $this->blocks['block_left_menu'] ?>
                     <?php endif; ?>
-                    <div class="uk-width-5-6@s">
+                    <div class="<?= isset($this->blocks['block_left_menu']) ? 'uk-width-expand@s' : 'uk-width-1-1' ?>">
                         <?= $content ?>
                     </div>
                 </div>

@@ -12,6 +12,7 @@ use app\Application\Panel\Metrics\PanelMetricsService;
 use app\Modules\Support\Application\Reporting\SupportUsageReportService;
 use app\Presentation\Http\Controller\ManagerController;
 use app\Presentation\Http\Form\ManagerOperatorForm;
+use app\Presentation\Http\Form\ManagerOwnerContactForm;
 use Exception;
 use Yii;
 use yii\web\Response;
@@ -33,8 +34,12 @@ class PanelController extends ManagerController
         parent::__construct($id, $module, $config);
     }
 
-    public function actionIndex(): string
+    public function actionIndex(): Response|string
     {
+        if (!$this->isOwner()) {
+            return $this->redirect('/manager/support/conversations');
+        }
+
         $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
 
         return $this->render('index', $this->projects->tabsData(
@@ -47,6 +52,9 @@ class PanelController extends ManagerController
     {
         if (Yii::$app->user->isGuest) {
             return $this->redirect('/user/login');
+        }
+        if (!$this->isOwner()) {
+            return $this->redirect('/manager/support/conversations');
         }
 
         $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
@@ -64,6 +72,10 @@ class PanelController extends ManagerController
 
     public function actionDesigne(): Response|string
     {
+        if (!$this->isOwner()) {
+            return $this->redirect('/manager/support/conversations');
+        }
+
         $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
         $projectId = (int)Yii::$app->request->get('projectId') ?: null;
         $publicKey = $this->projects->publicKeyForProject($ownerPublicKey, $projectId);
@@ -94,6 +106,9 @@ class PanelController extends ManagerController
         if (Yii::$app->user->isGuest) {
             return $this->redirect('/user/login');
         }
+        if (!$this->isOwner()) {
+            return $this->redirect('/manager/support/conversations');
+        }
 
         $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
         $projectId = (int)Yii::$app->request->get('projectId') ?: null;
@@ -115,8 +130,12 @@ class PanelController extends ManagerController
         );
     }
 
-    public function actionLimits(): string
+    public function actionLimits(): Response|string
     {
+        if (!$this->isOwner()) {
+            return $this->redirect('/manager/support/conversations');
+        }
+
         return $this->render('limits', [
             'report' => $this->usageReport->clientReport(Yii::$app->user->identity->getPublicKey()),
         ]);
@@ -152,8 +171,28 @@ class PanelController extends ManagerController
         return $this->render('operators', [
             'operators' => $this->operators->listForOwner($ownerPublicKey),
             'form' => $form,
+            'ownerForm' => $this->operators->ownerContactForm($ownerPublicKey),
             'operatorLimit' => $this->operators->operatorLimit($ownerPublicKey),
         ]);
+    }
+
+    public function actionOperatorOwnerContacts(): Response
+    {
+        $ownerPublicKey = (int)Yii::$app->user->identity->getPublicKey();
+        if (!$this->operators->canManage($ownerPublicKey, (int)Yii::$app->user->id)) {
+            Yii::$app->session->setFlash('error', 'Недостаточно прав');
+
+            return $this->redirect('/manager');
+        }
+
+        $form = new ManagerOwnerContactForm();
+        if ($form->load(Yii::$app->request->post()) && $form->validate() && $this->operators->updateOwnerContacts($ownerPublicKey, $form)) {
+            Yii::$app->session->setFlash('success', 'Контакты владельца сохранены');
+        } else {
+            Yii::$app->session->setFlash('error', 'Не удалось сохранить контакты владельца');
+        }
+
+        return $this->redirect('/manager/operators');
     }
 
     public function actionOperatorResetPassword(): Response
@@ -204,6 +243,9 @@ class PanelController extends ManagerController
         if (Yii::$app->user->isGuest) {
             return $this->redirect('/user/login');
         }
+        if (!$this->isOwner()) {
+            return $this->redirect('/manager/support/conversations');
+        }
 
         $post = Yii::$app->request->post();
         $publicKey = Yii::$app->user->identity->getPublicKey();
@@ -232,6 +274,9 @@ class PanelController extends ManagerController
         if (Yii::$app->user->isGuest) {
             return $this->redirect('/user/login');
         }
+        if (!$this->isOwner()) {
+            return $this->redirect('/manager/support/conversations');
+        }
 
         $publicKey = Yii::$app->user->identity->getPublicKey();
         if (!$this->panelMenu->rolesEnabledForClient($publicKey)) {
@@ -246,8 +291,12 @@ class PanelController extends ManagerController
         return $this->redirect(['/manager/roles']);
     }
 
-    public function actionStatistics(): string
+    public function actionStatistics(): Response|string
     {
+        if (!$this->isOwner()) {
+            return $this->redirect('/manager/support/conversations');
+        }
+
         $charts = [];
 
         foreach (['usage'] as $chartName) {
@@ -295,5 +344,10 @@ class PanelController extends ManagerController
     private function projectUrl(string $path, ?int $projectId): string
     {
         return $projectId === null ? $path : $path . '?projectId=' . $projectId;
+    }
+
+    private function isOwner(): bool
+    {
+        return (int)Yii::$app->user->identity->getId() === (int)Yii::$app->user->identity->getPublicKey();
     }
 }

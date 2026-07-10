@@ -409,7 +409,7 @@ ul.ticket-messages-list {
 }
 
 .uk-card.uk-card-default,
-.uk-cad.uk-cad-default {
+.uk-card.uk-card-default {
     border: 1px solid var(--sw-line);
     box-shadow: var(--sw-shadow-card);
 }
@@ -1817,5 +1817,45 @@ ul.ticket-messages-list {
     .sw-cookie__btn {
         flex: 1;
         text-align: center;
+    }
+}
+
+.sw-manager-sidebar {
+    min-width: 220px;
+}
+
+.sw-manager-sidebar .uk-nav > li > a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    color: var(--sw-muted);
+    line-height: 1.25;
+}
+
+.sw-manager-sidebar .uk-nav-parent-icon > .uk-parent > a::after {
+    flex: 0 0 auto;
+    margin-left: auto;
+    position: static;
+    transform: none;
+}
+
+.sw-manager-sidebar .uk-nav > li.uk-active > a,
+.sw-manager-sidebar .uk-nav > li > a:hover {
+    color: var(--sw-base);
+    font-weight: 600;
+}
+
+.sw-manager-sidebar .uk-nav-sub {
+    padding-left: 18px;
+}
+
+.sw-manager-sidebar .uk-nav-sub a {
+    line-height: 1.25;
+}
+
+@media (max-width: 639px) {
+    .sw-manager-sidebar {
+        min-width: 0;
     }
 }

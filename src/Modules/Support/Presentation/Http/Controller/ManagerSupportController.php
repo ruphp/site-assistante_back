@@ -28,6 +28,10 @@ final class ManagerSupportController extends ManagerController
 
     public function actionIndex(): Response|string
     {
+        if (!$this->isOwner()) {
+            return $this->redirect('/manager/support/conversations');
+        }
+
         $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
         $projectId = (int)Yii::$app->request->get('projectId') ?: null;
         $publicKey = $this->projects->publicKeyForProject($ownerPublicKey, $projectId);
@@ -61,6 +65,10 @@ final class ManagerSupportController extends ManagerController
 
     public function actionEntryPoints(): Response|string
     {
+        if (!$this->isOwner()) {
+            return $this->redirect('/manager/support/conversations');
+        }
+
         $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
         $projectId = (int)Yii::$app->request->get('projectId') ?: null;
         $publicKey = $this->projects->publicKeyForProject($ownerPublicKey, $projectId);
@@ -87,6 +95,10 @@ final class ManagerSupportController extends ManagerController
 
     public function actionEntryPointDelete(): Response
     {
+        if (!$this->isOwner()) {
+            return $this->redirect('/manager/support/conversations');
+        }
+
         $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
         $projectId = (int)Yii::$app->request->get('projectId') ?: null;
         $publicKey = $this->projects->publicKeyForProject($ownerPublicKey, $projectId);
@@ -184,5 +196,10 @@ final class ManagerSupportController extends ManagerController
     private function projectUrl(string $path, ?int $projectId): string
     {
         return $projectId === null ? $path : $path . '?projectId=' . $projectId;
+    }
+
+    private function isOwner(): bool
+    {
+        return (int)Yii::$app->user->identity->getId() === (int)Yii::$app->user->identity->getPublicKey();
     }
 }
