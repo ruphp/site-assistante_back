@@ -16,6 +16,7 @@ use app\Presentation\Http\Form\ManagerOperatorForm;
 use app\Presentation\Http\Form\ManagerOwnerContactForm;
 use Exception;
 use Yii;
+use yii\web\UploadedFile;
 use yii\web\Response;
 
 class PanelController extends ManagerController
@@ -39,7 +40,7 @@ class PanelController extends ManagerController
     public function actionIndex(): Response|string
     {
         if (!$this->isOwner()) {
-            return $this->redirect('/manager/support/conversations');
+            return $this->redirect('/manager/profile');
         }
 
         $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
@@ -48,6 +49,28 @@ class PanelController extends ManagerController
             $ownerPublicKey,
             (int)Yii::$app->request->get('projectId') ?: null,
         ));
+    }
+
+    public function actionProfile(): Response|string
+    {
+        $userId = (int)Yii::$app->user->id;
+        $ownerPublicKey = (int)Yii::$app->user->identity->getPublicKey();
+        $form = $this->operators->profileForm($userId);
+
+        if (Yii::$app->request->isPost && $form->load(Yii::$app->request->post())) {
+            $form->avatar = UploadedFile::getInstance($form, 'avatar');
+            if ($form->validate() && $this->operators->updateProfile($userId, $form)) {
+                Yii::$app->session->setFlash('success', 'Профиль сохранён');
+
+                return $this->redirect('/manager/profile');
+            }
+        }
+
+        return $this->render('profile', [
+            'form' => $form,
+            'avatarUrl' => $this->operators->profileAvatarUrl($userId),
+            'telegramCode' => $this->telegramBot->createLinkCode($userId, $ownerPublicKey),
+        ]);
     }
 
     public function actionProjectCreate(): Response
@@ -170,12 +193,15 @@ class PanelController extends ManagerController
         $form = new ManagerOperatorForm();
 
         if (Yii::$app->request->isPost) {
-            if ($form->load(Yii::$app->request->post()) && $form->validate()) {
+            if ($form->load(Yii::$app->request->post())) {
+                $form->avatar = UploadedFile::getInstance($form, 'avatar');
+            }
+            if ($form->validate()) {
                 $password = $this->operators->create($ownerPublicKey, $form);
                 if ($password !== null) {
                     Yii::$app->session->setFlash(
                         'success',
-                        'Менеджер создан. Временный пароль: ' . $password . '. Пароль также отправлен владельцу пуш-уведомлением.'
+                        'Менеджер создан. Временный пароль: ' . $password
                     );
 
                     return $this->redirect('/manager/operators');
@@ -210,7 +236,10 @@ class PanelController extends ManagerController
         }
 
         $form = new ManagerOwnerContactForm();
-        if ($form->load(Yii::$app->request->post()) && $form->validate() && $this->operators->updateOwnerContacts($ownerPublicKey, $form)) {
+        if ($form->load(Yii::$app->request->post())) {
+            $form->avatar = UploadedFile::getInstance($form, 'avatar');
+        }
+        if ($form->validate() && $this->operators->updateOwnerContacts($ownerPublicKey, $form)) {
             Yii::$app->session->setFlash('success', 'Контакты владельца сохранены');
         } else {
             Yii::$app->session->setFlash('error', 'Не удалось сохранить контакты владельца');

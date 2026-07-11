@@ -264,10 +264,6 @@ if ($settings->timezone !== '' && !isset($timezones[$settings->timezone])) {
     <hr>
 
     <div class="uk-margin">
-        <div class="uk-form-label">Уведомления менеджеров</div>
-        <div class="uk-alert-primary" uk-alert>
-            <p>Админка включена всегда: новые обращения будут видны в разделе онлайн-поддержки.</p>
-        </div>
         <?php if ($managerRecipients === []): ?>
             <div class="uk-alert-warning" uk-alert>
                 <p>Активных менеджеров у клиента пока не найдено. Добавьте email ниже вручную.</p>
@@ -288,7 +284,7 @@ if ($settings->timezone !== '' && !isset($timezones[$settings->timezone])) {
         <label class="uk-display-block">
             <?= Html::hiddenInput('SupportSettings[notifyEmail]', '0') ?>
             <?= Html::checkbox('SupportSettings[notifyEmail]', $settings->notifyEmail, ['value' => '1']) ?>
-            Email менеджерам
+            Email
         </label>
         <div class="uk-margin-small-top">
             <?= Html::label('Email для уведомлений через запятую', 'support-notification-emails', ['class' => 'uk-form-label']) ?>
@@ -435,4 +431,3 @@ $this->registerJs(<<<'JS'
 })();
 JS, \yii\web\View::POS_READY);
 ?>
-

@@ -19,6 +19,7 @@ use yii\db\Exception;
  * @property string|null $phone
  * @property string|null $telegram
  * @property string|null $max_contact
+ * @property string|null $avatar_path
  */
 class Users extends ActiveRecord
 {

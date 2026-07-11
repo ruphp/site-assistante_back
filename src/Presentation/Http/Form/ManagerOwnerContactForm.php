@@ -3,6 +3,7 @@
 namespace app\Presentation\Http\Form;
 
 use yii\base\Model;
+use yii\web\UploadedFile;
 
 final class ManagerOwnerContactForm extends Model
 {
@@ -10,6 +11,7 @@ final class ManagerOwnerContactForm extends Model
     public string $phone = '';
     public string $telegram = '';
     public string $maxContact = '';
+    public ?UploadedFile $avatar = null;
 
     public function rules(): array
     {
@@ -18,6 +20,7 @@ final class ManagerOwnerContactForm extends Model
             ['name', 'string', 'min' => 2, 'max' => 80],
             [['phone', 'telegram', 'maxContact'], 'string', 'max' => 128],
             [['name', 'phone', 'telegram', 'maxContact'], 'trim'],
+            ['avatar', 'file', 'extensions' => ['png', 'jpg', 'jpeg', 'webp'], 'maxSize' => 2 * 1024 * 1024, 'skipOnEmpty' => true],
         ];
     }
 
@@ -28,6 +31,7 @@ final class ManagerOwnerContactForm extends Model
             'phone' => 'Телефон',
             'telegram' => 'Telegram',
             'maxContact' => 'MAX',
+            'avatar' => 'Аватар',
         ];
     }
 }

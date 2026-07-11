@@ -20,6 +20,7 @@ CodemirrorAsset::register($this);
 $email_user = '';
 $name_user = '';
 $id_user = null;
+$isOwner = false;
 
 if (Yii::$app->user->isGuest) {
     $role = [1];
@@ -43,10 +44,11 @@ if (Yii::$app->user->isGuest) {
     $email_user = Yii::$app->user->identity->email;
     $name_user = Yii::$app->user->identity->name;
     $id_user = Yii::$app->user->identity->id;
+    $isOwner = (int)$id_user === (int)Yii::$app->user->identity->getPublicKey();
     $menu = [
             ['label' => 'Диалоги', 'url' => ['/manager/support/conversations']],
-            ['label' => 'Панель управления', 'url' => ['/manager']],
-            ['label' => 'Инструкции', 'url' => ['/manager/instructions']],
+            ['label' => $isOwner ? 'Панель управления' : 'Личный кабинет', 'url' => [$isOwner ? '/manager' : '/manager/profile']],
+            ['label' => 'Инструкции', 'url' => ['/instructions']],
             ['label' => 'Выход', 'url' => ['/logout']],
     ];
 }
@@ -101,15 +103,15 @@ $this->beginPage();
                         <a href="/instructions">Инструкции</a>
                     <?php else: ?>
                         <a href="/manager/support/conversations">Диалоги</a>
-                        <a href="/manager">Панель управления</a>
-                        <a href="/manager/instructions">Инструкции</a>
+                        <a href="<?= $isOwner ? '/manager' : '/manager/profile' ?>"><?= $isOwner ? 'Панель управления' : 'Личный кабинет' ?></a>
+                        <a href="/instructions">Инструкции</a>
                     <?php endif; ?>
                 </nav>
                 <div class="sw-header__actions">
                     <?php if (Yii::$app->user->isGuest): ?>
                         <a class="sw-header__login" href="/login">Войти</a>
                     <?php else: ?>
-                        <span class="sw-header__user"><?= Html::encode($name_user) ?></span>
+                        <a class="sw-header__user" href="/manager/profile"><?= Html::encode($name_user) ?></a>
                         <a class="sw-header__logout" href="/logout">Выход</a>
                     <?php endif; ?>
                     <button class="sw-header__burger" type="button" uk-toggle="target: #offcanvas"

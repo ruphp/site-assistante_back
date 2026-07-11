@@ -6,6 +6,8 @@ use app\Modules\Support\Application\Contract\SupportMessageRepositoryInterface;
 use app\Modules\Support\Domain\SupportMessage;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportConversationRecord;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportMessageRecord;
+use app\Infrastructure\YiiActiveRecord\Users;
+use Yii;
 
 final class YiiSupportMessageRepository implements SupportMessageRepositoryInterface
 {
@@ -56,6 +58,17 @@ final class YiiSupportMessageRepository implements SupportMessageRepositoryInter
 
     private function map(SupportMessageRecord $record): SupportMessage
     {
+        $senderName = null;
+        $senderAvatarUrl = null;
+        if ((string)$record->sender_type === SupportMessage::SENDER_OPERATOR && $record->sender_id !== null) {
+            $operator = Users::findOne((int)$record->sender_id);
+            if ($operator instanceof Users) {
+                $senderName = trim((string)$operator->name) ?: 'Менеджер';
+                $avatarPath = trim((string)($operator->avatar_path ?? ''));
+                $senderAvatarUrl = $avatarPath === '' ? null : rtrim(Yii::$app->request->hostInfo, '/') . '/' . ltrim($avatarPath, '/');
+            }
+        }
+
         return new SupportMessage(
             id: (int)$record->id,
             conversationId: (int)$record->conversation_id,
@@ -64,6 +77,8 @@ final class YiiSupportMessageRepository implements SupportMessageRepositoryInter
             senderId: $record->sender_id === null ? null : (string)$record->sender_id,
             body: (string)$record->body,
             createdAt: $record->created_at === null ? null : (string)$record->created_at,
+            senderName: $senderName,
+            senderAvatarUrl: $senderAvatarUrl,
         );
     }
 

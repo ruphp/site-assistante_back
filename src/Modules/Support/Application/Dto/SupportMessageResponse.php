@@ -22,6 +22,8 @@ final class SupportMessageResponse
                 'sender_id' => $this->message->senderId,
                 'body' => $this->message->body,
                 'created_at' => $this->message->createdAt,
+                'sender_name' => $this->message->senderName,
+                'sender_avatar_url' => $this->message->senderAvatarUrl,
             ],
         ];
     }

@@ -65,7 +65,7 @@ final class TelegramManagerBotService
             $this->sendMessage(
                 (string)$link->chat_id,
                 $text,
-                $this->conversationKeyboard((int)$conversation->id, $this->canCloseConversation($link)),
+                $this->conversationKeyboard((int)$conversation->id),
             );
         }
     }
@@ -172,22 +172,6 @@ final class TelegramManagerBotService
             return;
         }
 
-        if ($action === 'close') {
-            if (!$this->canCloseConversation($link)) {
-                $this->answerCallback($callbackId, 'Закрывать диалоги может владелец аккаунта');
-                return;
-            }
-
-            try {
-                $this->operatorSupport->closeConversation((int)$link->public_key, $conversationId);
-                $this->answerCallback($callbackId, 'Диалог закрыт');
-                $this->sendMessage($chatId, 'Диалог #' . $conversationId . ' закрыт.');
-            } catch (\Throwable $e) {
-                Yii::error($e->getMessage(), 'telegram-manager-bot');
-                $this->answerCallback($callbackId, 'Не удалось закрыть диалог');
-                $this->sendMessage($chatId, 'Не удалось закрыть диалог #' . $conversationId . '. Проверьте его в панели управления.');
-            }
-        }
     }
 
     private function handleReplyCommand(string $chatId, string $text): void
@@ -239,7 +223,7 @@ final class TelegramManagerBotService
 
         foreach ($conversations as $conversation) {
             $id = (int)($conversation['id'] ?? 0);
-            $this->sendMessage($chatId, $this->conversationCardText($conversation), $this->conversationKeyboard($id, $this->canCloseConversation($link)));
+            $this->sendMessage($chatId, $this->conversationCardText($conversation), $this->conversationKeyboard($id));
         }
     }
 
@@ -353,27 +337,13 @@ final class TelegramManagerBotService
         return implode("\n", $lines);
     }
 
-    private function canCloseConversation(SupportTelegramManagerLinkRecord $link): bool
+    private function conversationKeyboard(int $conversationId): array
     {
-        $user = Users::findOne((int)$link->user_id);
-
-        return $user instanceof Users
-            && (int)$user->id === (int)$link->public_key
-            && (int)$user->public_key === (int)$link->public_key;
-    }
-
-    private function conversationKeyboard(int $conversationId, bool $canClose): array
-    {
-        $buttons = [
-            ['text' => 'Ответить', 'callback_data' => 'reply:' . $conversationId],
-        ];
-        if ($canClose) {
-            $buttons[] = ['text' => 'Закрыть', 'callback_data' => 'close:' . $conversationId];
-        }
-
         return [
             'inline_keyboard' => [
-                $buttons,
+                [
+                    ['text' => 'Ответить', 'callback_data' => 'reply:' . $conversationId],
+                ],
             ],
         ];
     }

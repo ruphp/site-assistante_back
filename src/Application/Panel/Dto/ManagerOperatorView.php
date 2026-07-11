@@ -11,6 +11,7 @@ final class ManagerOperatorView
         public readonly string $phone,
         public readonly string $telegram,
         public readonly string $maxContact,
+        public readonly ?string $avatarUrl,
         public readonly bool $isOwner,
     ) {
     }

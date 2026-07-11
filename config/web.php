@@ -82,6 +82,10 @@ $url_rules = [
         'route' => 'manager/panel/operators',
     ],
     [
+        'pattern' => '/manager/profile',
+        'route' => 'manager/panel/profile',
+    ],
+    [
         'pattern' => '/manager/operator/owner-contacts',
         'route' => 'manager/panel/operator-owner-contacts',
     ],

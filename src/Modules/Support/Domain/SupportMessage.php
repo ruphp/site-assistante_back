@@ -16,6 +16,8 @@ final class SupportMessage
         public readonly ?string $senderId,
         public readonly string $body,
         public readonly ?string $createdAt = null,
+        public readonly ?string $senderName = null,
+        public readonly ?string $senderAvatarUrl = null,
     ) {
     }
 }

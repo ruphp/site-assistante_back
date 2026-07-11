@@ -67,7 +67,7 @@ $this->title = 'Настройки подключения ';
     </div>
     <p class="uk-text-muted">
         Подробная инструкция по установке, передаче пользователя, Android-приложению и Telegram-боту вынесена в раздел
-        <?= Html::a('Инструкции', ['/manager/instructions']) ?>.
+        <?= Html::a('Инструкции', ['/instructions']) ?>.
     </p>
 
 </div>

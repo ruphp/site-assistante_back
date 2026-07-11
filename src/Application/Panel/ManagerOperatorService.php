@@ -4,8 +4,6 @@ namespace app\Application\Panel;
 
 use app\Application\Panel\Dto\ManagerOperatorView;
 use app\Infrastructure\YiiActiveRecord\Users;
-use app\Modules\Support\Application\Contract\SupportPushDeviceRepositoryInterface;
-use app\Modules\Support\Application\Contract\SupportPushNotificationSenderInterface;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Domain\SupportPlanLimit;
 use app\Presentation\Http\Form\ManagerOperatorForm;
@@ -16,8 +14,6 @@ final class ManagerOperatorService
 {
     public function __construct(
         private readonly SupportSettingsRepositoryInterface $supportSettings,
-        private readonly SupportPushDeviceRepositoryInterface $pushDevices,
-        private readonly SupportPushNotificationSenderInterface $pushSender,
     ) {
     }
 
@@ -34,6 +30,7 @@ final class ManagerOperatorService
                 'users.phone',
                 'users.telegram',
                 'users.max_contact',
+                'users.avatar_path',
                 'users.public_key',
             ])
             ->innerJoin('auth_assignment', 'auth_assignment.user_id = users.id')
@@ -47,13 +44,14 @@ final class ManagerOperatorService
             ->all();
 
         return array_map(
-            static fn(array $row): ManagerOperatorView => new ManagerOperatorView(
+            fn(array $row): ManagerOperatorView => new ManagerOperatorView(
                 id: (int)$row['id'],
                 name: (string)$row['name'],
                 email: (string)$row['email'],
                 phone: (string)($row['phone'] ?? ''),
                 telegram: (string)($row['telegram'] ?? ''),
                 maxContact: (string)($row['max_contact'] ?? ''),
+                avatarUrl: $this->avatarUrl($row['avatar_path'] ?? null),
                 isOwner: (int)$row['id'] === $ownerPublicKey,
             ),
             $rows,
@@ -74,7 +72,12 @@ final class ManagerOperatorService
 
     public function ownerContactForm(int $ownerPublicKey): ManagerOwnerContactForm
     {
-        $owner = Users::findOne(['id' => $ownerPublicKey, 'public_key' => $ownerPublicKey]);
+        return $this->profileForm($ownerPublicKey);
+    }
+
+    public function profileForm(int $userId): ManagerOwnerContactForm
+    {
+        $owner = Users::findOne($userId);
         $form = new ManagerOwnerContactForm();
 
         if ($owner instanceof Users) {
@@ -87,9 +90,21 @@ final class ManagerOperatorService
         return $form;
     }
 
+    public function profileAvatarUrl(int $userId): ?string
+    {
+        $user = Users::findOne($userId);
+
+        return $user instanceof Users ? $this->avatarUrl($user->avatar_path ?? null) : null;
+    }
+
     public function updateOwnerContacts(int $ownerPublicKey, ManagerOwnerContactForm $form): bool
     {
-        $owner = Users::findOne(['id' => $ownerPublicKey, 'public_key' => $ownerPublicKey]);
+        return $this->updateProfile($ownerPublicKey, $form);
+    }
+
+    public function updateProfile(int $userId, ManagerOwnerContactForm $form): bool
+    {
+        $owner = Users::findOne($userId);
         if (!$owner instanceof Users) {
             $form->addError('name', 'Владелец не найден');
             return false;
@@ -100,7 +115,11 @@ final class ManagerOperatorService
         $owner->telegram = trim($form->telegram);
         $owner->max_contact = trim($form->maxContact);
 
-        if ($owner->save(false, ['name', 'phone', 'telegram', 'max_contact'])) {
+        if ($form->avatar !== null) {
+            $owner->avatar_path = $this->saveAvatar((int)$owner->id, $form->avatar->extension, $form->avatar->tempName);
+        }
+
+        if ($owner->save(false, ['name', 'phone', 'telegram', 'max_contact', 'avatar_path'])) {
             return true;
         }
 
@@ -144,9 +163,12 @@ final class ManagerOperatorService
             return null;
         }
 
-        $this->assignManagerRole($operator);
-        $this->notifyOwnerAboutPassword($ownerPublicKey, $operator, $password, 'Создан менеджер');
+        if ($form->avatar !== null) {
+            $operator->avatar_path = $this->saveAvatar((int)$operator->id, $form->avatar->extension, $form->avatar->tempName);
+            $operator->save(false, ['avatar_path']);
+        }
 
+        $this->assignManagerRole($operator);
         return $password;
     }
 
@@ -162,8 +184,6 @@ final class ManagerOperatorService
         if (!$operator->save()) {
             return null;
         }
-
-        $this->notifyOwnerAboutPassword($ownerPublicKey, $operator, $password, 'Сброс пароля менеджера');
 
         return $password;
     }
@@ -203,20 +223,27 @@ final class ManagerOperatorService
         }
     }
 
-    private function notifyOwnerAboutPassword(int $ownerPublicKey, Users $operator, string $password, string $title): void
+    private function saveAvatar(int $userId, string $extension, string $temporaryPath): string
     {
-        $tokens = $this->pushDevices->activeTokensForUser($ownerPublicKey);
-        if ($tokens === []) {
-            return;
+        $directory = Yii::getAlias('@webroot/uploads/operators');
+        if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
+            throw new \RuntimeException('Не удалось создать каталог аватаров');
         }
 
-        $body = sprintf('%s: %s. Пароль: %s', $operator->name, $operator->email, $password);
-        foreach ($tokens as $token) {
-            $this->pushSender->sendToToken($token, $title, $body, [
-                'type' => 'manager_password',
-                'manager_id' => (string)$operator->id,
-                'manager_email' => (string)$operator->email,
-            ]);
+        $extension = strtolower($extension === 'jpeg' ? 'jpg' : $extension);
+        $relativePath = '/uploads/operators/' . $userId . '.' . $extension;
+        if (!move_uploaded_file($temporaryPath, Yii::getAlias('@webroot') . $relativePath)) {
+            throw new \RuntimeException('Не удалось сохранить аватар');
         }
+
+        return $relativePath;
     }
+
+    private function avatarUrl(?string $avatarPath): ?string
+    {
+        $avatarPath = trim((string)$avatarPath);
+
+        return $avatarPath === '' ? null : $avatarPath;
+    }
+
 }

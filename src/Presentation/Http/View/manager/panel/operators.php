@@ -24,7 +24,7 @@ $usedOperators = count($operators);
         <p>
             Лимит тарифа: <?= Html::encode((string)$operatorLimit) ?> менеджер(ов).
             Первый менеджер - владелец аккаунта.
-            Для подключения Telegram менеджер отправляет боту <strong>@SiteWidgetBot</strong> свой код из таблицы.
+            Telegram подключается по персональной ссылке менеджера.
         </p>
     </div>
 
@@ -34,7 +34,7 @@ $usedOperators = count($operators);
             Владелец считается первым менеджером. Эти контакты будут использоваться для общения и отображения в операторской части.
         </p>
 
-        <?= Html::beginForm('/manager/operator/owner-contacts', 'post', ['class' => 'uk-form-stacked']) ?>
+        <?= Html::beginForm('/manager/operator/owner-contacts', 'post', ['class' => 'uk-form-stacked', 'enctype' => 'multipart/form-data']) ?>
             <div class="uk-grid-small" uk-grid>
                 <div class="uk-width-1-2@s">
                     <div class="uk-margin">
@@ -53,6 +53,13 @@ $usedOperators = count($operators);
                     <div class="uk-margin">
                         <?= Html::activeLabel($ownerForm, 'phone', ['class' => 'uk-form-label']) ?>
                         <?= Html::activeTextInput($ownerForm, 'phone', ['class' => 'uk-input']) ?>
+                    </div>
+                </div>
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <?= Html::activeLabel($ownerForm, 'avatar', ['class' => 'uk-form-label']) ?>
+                        <?= Html::activeFileInput($ownerForm, 'avatar', ['class' => 'uk-input', 'accept' => 'image/png,image/jpeg,image/webp']) ?>
+                        <?= Html::error($ownerForm, 'avatar', ['class' => 'uk-text-danger']) ?>
                     </div>
                 </div>
                 <div class="uk-width-1-3@s">
@@ -93,6 +100,12 @@ $usedOperators = count($operators);
             <tr>
                 <td><?= Html::encode((string)$operator->id) ?></td>
                 <td>
+                    <?php if ($operator->avatarUrl !== null): ?>
+                        <?= Html::img($operator->avatarUrl, [
+                            'alt' => '',
+                            'style' => 'width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;vertical-align:middle',
+                        ]) ?>
+                    <?php endif; ?>
                     <?= Html::encode($operator->name) ?>
                     <?php if ($operator->isOwner): ?>
                         <div class="uk-text-meta">Владелец</div>
@@ -103,8 +116,15 @@ $usedOperators = count($operators);
                 <td><?= Html::encode($operator->telegram !== '' ? $operator->telegram : '-') ?></td>
                 <td><?= Html::encode($operator->maxContact !== '' ? $operator->maxContact : '-') ?></td>
                 <td>
-                    <code>/start <?= Html::encode($telegramCodes[$operator->id] ?? '') ?></code>
-                    <div class="uk-text-meta">код действует 30 минут</div>
+                    <?php $telegramCode = $telegramCodes[$operator->id] ?? ''; ?>
+                    <?php if ($telegramCode !== ''): ?>
+                        <?= Html::a('Подключить Telegram', 'https://t.me/SiteWidgetBot?start=' . rawurlencode($telegramCode), [
+                            'class' => 'uk-button uk-button-default uk-button-small',
+                            'target' => '_blank',
+                            'rel' => 'noopener noreferrer',
+                        ]) ?>
+                        <div class="uk-text-meta">ссылка действует 30 минут</div>
+                    <?php endif; ?>
                 </td>
                 <td class="uk-text-nowrap">
                     <?php if (!$operator->isOwner): ?>
@@ -137,7 +157,7 @@ $usedOperators = count($operators);
     <?php else: ?>
         <h4>Добавить менеджера</h4>
 
-        <?= Html::beginForm('/manager/operators', 'post', ['class' => 'uk-form-stacked']) ?>
+        <?= Html::beginForm('/manager/operators', 'post', ['class' => 'uk-form-stacked', 'enctype' => 'multipart/form-data']) ?>
             <div class="uk-grid-small" uk-grid>
                 <div class="uk-width-1-2@s">
                     <div class="uk-margin">
@@ -159,6 +179,13 @@ $usedOperators = count($operators);
                         <?= Html::activeTextInput($form, 'phone', ['class' => 'uk-input']) ?>
                     </div>
                 </div>
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <?= Html::activeLabel($form, 'avatar', ['class' => 'uk-form-label']) ?>
+                        <?= Html::activeFileInput($form, 'avatar', ['class' => 'uk-input', 'accept' => 'image/png,image/jpeg,image/webp']) ?>
+                        <?= Html::error($form, 'avatar', ['class' => 'uk-text-danger']) ?>
+                    </div>
+                </div>
                 <div class="uk-width-1-3@s">
                     <div class="uk-margin">
                         <?= Html::activeLabel($form, 'telegram', ['class' => 'uk-form-label']) ?>
@@ -174,7 +201,7 @@ $usedOperators = count($operators);
             </div>
 
             <div class="uk-text-meta uk-margin-small-bottom">
-                Пароль создастся автоматически и появится на экране владельца. Если Android-приложение владельца подключено, пароль придёт пуш-уведомлением.
+                Пароль создастся автоматически и появится на экране владельца.
             </div>
 
             <?= Html::submitButton('Создать менеджера', ['class' => 'uk-button uk-button-primary']) ?>
