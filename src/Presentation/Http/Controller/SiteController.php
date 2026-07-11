@@ -159,7 +159,11 @@ HTML;
 
     public function actionInstructions(): string
     {
-        return $this->render('instructions');
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect('/login');
+        }
+
+        return $this->redirect('/manager/instructions');
     }
 
     public function actionCmsPlugins(): string

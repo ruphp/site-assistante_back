@@ -19,6 +19,7 @@ final class ClientPanelMenuService
         if (!$isOwner) {
             return [
                 'manager/support/conversations' => 'Диалоги',
+                'manager/instructions' => 'Инструкции',
             ];
         }
 
@@ -26,7 +27,7 @@ final class ClientPanelMenuService
             'manager/params' => 'Параметры',
             'manager/designe' => 'Оформление',
             'manager/limits' => 'Лимиты',
-            'instructions' => 'Инструкции',
+            'manager/instructions' => 'Инструкции',
         ];
 
         if ($this->rolesEnabledForClient($publicKey)) {

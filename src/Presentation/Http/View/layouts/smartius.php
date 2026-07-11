@@ -37,7 +37,6 @@ if (Yii::$app->user->isGuest) {
             ['label' => 'Как работает', 'url' => '/#how'],
             ['label' => 'Интеграции', 'url' => '/#integrations'],
             ['label' => 'Приложение', 'url' => '/#android-app'],
-            ['label' => 'Инструкции', 'url' => ['/instructions']],
             ['label' => 'Вход', 'url' => ['/login']],
     ];
 } else {
@@ -48,7 +47,7 @@ if (Yii::$app->user->isGuest) {
     $menu = [
             ['label' => 'Диалоги', 'url' => ['/manager/support/conversations']],
             ['label' => $isOwner ? 'Панель управления' : 'Личный кабинет', 'url' => [$isOwner ? '/manager' : '/manager/profile']],
-            ['label' => 'Инструкции', 'url' => ['/instructions']],
+            ['label' => 'Инструкции', 'url' => ['/manager/instructions']],
             ['label' => 'Выход', 'url' => ['/logout']],
     ];
 }
@@ -100,11 +99,10 @@ $this->beginPage();
                         <a href="/#how">Как работает</a>
                         <a href="/#integrations">Интеграции</a>
                         <a href="/#android-app">Приложение</a>
-                        <a href="/instructions">Инструкции</a>
                     <?php else: ?>
                         <a href="/manager/support/conversations">Диалоги</a>
                         <a href="<?= $isOwner ? '/manager' : '/manager/profile' ?>"><?= $isOwner ? 'Панель управления' : 'Личный кабинет' ?></a>
-                        <a href="/instructions">Инструкции</a>
+                        <a href="/manager/instructions">Инструкции</a>
                     <?php endif; ?>
                 </nav>
                 <div class="sw-header__actions">

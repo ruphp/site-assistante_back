@@ -82,73 +82,85 @@ $usedOperators = count($operators);
         <?= Html::endForm() ?>
     </div>
 
-    <table class="uk-table uk-table-divider uk-table-hover">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Имя</th>
-            <th>Email</th>
-            <th>Телефон</th>
-            <th>Telegram</th>
-            <th>MAX</th>
-            <th>Код Telegram-бота</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
+    <div class="uk-grid-small uk-child-width-1-2@m uk-child-width-1-1@s" uk-grid>
         <?php foreach ($operators as $operator): ?>
-            <tr>
-                <td><?= Html::encode((string)$operator->id) ?></td>
-                <td>
-                    <?php if ($operator->avatarUrl !== null): ?>
-                        <?= Html::img($operator->avatarUrl, [
-                            'alt' => '',
-                            'style' => 'width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;vertical-align:middle',
-                        ]) ?>
-                    <?php endif; ?>
-                    <?= Html::encode($operator->name) ?>
-                    <?php if ($operator->isOwner): ?>
-                        <div class="uk-text-meta">Владелец</div>
-                    <?php endif; ?>
-                </td>
-                <td><?= Html::encode($operator->email) ?></td>
-                <td><?= Html::encode($operator->phone !== '' ? $operator->phone : '-') ?></td>
-                <td><?= Html::encode($operator->telegram !== '' ? $operator->telegram : '-') ?></td>
-                <td><?= Html::encode($operator->maxContact !== '' ? $operator->maxContact : '-') ?></td>
-                <td>
-                    <?php $telegramCode = $telegramCodes[$operator->id] ?? ''; ?>
-                    <?php if ($telegramCode !== ''): ?>
-                        <?= Html::a('Подключить Telegram', 'https://t.me/SiteWidgetBot?start=' . rawurlencode($telegramCode), [
-                            'class' => 'uk-button uk-button-default uk-button-small',
-                            'target' => '_blank',
-                            'rel' => 'noopener noreferrer',
-                        ]) ?>
-                        <div class="uk-text-meta">ссылка действует 30 минут</div>
-                    <?php endif; ?>
-                </td>
-                <td class="uk-text-nowrap">
-                    <?php if (!$operator->isOwner): ?>
-                        <?= Html::beginForm('/manager/operator/reset-password', 'post', ['style' => 'display:inline']) ?>
-                            <?= Html::hiddenInput('id', (string)$operator->id) ?>
-                            <?= Html::submitButton('Сбросить пароль', [
-                                'class' => 'uk-button uk-button-default uk-button-small',
-                                'onclick' => "return confirm('Сгенерировать новый пароль менеджеру?');",
-                            ]) ?>
-                        <?= Html::endForm() ?>
+            <div>
+                <div class="uk-card uk-card-default uk-card-body">
+                    <div class="uk-flex uk-flex-between uk-flex-top uk-margin-small-bottom">
+                        <div class="uk-flex uk-flex-middle">
+                            <?php if ($operator->avatarUrl !== null): ?>
+                                <?= Html::img($operator->avatarUrl, [
+                                    'alt' => '',
+                                    'style' => 'width:40px;height:40px;border-radius:50%;object-fit:cover;margin-right:10px',
+                                ]) ?>
+                            <?php endif; ?>
+                            <div>
+                                <div class="uk-text-meta">ID <?= Html::encode((string)$operator->id) ?></div>
+                                <h4 class="uk-margin-remove"><?= Html::encode($operator->name) ?></h4>
+                                <?php if ($operator->isOwner): ?>
+                                    <div class="uk-text-meta">Владелец</div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <?php if (!$operator->isOwner): ?>
+                            <div class="uk-text-nowrap">
+                                <?= Html::beginForm('/manager/operator/reset-password', 'post', ['style' => 'display:inline']) ?>
+                                    <?= Html::hiddenInput('id', (string)$operator->id) ?>
+                                    <?= Html::submitButton('Сбросить пароль', [
+                                        'class' => 'uk-button uk-button-default uk-button-small',
+                                        'onclick' => "return confirm('Сгенерировать новый пароль менеджеру?');",
+                                    ]) ?>
+                                <?= Html::endForm() ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
 
-                        <?= Html::beginForm('/manager/operator/disable', 'post', ['style' => 'display:inline']) ?>
-                            <?= Html::hiddenInput('id', (string)$operator->id) ?>
-                            <?= Html::submitButton('Отключить', [
-                                'class' => 'uk-button uk-button-danger uk-button-small',
-                                'onclick' => "return confirm('Отключить менеджера?');",
+                    <div class="uk-grid-small uk-child-width-1-2@s" uk-grid>
+                        <div>
+                            <div class="uk-text-meta">Email</div>
+                            <div><?= Html::encode($operator->email) ?></div>
+                        </div>
+                        <div>
+                            <div class="uk-text-meta">Телефон</div>
+                            <div><?= Html::encode($operator->phone !== '' ? $operator->phone : '-') ?></div>
+                        </div>
+                        <div>
+                            <div class="uk-text-meta">Telegram</div>
+                            <div><?= Html::encode($operator->telegram !== '' ? $operator->telegram : '-') ?></div>
+                        </div>
+                        <div>
+                            <div class="uk-text-meta">MAX</div>
+                            <div><?= Html::encode($operator->maxContact !== '' ? $operator->maxContact : '-') ?></div>
+                        </div>
+                    </div>
+
+                    <div class="uk-margin-small-top">
+                        <?php $telegramCode = $telegramCodes[$operator->id] ?? ''; ?>
+                        <?php if ($telegramCode !== ''): ?>
+                            <?= Html::a('Подключить Telegram', 'https://t.me/SiteWidgetBot?start=' . rawurlencode($telegramCode), [
+                                'class' => 'uk-button uk-button-default uk-button-small',
+                                'target' => '_blank',
+                                'rel' => 'noopener noreferrer',
                             ]) ?>
-                        <?= Html::endForm() ?>
+                            <div class="uk-text-meta">ссылка действует 30 минут</div>
+                        <?php endif; ?>
+                    </div>
+
+                    <?php if (!$operator->isOwner): ?>
+                        <div class="uk-margin-small-top">
+                            <?= Html::beginForm('/manager/operator/disable', 'post', ['style' => 'display:inline']) ?>
+                                <?= Html::hiddenInput('id', (string)$operator->id) ?>
+                                <?= Html::submitButton('Отключить', [
+                                    'class' => 'uk-button uk-button-danger uk-button-small',
+                                    'onclick' => "return confirm('Отключить менеджера?');",
+                                ]) ?>
+                            <?= Html::endForm() ?>
+                        </div>
                     <?php endif; ?>
-                </td>
-            </tr>
+                </div>
+            </div>
         <?php endforeach; ?>
-        </tbody>
-    </table>
+    </div>
 
     <?php if ($usedOperators >= $operatorLimit): ?>
         <div class="uk-alert-warning" uk-alert>

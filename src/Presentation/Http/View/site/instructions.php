@@ -23,6 +23,7 @@ $this->registerMetaTag([
             <div class="site-landing__actions">
                 <?= Html::a('Войти в панель', ['/login'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
                 <?= Html::a('Создать аккаунт', ['/join'], ['class' => 'site-landing__button site-landing__button--ghost']) ?>
+                <?= Html::a('CMS-модули', ['/cms-plugins'], ['class' => 'site-landing__button site-landing__button--ghost']) ?>
             </div>
         </div>
     </section>

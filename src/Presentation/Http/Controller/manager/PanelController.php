@@ -168,10 +168,6 @@ class PanelController extends ManagerController
 
     public function actionInstructions(): Response|string
     {
-        if (!$this->isOwner()) {
-            return $this->redirect('/manager/support/conversations');
-        }
-
         $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
         $projectId = (int)Yii::$app->request->get('projectId') ?: null;
         $publicKey = $this->projects->publicKeyForProject($ownerPublicKey, $projectId);

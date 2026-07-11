@@ -46,42 +46,41 @@ $progress = static function (int $used, int $limit) use ($percent): string {
     </div>
 
     <h4 class="uk-margin-large-top">Проекты</h4>
-    <table class="uk-table uk-table-divider uk-table-middle">
-        <thead>
-        <tr>
-            <th>Проект</th>
-            <th>Public key</th>
-            <th>Тариф</th>
-            <th>Ответы сегодня</th>
-            <th>Диалоги за месяц</th>
-            <th>Сообщения за месяц</th>
-        </tr>
-        </thead>
-        <tbody>
+    <div class="uk-grid-small uk-child-width-1-2@m uk-child-width-1-1@s" uk-grid>
         <?php foreach ($report->projects as $project): ?>
-            <tr>
-                <td>
-                    <strong><?= Html::encode($project->projectName) ?></strong>
-                    <?php if ($project->domain !== ''): ?>
-                        <div class="uk-text-meta"><?= Html::encode($project->domain) ?></div>
-                    <?php endif; ?>
-                </td>
-                <td><?= $project->publicKey ?></td>
-                <td><?= Html::encode($project->planLabel) ?></td>
-                <td>
-                    <?= $project->operatorRepliesToday ?> / <?= $project->operatorRepliesPerDayLimit ?>
-                    <?= $progress($project->operatorRepliesToday, $project->operatorRepliesPerDayLimit) ?>
-                </td>
-                <td>
-                    <?= $project->conversationsMonth ?> / <?= $project->conversationsMonthLimit ?>
-                    <?= $progress($project->conversationsMonth, $project->conversationsMonthLimit) ?>
-                </td>
-                <td>
-                    <?= $project->messagesMonth ?> / <?= $project->messagesMonthLimit ?>
-                    <?= $progress($project->messagesMonth, $project->messagesMonthLimit) ?>
-                </td>
-            </tr>
+            <div>
+                <div class="uk-card uk-card-default uk-card-body">
+                    <div class="uk-flex uk-flex-between uk-flex-top uk-margin-small-bottom">
+                        <div>
+                            <strong><?= Html::encode($project->projectName) ?></strong>
+                            <?php if ($project->domain !== ''): ?>
+                                <div class="uk-text-meta"><?= Html::encode($project->domain) ?></div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="uk-text-meta">PK <?= Html::encode((string)$project->publicKey) ?></div>
+                    </div>
+                    <div class="uk-margin-small-bottom">
+                        <span class="uk-label uk-label-primary"><?= Html::encode($project->planLabel) ?></span>
+                    </div>
+                    <div class="uk-grid-small uk-child-width-1-2@s" uk-grid>
+                        <div>
+                            <div class="uk-text-meta">Ответы сегодня</div>
+                            <div><?= $project->operatorRepliesToday ?> / <?= $project->operatorRepliesPerDayLimit ?></div>
+                            <?= $progress($project->operatorRepliesToday, $project->operatorRepliesPerDayLimit) ?>
+                        </div>
+                        <div>
+                            <div class="uk-text-meta">Диалоги за месяц</div>
+                            <div><?= $project->conversationsMonth ?> / <?= $project->conversationsMonthLimit ?></div>
+                            <?= $progress($project->conversationsMonth, $project->conversationsMonthLimit) ?>
+                        </div>
+                        <div>
+                            <div class="uk-text-meta">Сообщения за месяц</div>
+                            <div><?= $project->messagesMonth ?> / <?= $project->messagesMonthLimit ?></div>
+                            <?= $progress($project->messagesMonth, $project->messagesMonthLimit) ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
         <?php endforeach; ?>
-        </tbody>
-    </table>
+    </div>
 </div>
