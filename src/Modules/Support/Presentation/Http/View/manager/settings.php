@@ -301,66 +301,6 @@ if ($settings->timezone !== '' && !isset($timezones[$settings->timezone])) {
         </div>
     </div>
 
-    <div class="uk-margin">
-        <label class="uk-display-block">
-            <?= Html::hiddenInput('SupportSettings[notifyTelegram]', '0') ?>
-            <?= Html::checkbox('SupportSettings[notifyTelegram]', $settings->notifyTelegram, ['value' => '1']) ?>
-            Telegram
-        </label>
-        <div class="uk-grid-small" uk-grid>
-            <div class="uk-width-1-2@s">
-                <?= Html::label('Telegram bot token', 'support-telegram-token', ['class' => 'uk-form-label']) ?>
-                <?= Html::input('text', 'SupportSettings[telegramBotToken]', $settings->telegramBotToken, [
-                    'id' => 'support-telegram-token',
-                    'class' => 'uk-input',
-                    'autocomplete' => 'off',
-                ]) ?>
-            </div>
-            <div class="uk-width-1-2@s">
-                <?= Html::label('Telegram chat id', 'support-telegram-chat', ['class' => 'uk-form-label']) ?>
-                <?= Html::input('text', 'SupportSettings[telegramChatId]', $settings->telegramChatId, [
-                    'id' => 'support-telegram-chat',
-                    'class' => 'uk-input',
-                    'autocomplete' => 'off',
-                ]) ?>
-            </div>
-        </div>
-    </div>
-
-    <div class="uk-margin">
-        <label class="uk-display-block">
-            <?= Html::hiddenInput('SupportSettings[notifyMax]', '0') ?>
-            <?= Html::checkbox('SupportSettings[notifyMax]', $settings->notifyMax, ['value' => '1']) ?>
-            MAX
-        </label>
-        <div class="uk-grid-small" uk-grid>
-            <div class="uk-width-1-3@s">
-                <?= Html::label('MAX API URL', 'support-max-api-url', ['class' => 'uk-form-label']) ?>
-                <?= Html::input('text', 'SupportSettings[maxApiUrl]', $settings->maxApiUrl, [
-                    'id' => 'support-max-api-url',
-                    'class' => 'uk-input',
-                    'autocomplete' => 'off',
-                ]) ?>
-            </div>
-            <div class="uk-width-1-3@s">
-                <?= Html::label('MAX bot token', 'support-max-token', ['class' => 'uk-form-label']) ?>
-                <?= Html::input('text', 'SupportSettings[maxBotToken]', $settings->maxBotToken, [
-                    'id' => 'support-max-token',
-                    'class' => 'uk-input',
-                    'autocomplete' => 'off',
-                ]) ?>
-            </div>
-            <div class="uk-width-1-3@s">
-                <?= Html::label('MAX chat id', 'support-max-chat', ['class' => 'uk-form-label']) ?>
-                <?= Html::input('text', 'SupportSettings[maxChatId]', $settings->maxChatId, [
-                    'id' => 'support-max-chat',
-                    'class' => 'uk-input',
-                    'autocomplete' => 'off',
-                ]) ?>
-            </div>
-        </div>
-    </div>
-
     <?= Html::submitButton('Сохранить', ['class' => 'uk-button uk-button-primary']) ?>
 
     <?php ActiveForm::end(); ?>

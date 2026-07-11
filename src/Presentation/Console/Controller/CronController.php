@@ -38,13 +38,21 @@ class CronController extends Controller
 
     public function actionSupportAutoClose(): int
     {
-        $timeoutMinutes = (int)($_ENV['SUPPORT_AUTO_CLOSE_AFTER_OPERATOR_SEEN_MINUTES'] ?? 30);
-        $timeoutSeconds = max(60, $timeoutMinutes * 60);
-
         $repository = Yii::$container->get(SupportConversationRepositoryInterface::class);
-        $closed = $repository->closeExpiredAfterOperatorSeen($timeoutSeconds);
 
-        $this->stdout(sprintf("Closed %d support conversations\n", $closed));
+        $seenTimeoutMinutes = (int)($_ENV['SUPPORT_AUTO_CLOSE_AFTER_OPERATOR_SEEN_MINUTES'] ?? 30);
+        $seenClosed = $repository->closeExpiredAfterOperatorSeen(max(60, $seenTimeoutMinutes * 60));
+
+        $replyTimeoutMinutes = (int)($_ENV['SUPPORT_AUTO_CLOSE_AFTER_OPERATOR_REPLY_MINUTES'] ?? 0);
+        $replyClosed = $replyTimeoutMinutes > 0
+            ? $repository->closeExpiredAfterOperatorReply(max(60, $replyTimeoutMinutes * 60))
+            : 0;
+
+        $this->stdout(sprintf(
+            "Closed %d support conversations after visitor seen, %d after operator reply\n",
+            $seenClosed,
+            $replyClosed
+        ));
 
         return ExitCode::OK;
     }

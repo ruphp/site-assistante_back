@@ -56,69 +56,18 @@ $this->title = 'Настройки подключения ';
     echo Html::submitButton('Сохранить', ['class' => 'uk-button uk-button-primary']);
     ActiveForm::end();
     ?>
-    <h3>Инструкция по подключению</h3>
-    <p>Скопируйте этот код</p>
+    <h3>Код подключения</h3>
+    <p>
+        Public key проекта:
+        <code><?= Html::encode((string)$activeProject->publicKey) ?></code>
+    </p>
+    <p>Скопируйте код и разместите его на сайте.</p>
     <div>
         <pre class="uk-resize еее"><code><?php echo $code; ?></code></pre>
     </div>
-    и разместите его на сайте, на нужных страницах перед закрывающим тегом
-    <code>&lsaquo;/body&rsaquo;</code> или <code>&lsaquo;/head&rsaquo;</code> .
-
-
-    <p>Как Назначить пользователя:</p>
-
-
-    <ul>
-        <li>для указания идентификатора пользователя задайте его идентификатор в параметре id (тип параметра integer - 1234
-            или BigInt - 6657365633458205532n
-
-            <pre class="uk-resize еее"><code>
-    ...
-    <code>id: 1234</code>,
-    role: [4],
-    name: 'Some Name',
-    email: 'somemail@gmail.com'
-    ...
-</code></pre>
-        </li>
-    </ul>
-
-    <p>
-        Как назначить роли пользователя: </p>
-
-    <ul>
-        <li>для одной роли задайте идентификатор роли в массиве (тип параметра array[integer] ):
-
-            <pre class="uk-resize еее"><code>
-    ...
-    id: 1234,
-    <code>role: [4]</code>,
-    name: 'Some Name',
-    email: 'somemail@gmail.com'
-    ...
-</code></pre>
-        </li>
-        <li>для нескольких ролей устанавливают идентификаторы ролей в массиве (тип параметра array[integer] ):
-
-            <pre class="uk-resize еее"><code>
-    ...
-    id: 1234,
-    <code>role: [4, 5, 6]</code>,
-    name: 'Some Name',
-    email: 'somemail@gmail.com'
-    ...
-</code></pre>
-        </li>
-    </ul>
-    <p>
-        Обновление виджета через команду js:</p>
-
-    <ul>
-        <li>Если на странице есть элементы, которые добавляются динамически.</br>
-            То в коде js, вы можете вызвать функцию виджета для его обновления и он увидит новые элементы
-            <pre class="uk-resize еее"><code><code>window.SiteWidget.api.update();</code></code></pre>
-        </li>
-    </ul>
-
+    <p class="uk-text-muted">
+        Подробная инструкция по установке, передаче пользователя, Android-приложению и Telegram-боту вынесена в раздел
+        <?= Html::a('Инструкции', ['/manager/instructions']) ?>.
+    </p>
 
 </div>

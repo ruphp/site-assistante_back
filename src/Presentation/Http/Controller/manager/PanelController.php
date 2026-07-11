@@ -9,6 +9,7 @@ use app\Application\Role\Dto\RoleOperationResult;
 use app\Application\Role\ManagerRoleService;
 use app\Application\Panel\ManageAssistantSettingsService;
 use app\Application\Panel\Metrics\PanelMetricsService;
+use app\Modules\Support\Application\Bot\TelegramManagerBotService;
 use app\Modules\Support\Application\Reporting\SupportUsageReportService;
 use app\Presentation\Http\Controller\ManagerController;
 use app\Presentation\Http\Form\ManagerOperatorForm;
@@ -29,6 +30,7 @@ class PanelController extends ManagerController
         private readonly ClientProjectService $projects,
         private readonly SupportUsageReportService $usageReport,
         private readonly ManagerOperatorService $operators,
+        private readonly TelegramManagerBotService $telegramBot,
         $config = []
     ) {
         parent::__construct($id, $module, $config);
@@ -141,6 +143,21 @@ class PanelController extends ManagerController
         ]);
     }
 
+    public function actionInstructions(): Response|string
+    {
+        if (!$this->isOwner()) {
+            return $this->redirect('/manager/support/conversations');
+        }
+
+        $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
+        $projectId = (int)Yii::$app->request->get('projectId') ?: null;
+        $publicKey = $this->projects->publicKeyForProject($ownerPublicKey, $projectId);
+
+        return $this->render('instructions', [
+            'publicKey' => $publicKey,
+        ] + $this->projects->tabsData($ownerPublicKey, $projectId));
+    }
+
     public function actionOperators(): Response|string
     {
         $ownerPublicKey = (int)Yii::$app->user->identity->getPublicKey();
@@ -168,11 +185,18 @@ class PanelController extends ManagerController
             Yii::$app->session->setFlash('error', 'Не удалось создать менеджера');
         }
 
+        $operators = $this->operators->listForOwner($ownerPublicKey);
+        $telegramCodes = [];
+        foreach ($operators as $operator) {
+            $telegramCodes[$operator->id] = $this->telegramBot->createLinkCode($operator->id, $ownerPublicKey);
+        }
+
         return $this->render('operators', [
-            'operators' => $this->operators->listForOwner($ownerPublicKey),
+            'operators' => $operators,
             'form' => $form,
             'ownerForm' => $this->operators->ownerContactForm($ownerPublicKey),
             'operatorLimit' => $this->operators->operatorLimit($ownerPublicKey),
+            'telegramCodes' => $telegramCodes,
         ]);
     }
 

@@ -3,6 +3,7 @@
 namespace app\Modules\Support\Infrastructure;
 
 use app\Infrastructure\YiiActiveRecord\Users;
+use app\Modules\Support\Application\Bot\TelegramManagerBotService;
 use app\Modules\Support\Application\Contract\SupportManagerNotifierInterface;
 use app\Modules\Support\Application\Contract\SupportPushDeviceRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportPushNotificationSenderInterface;
@@ -11,7 +12,6 @@ use app\Modules\Support\Domain\SupportConversation;
 use app\Modules\Support\Domain\SupportMessage;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportProjectRecord;
 use Yii;
-use yii\httpclient\Client;
 
 final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
 {
@@ -19,6 +19,7 @@ final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
         private readonly SupportSettingsRepositoryInterface $settings,
         private readonly SupportPushDeviceRepositoryInterface $pushDevices,
         private readonly SupportPushNotificationSenderInterface $pushSender,
+        private readonly TelegramManagerBotService $telegramManagerBot,
     ) {
     }
 
@@ -31,15 +32,8 @@ final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
             $this->notifyEmail($conversation, $text);
         }
 
-        if ($settings->notifyTelegram) {
-            $this->notifyTelegram($settings->telegramBotToken, $settings->telegramChatId, $text);
-        }
-
-        if ($settings->notifyMax) {
-            $this->notifyMax($settings->maxApiUrl, $settings->maxBotToken, $settings->maxChatId, $text);
-        }
-
         $this->notifyPush($conversation, $message);
+        $this->telegramManagerBot->notifyVisitorMessage($conversation, $message);
     }
 
     private function notifyEmail(SupportConversation $conversation, string $text): void
@@ -74,52 +68,6 @@ final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
             array_map(static fn(string $email): string => strtolower(trim($email)), $emails),
             static fn(string $email): bool => filter_var($email, FILTER_VALIDATE_EMAIL) !== false,
         )));
-    }
-
-    private function notifyTelegram(string $botToken, string $chatId, string $text): void
-    {
-        $botToken = trim($botToken);
-        $chatId = trim($chatId);
-        if ($botToken === '' || $chatId === '') {
-            return;
-        }
-
-        try {
-            (new Client())->createRequest()
-                ->setMethod('POST')
-                ->setUrl('https://api.telegram.org/bot' . $botToken . '/sendMessage')
-                ->setData([
-                    'chat_id' => $chatId,
-                    'text' => $text,
-                    'disable_web_page_preview' => true,
-                ])
-                ->send();
-        } catch (\Throwable) {
-        }
-    }
-
-    private function notifyMax(string $apiUrl, string $botToken, string $chatId, string $text): void
-    {
-        $apiUrl = rtrim(trim($apiUrl), '/');
-        $botToken = trim($botToken);
-        $chatId = trim($chatId);
-        if ($apiUrl === '' || $botToken === '' || $chatId === '') {
-            return;
-        }
-
-        try {
-            (new Client())->createRequest()
-                ->setMethod('POST')
-                ->setUrl($apiUrl . '/messages')
-                ->addHeaders(['Authorization' => 'Bearer ' . $botToken])
-                ->setFormat(Client::FORMAT_JSON)
-                ->setData([
-                    'chat_id' => $chatId,
-                    'text' => $text,
-                ])
-                ->send();
-        } catch (\Throwable) {
-        }
     }
 
     private function managerEmails(int $publicKey): array

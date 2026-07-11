@@ -10,6 +10,7 @@ use yii\helpers\Html;
  * @var ManagerOperatorForm $form
  * @var ManagerOwnerContactForm $ownerForm
  * @var int $operatorLimit
+ * @var array<int, string> $telegramCodes
  */
 
 $this->title = 'Менеджеры';
@@ -23,6 +24,7 @@ $usedOperators = count($operators);
         <p>
             Лимит тарифа: <?= Html::encode((string)$operatorLimit) ?> менеджер(ов).
             Первый менеджер - владелец аккаунта.
+            Для подключения Telegram менеджер отправляет боту <strong>@SiteWidgetBot</strong> свой код из таблицы.
         </p>
     </div>
 
@@ -82,6 +84,7 @@ $usedOperators = count($operators);
             <th>Телефон</th>
             <th>Telegram</th>
             <th>MAX</th>
+            <th>Код Telegram-бота</th>
             <th></th>
         </tr>
         </thead>
@@ -99,6 +102,10 @@ $usedOperators = count($operators);
                 <td><?= Html::encode($operator->phone !== '' ? $operator->phone : '-') ?></td>
                 <td><?= Html::encode($operator->telegram !== '' ? $operator->telegram : '-') ?></td>
                 <td><?= Html::encode($operator->maxContact !== '' ? $operator->maxContact : '-') ?></td>
+                <td>
+                    <code>/start <?= Html::encode($telegramCodes[$operator->id] ?? '') ?></code>
+                    <div class="uk-text-meta">код действует 30 минут</div>
+                </td>
                 <td class="uk-text-nowrap">
                     <?php if (!$operator->isOwner): ?>
                         <?= Html::beginForm('/manager/operator/reset-password', 'post', ['style' => 'display:inline']) ?>

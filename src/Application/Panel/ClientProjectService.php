@@ -54,6 +54,11 @@ final class ClientProjectService
         return $this->activeProject($ownerPublicKey, $projectId)->publicKey;
     }
 
+    public function ensureOwnerProject(int $ownerPublicKey, string $name = '', string $domain = ''): void
+    {
+        $this->ensureDefaultProject($ownerPublicKey, $name, $domain);
+    }
+
     public function create(int $ownerPublicKey, string $name, string $domain = ''): bool
     {
         $this->ensureDefaultProject($ownerPublicKey);
@@ -112,23 +117,36 @@ final class ClientProjectService
         ];
     }
 
-    private function ensureDefaultProject(int $ownerPublicKey): void
+    private function ensureDefaultProject(int $ownerPublicKey, string $name = '', string $domain = ''): void
     {
-        $exists = SupportProjectRecord::find()
+        $record = SupportProjectRecord::find()
             ->where([
                 'owner_public_key' => $ownerPublicKey,
                 'is_default' => 1,
             ])
-            ->exists();
+            ->one();
 
-        if ($exists) {
+        if ($record instanceof SupportProjectRecord) {
+            $changed = false;
+            if (trim($name) !== '' && (string)$record->name === 'Основной сайт') {
+                $record->name = trim($name);
+                $changed = true;
+            }
+            if (trim($domain) !== '' && ($record->domain === null || (string)$record->domain === '')) {
+                $record->domain = trim($domain);
+                $changed = true;
+            }
+            if ($changed) {
+                $record->save(false);
+            }
             return;
         }
 
         $record = new SupportProjectRecord();
         $record->owner_public_key = $ownerPublicKey;
         $record->public_key = $ownerPublicKey;
-        $record->name = 'Основной сайт';
+        $record->name = trim($name) !== '' ? trim($name) : 'Основной сайт';
+        $record->domain = trim($domain) !== '' ? trim($domain) : null;
         $record->enabled = 1;
         $record->is_default = 1;
         $record->save(false);

@@ -2,6 +2,7 @@
 
 namespace app\Presentation\Http\Controller;
 
+use app\Application\Panel\ClientProjectService;
 use app\Application\User\Contract\UserAccountServiceInterface;
 use app\Infrastructure\Security\YandexSmartCaptchaVerifier;
 use app\Infrastructure\User\UserIdentity;
@@ -19,6 +20,7 @@ class SiteController extends SmartiusController
         $id,
         $module,
         private readonly UserAccountServiceInterface $userAccountService,
+        private readonly ClientProjectService $projects,
         $config = []
     ) {
         parent::__construct($id, $module, $config);
@@ -152,17 +154,12 @@ HTML;
     }
     public function actionIndex(): Response|string
     {
-        if (!Yii::$app->user->isGuest) {
-            if (!is_null(Yii::$app->authManager->getAssignments(Yii::$app->user->id)['admin'] ?? null)) {
-                return $this->redirect('/admin');
-            }
-            elseif (!is_null(Yii::$app->authManager->getAssignments(Yii::$app->user->id)['manager'] ?? null)) {
-                return $this->redirect('/manager');
-            }
-            Yii::$app->user->logout();
-        }
-
         return $this->render('index');
+    }
+
+    public function actionInstructions(): string
+    {
+        return $this->render('instructions');
     }
 
     public function actionCmsPlugins(): string
@@ -379,6 +376,11 @@ HTML;
             $userRecord->public_key = $userRecord->id;
             $userRecord->save();
         }
+
+        $this->projects->ensureOwnerProject(
+            (int)$userRecord->public_key,
+            (string)$userRecord->firm,
+        );
     }
 
     public function actionLogout(): Response
@@ -402,4 +404,3 @@ HTML;
     }
 
 }
-

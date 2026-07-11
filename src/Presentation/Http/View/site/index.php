@@ -129,41 +129,42 @@ $this->registerMetaTag([
                         Android-приложение помогает не пропускать обращения: отправляет менеджеру push-уведомления о новых обращениях и неотвеченных диалогах, даже в свернутом режиме..
                     </p>
                 </div>
-                <?= Html::a('Скачать APK', ['/sitewidgetmanager.apk'], [
-                    'class' => 'site-landing__button site-landing__button--primary',
-                    'download' => true,
-                ]) ?>
+                <div class="site-landing__actions">
+                    <?= Html::a('Скачать APK', ['/sitewidgetmanager.apk'], [
+                        'class' => 'site-landing__button site-landing__button--primary',
+                        'download' => true,
+                    ]) ?>
+                    <?= Html::a('Инструкция', '/instructions#android', [
+                        'class' => 'site-landing__button site-landing__button--ghost',
+                    ]) ?>
+                </div>
             </div>
+        </div>
+    </section>
 
-            <div class="site-landing__install-grid">
-                <article class="site-landing__install-card">
-                    <img src="/img/android-install/check.webp" alt="Проверка приложения Google Play Защитой">
-                    <div>
-                        <strong>01. Скачайте файл</strong>
-                        <p>Откройте ссылку на APK с телефона. Если Android предложит проверку, запустите ее или продолжите установку.</p>
-                    </div>
-                </article>
-                <article class="site-landing__install-card">
-                    <img src="/img/android-install/checking.webp" alt="Процесс проверки приложения">
-                    <div>
-                        <strong>02. Дождитесь проверки</strong>
-                        <p>Проверка может занять немного времени. После нее Android покажет, можно ли установить приложение.</p>
-                    </div>
-                </article>
-                <article class="site-landing__install-card">
-                    <img src="/img/android-install/safe.webp" alt="Приложение безопасное">
-                    <div>
-                        <strong>03. Разрешите установку</strong>
-                        <p>Если установка из браузера еще не разрешена, Android попросит разрешить установку из неизвестного источника.</p>
-                    </div>
-                </article>
-                <article class="site-landing__install-card">
-                    <img src="/img/android-install/installed.webp" alt="Приложение установлено">
-                    <div>
-                        <strong>04. Откройте приложение</strong>
-                        <p>После установки нажмите «Открыть», войдите в аккаунт владельца сайта и разрешите уведомления.</p>
-                    </div>
-                </article>
+    <section id="telegram-bot" class="site-landing__section">
+        <div class="site-landing__inner site-landing__split">
+            <div>
+                <h2>Telegram-бот для менеджеров</h2>
+                <p class="site-landing__section-lead">
+                    Если Android-приложение не подходит, менеджер может получать обращения и отвечать посетителям прямо из Telegram.
+                    Бот показывает открытые диалоги, даёт быстро ответить и помогает не пропустить горячий вопрос.
+                </p>
+            </div>
+            <ul class="site-landing__list">
+                <li>Уведомления о новых обращениях.</li>
+                <li>Ответ посетителю без входа в панель управления.</li>
+                <li>Закрытие диалога владельцем аккаунта.</li>
+            </ul>
+            <div class="site-landing__actions">
+                <?= Html::a('Открыть бота', 'https://t.me/SiteWidgetBot', [
+                    'class' => 'site-landing__button site-landing__button--primary',
+                    'target' => '_blank',
+                    'rel' => 'noopener',
+                ]) ?>
+                <?= Html::a('Как подключить', '/instructions#telegram', [
+                    'class' => 'site-landing__button site-landing__button--ghost',
+                ]) ?>
             </div>
         </div>
     </section>
@@ -180,7 +181,7 @@ $this->registerMetaTag([
             <ul class="site-landing__list">
                 <li>Быстрое подключение SiteWidget к WordPress, Joomla и OpenCart.</li>
                 <li>Интеграция авторизованного посетителя с виджетом без лишней настройки кода.</li>
-                <li>Настройка доступа к контенту по ролям пользователя сайта.</li>
+                <li>Настройка доступа к контенту по ролям пользователя сайта <span>(только в платных тарифах)</span>.</li>
             </ul>
             <div class="site-landing__download">
                 <a href="/cms-plugins#wordpress">
@@ -243,6 +244,7 @@ $this->registerMetaTag([
                     <p>Для первого подключения и проверки виджета на сайте.</p>
                     <ul>
                         <li>30 ответов оператора в день</li>
+                        <li>Пользуйся сразу после регистрации</li>
                         <li>300 диалогов и 3000 сообщений в месяц</li>
                         <li>1 проект</li>
                         <li>1 оператор</li>

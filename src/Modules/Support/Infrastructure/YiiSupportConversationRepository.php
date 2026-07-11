@@ -108,6 +108,27 @@ final class YiiSupportConversationRepository implements SupportConversationRepos
         ]);
     }
 
+    public function closeExpiredAfterOperatorReply(int $timeoutSeconds): int
+    {
+        $threshold = (new \DateTimeImmutable(sprintf('-%d seconds', max(0, $timeoutSeconds))))->format('Y-m-d H:i:s');
+
+        return SupportConversationRecord::updateAll([
+            'status' => SupportConversation::STATUS_CLOSED,
+            'closed_at' => new \yii\db\Expression('NOW()'),
+            'updated_at' => new \yii\db\Expression('NOW()'),
+        ], [
+            'and',
+            ['status' => SupportConversation::STATUS_OPEN],
+            ['not', ['operator_replied_at' => null]],
+            ['<=', 'operator_replied_at', $threshold],
+            [
+                'or',
+                ['last_visitor_activity_at' => null],
+                new \yii\db\Expression('last_visitor_activity_at <= operator_replied_at'),
+            ],
+        ]);
+    }
+
     public function findOpenByEmail(int $publicKey, string $visitorEmail): ?SupportConversation
     {
         $email = mb_strtolower(trim($visitorEmail));

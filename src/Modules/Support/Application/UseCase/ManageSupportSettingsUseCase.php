@@ -58,13 +58,13 @@ final class ManageSupportSettingsUseCase
             pollingIntervalSeconds: max(3, min(60, (int)($data['pollingIntervalSeconds'] ?? 5))),
             notifyEmail: (bool)($data['notifyEmail'] ?? false),
             notificationEmails: $this->text($data, 'notificationEmails'),
-            notifyTelegram: (bool)($data['notifyTelegram'] ?? false),
-            telegramBotToken: $this->text($data, 'telegramBotToken'),
-            telegramChatId: $this->text($data, 'telegramChatId'),
-            notifyMax: (bool)($data['notifyMax'] ?? false),
-            maxApiUrl: $this->text($data, 'maxApiUrl', 'https://platform-api.max.ru'),
-            maxBotToken: $this->text($data, 'maxBotToken'),
-            maxChatId: $this->text($data, 'maxChatId'),
+            notifyTelegram: false,
+            telegramBotToken: '',
+            telegramChatId: '',
+            notifyMax: false,
+            maxApiUrl: '',
+            maxBotToken: '',
+            maxChatId: '',
         ));
     }
 

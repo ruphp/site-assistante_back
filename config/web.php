@@ -26,6 +26,10 @@ $url_rules = [
         'pattern' => '/cms-plugins',
         'route' => 'site/cms-plugins',
     ],
+    [
+        'pattern' => '/instructions',
+        'route' => 'site/instructions',
+    ],
 
     [
         'pattern' => '/confirm-email',
@@ -263,6 +267,7 @@ $url_rules = [
     'POST api/auth/login' => 'api/auth/login',
     'POST api/auth/yandex-url' => 'api/auth/yandex-url',
     'POST api/auth/yandex' => 'api/auth/yandex',
+    'POST api/telegram/manager/webhook' => 'api/telegram-manager-bot/webhook',
     'GET api/support/manager/conversations' => 'api/support-manager/conversations',
     'GET api/support/manager/messages' => 'api/support-manager/messages',
     'POST api/support/manager/send-message' => 'api/support-manager/send-message',
@@ -314,6 +319,9 @@ $config = [
     'controllerMap' => [
         'manager-support' => [
             'class' => app\Modules\Support\Presentation\Http\Controller\ManagerSupportController::class,
+        ],
+        'api/telegram-manager-bot' => [
+            'class' => app\Presentation\Http\Controller\api\TelegramManagerBotController::class,
         ],
     ],
     'components' => [

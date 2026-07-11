@@ -24,6 +24,8 @@ interface SupportConversationRepositoryInterface
 
     public function closeExpiredAfterOperatorSeen(int $timeoutSeconds): int;
 
+    public function closeExpiredAfterOperatorReply(int $timeoutSeconds): int;
+
     public function closeForClient(int $publicKey, int $conversationId): bool;
 
     public function deleteForClient(int $publicKey, int $conversationId): bool;

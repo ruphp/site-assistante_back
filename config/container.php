@@ -25,6 +25,7 @@ use app\Application\Panel\ManagerOperatorService;
 use app\Application\Panel\Metrics\Contract\PanelModuleMetricChartRepositoryInterface;
 use app\Application\User\Contract\UserAccountServiceInterface;
 use app\Modules\Support\Application\Contract\SupportConversationRepositoryInterface;
+use app\Modules\Support\Application\Bot\TelegramManagerBotService;
 use app\Modules\Support\Application\Contract\SupportEntryPointRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportManagerNotifierInterface;
 use app\Modules\Support\Application\Contract\SupportManagerRecipientRepositoryInterface;
@@ -121,6 +122,7 @@ return [
         ManageSupportSettingsUseCase::class => ManageSupportSettingsUseCase::class,
         ManageSupportEntryPointsUseCase::class => ManageSupportEntryPointsUseCase::class,
         OperatorSupportUseCase::class => OperatorSupportUseCase::class,
+        TelegramManagerBotService::class => TelegramManagerBotService::class,
         ManagerOperatorService::class => ManagerOperatorService::class,
     ],
 ];
