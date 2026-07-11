@@ -56,13 +56,14 @@ $this->title = 'Настройки подключения ';
     echo Html::submitButton('Сохранить', ['class' => 'uk-button uk-button-primary']);
     ActiveForm::end();
     ?>
-    <h3>Код подключения</h3>
     <p>
         Public key проекта:
         <code><?= Html::encode((string)$activeProject->publicKey) ?></code>
     </p>
+
     <h3>Инструкция по подключению</h3>
-    <p>Скопируйте этот код</p>
+
+    <p>Скопируйте код ниже</p>
     <div>
         <pre class="uk-resize еее"><code><?php echo $code; ?></code></pre>
     </div>
