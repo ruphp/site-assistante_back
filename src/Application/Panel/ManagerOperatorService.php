@@ -9,6 +9,7 @@ use app\Modules\Support\Domain\SupportPlanLimit;
 use app\Presentation\Http\Form\ManagerOperatorForm;
 use app\Presentation\Http\Form\ManagerOwnerContactForm;
 use Yii;
+use yii\helpers\FileHelper;
 
 final class ManagerOperatorService
 {
@@ -226,13 +227,22 @@ final class ManagerOperatorService
     private function saveAvatar(int $userId, string $extension, string $temporaryPath): string
     {
         $directory = Yii::getAlias('@webroot/uploads/operators');
-        if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
+        try {
+            FileHelper::createDirectory($directory, 0775);
+        } catch (\Throwable $exception) {
+            Yii::error([
+                'message' => 'Failed to create operator avatar directory',
+                'directory' => $directory,
+                'error' => $exception->getMessage(),
+            ], __METHOD__);
+
             throw new \RuntimeException('Не удалось создать каталог аватаров');
         }
 
         $extension = strtolower($extension === 'jpeg' ? 'jpg' : $extension);
         $relativePath = '/uploads/operators/' . $userId . '.' . $extension;
-        if (!move_uploaded_file($temporaryPath, Yii::getAlias('@webroot') . $relativePath)) {
+        $absolutePath = Yii::getAlias('@webroot') . $relativePath;
+        if (!move_uploaded_file($temporaryPath, $absolutePath) && !rename($temporaryPath, $absolutePath)) {
             throw new \RuntimeException('Не удалось сохранить аватар');
         }
 
