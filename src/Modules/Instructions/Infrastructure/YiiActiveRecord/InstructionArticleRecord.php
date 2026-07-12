@@ -12,6 +12,12 @@ use yii\db\ActiveRecord;
  * @property string $html
  * @property int $sort_order
  * @property bool $is_active
+ * @property bool $admin_blocked
+ * @property string|null $blocked_reason
+ * @property int $views
+ * @property int $likes
+ * @property int $dislikes
+ * @property int $content_bytes
  */
 final class InstructionArticleRecord extends ActiveRecord
 {
@@ -24,10 +30,18 @@ final class InstructionArticleRecord extends ActiveRecord
     {
         return [
             [['public_key', 'title', 'html'], 'required'],
-            [['public_key', 'category_id', 'sort_order'], 'integer'],
+            [['public_key', 'category_id', 'sort_order', 'views', 'likes', 'dislikes', 'content_bytes'], 'integer'],
             [['html'], 'string'],
-            [['is_active'], 'boolean'],
+            [['is_active', 'admin_blocked'], 'boolean'],
             [['title'], 'string', 'max' => 255],
+            [['blocked_reason'], 'string', 'max' => 500],
         ];
+    }
+
+    public function beforeSave($insert): bool
+    {
+        $this->content_bytes = strlen((string)$this->html);
+
+        return parent::beforeSave($insert);
     }
 }

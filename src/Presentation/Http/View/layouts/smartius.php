@@ -89,8 +89,9 @@ if ($isLandingPage) {
             'label' => 'Инструкции',
             'url' => ['/manager/instructions'],
             'items' => [
-                ['label' => 'Материалы', 'url' => ['/manager/instructions']],
-                ['label' => 'Как подключить', 'url' => ['/instructions']],
+                ['label' => 'Все инструкции', 'url' => ['/manager/instructions']],
+                ['label' => 'Разделы', 'url' => ['/manager/instructions/sections']],
+                ['label' => 'Создать инструкцию', 'url' => ['/manager/instructions/create']],
             ],
         ],
     ];

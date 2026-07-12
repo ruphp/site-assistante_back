@@ -19,6 +19,7 @@ class AdminController extends SmartiusController
             'list' => [
                 'admin/clients' => 'Панель администратора',
                 'admin/clients/limits' => 'Лимиты клиентов',
+                'admin/instructions' => 'Инструкции клиентов',
             ],
             'lists' => [],
         ]);

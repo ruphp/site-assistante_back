@@ -86,6 +86,9 @@ $limitText = static function (int $used, int $limit): string {
                     <?= Html::a('Смотреть диалоги', '/admin/clients/dialogs?publicKey=' . $project->publicKey, [
                         'class' => 'uk-button uk-button-default uk-button-small',
                     ]) ?>
+                    <?= Html::a('Инструкции', '/admin/instructions?publicKey=' . $project->publicKey, [
+                        'class' => 'uk-button uk-button-default uk-button-small',
+                    ]) ?>
                 </div>
             </div>
         <?php endforeach; ?>

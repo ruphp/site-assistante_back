@@ -8,6 +8,10 @@ use app\Application\Admin\Dto\UpdateClientRequest;
 use app\Application\Admin\Monitoring\AdminMonitoringService;
 use app\Modules\Support\Application\UseCase\OperatorSupportUseCase;
 use app\Modules\Support\Application\Reporting\SupportUsageReportService;
+use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleFeedbackRecord;
+use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleRecord;
+use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionSettingsRecord;
+use app\Infrastructure\YiiActiveRecord\Users;
 use app\Presentation\Http\Controller\AdminController;
 use app\Presentation\Http\Form\UserJoinForm;
 use Exception;
@@ -141,6 +145,75 @@ class PanelController extends AdminController
         ]);
     }
 
+    public function actionInstructions(int $publicKey = 0): string
+    {
+        $query = InstructionArticleRecord::find()
+            ->orderBy(['public_key' => SORT_ASC, 'id' => SORT_DESC]);
+        if ($publicKey > 0) {
+            $query->where(['public_key' => $publicKey]);
+        }
+        $articles = $query->all();
+        $settings = InstructionSettingsRecord::find()
+            ->indexBy('public_key')
+            ->all();
+        $clientPublicKeys = array_map('intval', Users::find()
+            ->select('public_key')
+            ->where(['status' => Users::STATUS_ACTIVE])
+            ->andWhere(['not', ['public_key' => null]])
+            ->distinct()
+            ->column());
+
+        return $this->render('instructions', compact('articles', 'settings', 'clientPublicKeys', 'publicKey'));
+    }
+
+    public function actionToggleInstructionBlock(int $id): Response
+    {
+        $article = InstructionArticleRecord::findOne($id);
+        if ($article instanceof InstructionArticleRecord) {
+            $article->admin_blocked = !$article->admin_blocked;
+            $article->save(false, ['admin_blocked']);
+            Yii::$app->session->setFlash('success', $article->admin_blocked ? 'Инструкция заблокирована' : 'Инструкция разблокирована');
+        }
+
+        return $this->redirect('/admin/instructions');
+    }
+
+    public function actionInstructionView(int $id): string|Response
+    {
+        $article = InstructionArticleRecord::findOne($id);
+        if (!$article instanceof InstructionArticleRecord) {
+            Yii::$app->session->setFlash('error', 'Инструкция не найдена');
+
+            return $this->redirect('/admin/instructions');
+        }
+
+        $comments = InstructionArticleFeedbackRecord::find()
+            ->where(['article_id' => $article->id])
+            ->orderBy(['id' => SORT_DESC])
+            ->limit(50)
+            ->all();
+
+        $client = Users::find()
+            ->where(['public_key' => $article->public_key])
+            ->orderBy(['id' => SORT_ASC])
+            ->one();
+
+        return $this->render('instruction-view', compact('article', 'comments', 'client'));
+    }
+
+    public function actionToggleInstructionCreation(int $publicKey): Response
+    {
+        $settings = InstructionSettingsRecord::findOne($publicKey);
+        if (!$settings instanceof InstructionSettingsRecord) {
+            $settings = new InstructionSettingsRecord(['public_key' => $publicKey]);
+        }
+        $settings->creation_locked = !$settings->creation_locked;
+        $settings->save(false);
+        Yii::$app->session->setFlash('success', $settings->creation_locked ? 'Создание инструкций заблокировано' : 'Создание инструкций разрешено');
+
+        return $this->redirect('/admin/instructions');
+    }
+
     public function actionResetDailyReplies(int $publicKey): Response
     {
         $this->usageReport->resetDailyOperatorRepliesForOwner((int)$publicKey);
@@ -256,7 +329,14 @@ class PanelController extends AdminController
             return $this->redirect('/admin/clients');
         }
 
-        return $this->render('update', $this->clientService->getUpdateViewData((int)$id));
+        $data = $this->clientService->getUpdateViewData((int)$id);
+        if ($data['user'] === null) {
+            Yii::$app->session->setFlash('error', 'Клиент не найден');
+
+            return $this->redirect('/admin/clients');
+        }
+
+        return $this->render('update', $data);
     }
 
     public function actionGrafana(): string

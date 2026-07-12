@@ -1989,6 +1989,95 @@ ul.ticket-messages-list {
     padding: 18px;
 }
 
+.sw-instruction-card__top {
+    align-items: flex-start;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.sw-instruction-card__top h4 {
+    margin: 0;
+}
+
+.sw-instruction-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.sw-instruction-stat {
+    background: #fff;
+    border: 1px solid var(--sw-line);
+    box-shadow: 0 10px 24px rgba(43, 36, 92, .08);
+    min-height: 92px;
+    padding: 18px;
+}
+
+.sw-instruction-stat b {
+    color: var(--sw-base);
+    display: block;
+    font-size: 24px;
+    line-height: 1.1;
+}
+
+.sw-instruction-stat span {
+    color: var(--sw-muted);
+}
+
+.sw-instruction-form {
+    background: #fff;
+    border: 1px solid var(--sw-line);
+    box-shadow: 0 10px 24px rgba(43, 36, 92, .08);
+    padding: 18px;
+}
+
+.sw-instruction-editor-toolbar {
+    align-items: center;
+    background: var(--sw-surface);
+    border: 1px solid var(--sw-line);
+    border-bottom: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+}
+
+.sw-instruction-editor-view {
+    background: #fff;
+    border: 1px solid var(--sw-line);
+    min-height: 260px;
+    outline: none;
+    padding: 14px;
+}
+
+.sw-instruction-editor-view:focus {
+    border-color: var(--sw-primary);
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, .12);
+}
+
+.sw-instruction-editor-view img {
+    height: auto;
+    max-width: 100%;
+}
+
+.sw-instruction-editor-source {
+    font-family: Consolas, Monaco, monospace;
+    margin-top: 10px;
+}
+
+.sw-instruction-role-list {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 639px) {
+    .sw-instruction-role-list {
+        grid-template-columns: 1fr;
+    }
+}
+
 .sw-instruction-card--new {
     border-color: var(--sw-lavender);
     margin-bottom: 16px;
@@ -2012,6 +2101,16 @@ ul.ticket-messages-list {
     flex-wrap: wrap;
     gap: 8px;
     justify-content: flex-end;
+}
+
+.sw-instruction-comments {
+    display: grid;
+    gap: 10px;
+}
+
+.sw-instruction-comment {
+    border-top: 1px solid var(--sw-line);
+    padding-top: 10px;
 }
 
 @media (max-width: 1199px) {

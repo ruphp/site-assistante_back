@@ -4,5 +4,5 @@ namespace app\Modules\Instructions\Domain;
 
 final class InstructionsModule
 {
-    public const NAME = 'courses';
+    public const NAME = 'instructions';
 }

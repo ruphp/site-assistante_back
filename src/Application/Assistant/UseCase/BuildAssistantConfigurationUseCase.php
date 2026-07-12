@@ -8,6 +8,10 @@ use app\Application\Assistant\Contract\AssistantContextRepositoryInterface;
 use app\Application\Assistant\Dto\BuildAssistantConfigurationRequest;
 use app\Application\Assistant\Dto\AssistantConfigurationResponse;
 use app\Application\Client\Contract\ClientModuleAccessRepositoryInterface;
+use app\Modules\Instructions\Domain\InstructionPlanLimit;
+use app\Modules\Instructions\Domain\InstructionsModule;
+use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleRecord;
+use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleUrlRecord;
 use app\Modules\Support\Domain\SupportSettings;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Domain\SupportPlan;
@@ -41,6 +45,7 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
         $client = $context->client;
         $modules = $this->allowedEnabledModules($client->publicKey, $client->enabledModules());
         $supportSettings = $this->supportSettingsRepository->getForClient($client->publicKey);
+        $modules = $this->filterModulesForPlanAndPage($modules, $supportSettings, $request);
 
         $response = new AssistantConfigurationResponse(
             error: [],
@@ -69,6 +74,70 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
     private function allowedEnabledModules(int $publicKey, array $enabledModules): array
     {
         return $this->moduleAccessRepository->getForClient($publicKey)->filterAllowed($enabledModules);
+    }
+
+    private function filterModulesForPlanAndPage(array $modules, SupportSettings $settings, BuildAssistantConfigurationRequest $request): array
+    {
+        $plan = SupportPlan::normalize($settings->plan);
+        $instructionLimit = InstructionPlanLimit::forPlan($plan);
+
+        return array_values(array_filter($modules, function (string $module) use ($plan, $instructionLimit, $request): bool {
+            if ($module === InstructionsModule::NAME) {
+                return $instructionLimit->enabled && $this->hasInstructionsForPage($request, $instructionLimit->urlBindingsEnabled);
+            }
+
+            if ($module === 'onboarding') {
+                return in_array($plan, [SupportPlan::START, SupportPlan::PRO], true);
+            }
+
+            if (in_array($module, ['surveys', 'polls'], true)) {
+                return $plan === SupportPlan::PRO;
+            }
+
+            if ($module === 'hints') {
+                return in_array($plan, [SupportPlan::START, SupportPlan::PRO], true);
+            }
+
+            return true;
+        }));
+    }
+
+    private function hasInstructionsForPage(BuildAssistantConfigurationRequest $request, bool $urlBindingsEnabled): bool
+    {
+        $articleIds = InstructionArticleRecord::find()
+            ->where(['public_key' => $request->publicKey, 'is_active' => true, 'admin_blocked' => false])
+            ->select('id')
+            ->column();
+        if ($articleIds === []) {
+            return false;
+        }
+        if (!$urlBindingsEnabled) {
+            return true;
+        }
+
+        $boundArticleIds = InstructionArticleUrlRecord::find()
+            ->where(['article_id' => $articleIds])
+            ->select('article_id')
+            ->distinct()
+            ->column();
+        if (count($boundArticleIds) < count($articleIds)) {
+            return true;
+        }
+
+        $pathname = $request->requestContext?->pathname ?? '';
+        $pageUrl = $pathname . ($request->requestContext?->getparams ?? '');
+        foreach (InstructionArticleUrlRecord::find()->where(['article_id' => $articleIds])->all() as $url) {
+            $target = rtrim((string)$url->url, '/');
+            $current = rtrim($url->include_query ? $pageUrl : $pathname, '/');
+            if ($target === '') {
+                continue;
+            }
+            if ($url->include_children ? strpos($current, $target) === 0 : $current === $target) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function brandingForSettings(SupportSettings $settings): array

@@ -72,17 +72,4 @@ $this->title = 'Настройки подключения ';
         </div>
     </div>
 
-    <div class="uk-card uk-card-default uk-card-body uk-margin-top">
-        <h3 class="uk-margin-remove-top">Инструкции</h3>
-        <p class="uk-text-muted uk-margin-small-bottom">
-            Подробные шаги вынесены в отдельный раздел. Здесь остаются только актуальный код подключения и public key проекта.
-        </p>
-        <ul class="uk-list uk-list-bullet uk-margin-remove-bottom">
-            <li><?= Html::a('Как подключить виджет', ['/instructions#connect']) ?></li>
-            <li><?= Html::a('Android-приложение', ['/instructions#android']) ?></li>
-            <li><?= Html::a('Telegram-бот', ['/instructions#telegram']) ?></li>
-            <li><?= Html::a('Онлайн-поддержка и быстрые кнопки', ['/instructions#support']) ?></li>
-        </ul>
-    </div>
-
 </div>

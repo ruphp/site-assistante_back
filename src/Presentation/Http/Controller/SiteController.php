@@ -163,13 +163,7 @@ HTML;
             return $this->redirect('/login');
         }
 
-        $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
-        $projectId = (int)Yii::$app->request->get('projectId') ?: null;
-        $publicKey = $this->projects->publicKeyForProject($ownerPublicKey, $projectId);
-
-        return $this->render('//manager/panel/instructions', [
-            'publicKey' => $publicKey,
-        ] + $this->projects->tabsData($ownerPublicKey, $projectId));
+        return $this->redirect('/manager/instructions');
     }
 
     public function actionCmsPlugins(): string

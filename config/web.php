@@ -86,6 +86,22 @@ $url_rules = [
         'route' => 'manager/instructions/index',
     ],
     [
+        'pattern' => '/manager/instructions/sections',
+        'route' => 'manager/instructions/sections',
+    ],
+    [
+        'pattern' => '/manager/instructions/create',
+        'route' => 'manager/instructions/create',
+    ],
+    [
+        'pattern' => '/manager/instructions/update',
+        'route' => 'manager/instructions/update',
+    ],
+    [
+        'pattern' => '/manager/instructions/stats',
+        'route' => 'manager/instructions/stats',
+    ],
+    [
         'pattern' => '/manager/instructions/category-delete',
         'route' => 'manager/instructions/delete-category',
     ],
@@ -180,6 +196,22 @@ $url_rules = [
         'pattern' => '/admin/clients/limits/reset-daily-replies',
         'route' => 'admin/panel/reset-daily-replies',
     ],
+    [
+        'pattern' => '/admin/instructions',
+        'route' => 'admin/panel/instructions',
+    ],
+    [
+        'pattern' => '/admin/instructions/block',
+        'route' => 'admin/panel/toggle-instruction-block',
+    ],
+    [
+        'pattern' => '/admin/instructions/view',
+        'route' => 'admin/panel/instruction-view',
+    ],
+    [
+        'pattern' => '/admin/instructions/creation',
+        'route' => 'admin/panel/toggle-instruction-creation',
+    ],
 
     [
         'pattern' => '/admin/clients/join',
@@ -250,31 +282,31 @@ $url_rules = [
         'route' => 'api/widget/log-open',
     ],
     [
-        'pattern' => '/api/courses',
-        'route' => 'api/instructions/courses',
+        'pattern' => '/api/instructions',
+        'route' => 'api/instructions/instructions',
     ],
     [
-        'pattern' => '/api/course',
-        'route' => 'api/instructions/course',
+        'pattern' => '/api/instruction',
+        'route' => 'api/instructions/instruction',
     ],
     [
-        'pattern' => '/api/search',
+        'pattern' => '/api/instructions/search',
         'route' => 'api/instructions/search',
     ],
     [
-        'pattern' => '/api/linktag',
+        'pattern' => '/api/instructions/linktag',
         'route' => 'api/instructions/linktag',
     ],
     [
-        'pattern' => '/api/favorites',
+        'pattern' => '/api/instruction_favorites',
         'route' => 'api/instructions/favorites',
     ],
     [
-        'pattern' => '/api/course_estimate',
-        'route' => 'api/instructions/course-estimate',
+        'pattern' => '/api/instruction_estimate',
+        'route' => 'api/instructions/instruction-estimate',
     ],
     [
-        'pattern' => '/api/log_interest',
+        'pattern' => '/api/log_instruction_interest',
         'route' => 'api/instructions/log-interest',
     ],
     [
