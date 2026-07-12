@@ -4,7 +4,6 @@ namespace app\Presentation\Http\Form;
 
 use app\Infrastructure\YiiActiveRecord\Users;
 use yii\base\Model;
-use yii\web\UploadedFile;
 
 final class ManagerOperatorForm extends Model
 {
@@ -13,7 +12,7 @@ final class ManagerOperatorForm extends Model
     public string $phone = '';
     public string $telegram = '';
     public string $maxContact = '';
-    public ?UploadedFile $avatar = null;
+    public $avatar = null;
 
     public function rules(): array
     {

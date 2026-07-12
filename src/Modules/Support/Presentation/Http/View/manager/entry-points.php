@@ -41,72 +41,74 @@ $responseTypeOptions = [
     </div>
 
     <?php if ($entryPoints !== []): ?>
-        <table class="uk-table uk-table-divider uk-table-middle">
-            <thead>
-            <tr>
-                <th>Название</th>
-                <th>Ответ</th>
-                <th>Тип ответа</th>
-                <th>Приоритет</th>
-                <th>Порядок</th>
-                <th>Включена</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
+        <div class="sw-entry-point-grid">
             <?php foreach ($entryPoints as $entryPoint): ?>
-                <tr>
+                <div class="sw-entry-point-card">
                     <?php $form = \ruwmapps\yii2_uikit3\ActiveForm::begin([
                         'action' => '/manager/support/entry-points?projectId=' . $activeProject->id,
-                        'options' => ['class' => 'uk-form-stacked'],
+                        'options' => ['class' => 'uk-form-stacked sw-entry-point-card__form'],
                     ]); ?>
                     <?= Html::hiddenInput('SupportEntryPoint[id]', (string)$entryPoint->id) ?>
-                    <td>
+
+                    <div class="uk-margin-small">
+                        <?= Html::label('Название', null, ['class' => 'uk-form-label']) ?>
                         <?= Html::textarea('SupportEntryPoint[title]', $entryPoint->title, [
-                            'class' => 'uk-textarea uk-form-width-medium',
+                            'class' => 'uk-textarea',
                             'rows' => 2,
                             'maxlength' => 255,
                         ]) ?>
-                    </td>
-                    <td>
+                    </div>
+
+                    <div class="uk-margin-small">
+                        <?= Html::label('Ответ', null, ['class' => 'uk-form-label']) ?>
                         <?= Html::textarea('SupportEntryPoint[description]', $entryPoint->description, [
-                            'class' => 'uk-textarea uk-form-width-large',
-                            'rows' => 2,
+                            'class' => 'uk-textarea',
+                            'rows' => 4,
                         ]) ?>
                         <div class="uk-text-meta">Для переноса строки используйте Enter. Ссылку можно вставить обычным URL.</div>
-                    </td>
-                    <td>
-                        <?= Html::dropDownList('SupportEntryPoint[responseType]', $entryPoint->responseType, $responseTypeOptions, [
-                            'class' => 'uk-select uk-form-width-medium',
-                        ]) ?>
-                    </td>
-                    <td>
-                        <?= Html::dropDownList('SupportEntryPoint[priority]', min($entryPoint->priority, $currentRankLimit), $currentRankOptions, [
-                            'class' => 'uk-select uk-form-width-xsmall',
-                        ]) ?>
-                    </td>
-                    <td>
-                        <?= Html::dropDownList('SupportEntryPoint[sortOrder]', min($entryPoint->sortOrder, $currentRankLimit), $currentRankOptions, [
-                            'class' => 'uk-select uk-form-width-xsmall',
-                        ]) ?>
-                    </td>
-                    <td>
-                        <?= Html::hiddenInput('SupportEntryPoint[enabled]', '0') ?>
-                        <?= Html::checkbox('SupportEntryPoint[enabled]', $entryPoint->enabled, ['value' => '1']) ?>
-                    </td>
-                    <td class="uk-text-nowrap">
-                        <?= Html::submitButton('Сохранить', ['class' => 'uk-button uk-button-primary uk-button-small']) ?>
-                        <?= Html::a('Удалить', '/manager/support/entry-point/delete?id=' . $entryPoint->id . '&projectId=' . $activeProject->id, [
-                            'class' => 'uk-button uk-button-danger uk-button-small',
-                            'data-method' => 'post',
-                            'data-confirm' => 'Удалить кнопку обращения?',
-                        ]) ?>
-                    </td>
+                    </div>
+
+                    <div class="sw-entry-point-card__controls">
+                        <div>
+                            <?= Html::label('Тип ответа', null, ['class' => 'uk-form-label']) ?>
+                            <?= Html::dropDownList('SupportEntryPoint[responseType]', $entryPoint->responseType, $responseTypeOptions, [
+                                'class' => 'uk-select',
+                            ]) ?>
+                        </div>
+                        <div>
+                            <?= Html::label('Приоритет', null, ['class' => 'uk-form-label']) ?>
+                            <?= Html::dropDownList('SupportEntryPoint[priority]', min($entryPoint->priority, $currentRankLimit), $currentRankOptions, [
+                                'class' => 'uk-select',
+                            ]) ?>
+                        </div>
+                        <div>
+                            <?= Html::label('Порядок', null, ['class' => 'uk-form-label']) ?>
+                            <?= Html::dropDownList('SupportEntryPoint[sortOrder]', min($entryPoint->sortOrder, $currentRankLimit), $currentRankOptions, [
+                                'class' => 'uk-select',
+                            ]) ?>
+                        </div>
+                    </div>
+
+                    <div class="sw-entry-point-card__footer">
+                        <label class="sw-entry-point-card__enabled">
+                            <?= Html::hiddenInput('SupportEntryPoint[enabled]', '0') ?>
+                            <?= Html::checkbox('SupportEntryPoint[enabled]', $entryPoint->enabled, ['value' => '1']) ?>
+                            <span>Показывать в виджете</span>
+                        </label>
+                        <div class="sw-entry-point-card__actions">
+                            <?= Html::submitButton('Сохранить', ['class' => 'uk-button uk-button-primary uk-button-small']) ?>
+                            <?= Html::a('Удалить', '/manager/support/entry-point/delete?id=' . $entryPoint->id . '&projectId=' . $activeProject->id, [
+                                'class' => 'uk-button uk-button-danger uk-button-small',
+                                'data-method' => 'post',
+                                'data-confirm' => 'Удалить кнопку обращения?',
+                            ]) ?>
+                        </div>
+                    </div>
+
                     <?php \ruwmapps\yii2_uikit3\ActiveForm::end(); ?>
-                </tr>
+                </div>
             <?php endforeach; ?>
-            </tbody>
-        </table>
+        </div>
     <?php else: ?>
         <div class="uk-alert-primary" uk-alert>
             <p>Кнопок пока нет. Посетитель сможет начать обычный чат через поле сообщения.</p>

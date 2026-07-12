@@ -126,7 +126,7 @@ HTML;
             Yii::$app->user->login($userIdentity);
         }
 
-        return $this->redirect('/manager');
+        return $this->redirect($this->cabinetUrlForUser((int)$userRecord->id));
     }
 
     private function extractOAuthEmail(array $attributes): ?string
@@ -157,7 +157,7 @@ HTML;
         return $this->render('index');
     }
 
-    public function actionInstructions(): string
+    public function actionInstructions(): Response|string
     {
         if (Yii::$app->user->isGuest) {
             return $this->redirect('/login');
@@ -185,7 +185,7 @@ HTML;
 
         // Р Р°Р·Р»РѕРіРёРЅРёРІР°РµРј, РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓР¶Рµ РІРѕС€С‘Р»
         if (!Yii::$app->user->isGuest) {
-            return $this->redirect('/manager');
+            return $this->redirect($this->cabinetUrlForUser((int)Yii::$app->user->id));
         }
         return $this->render('login', compact('userLoginForm'));
     }
@@ -392,15 +392,25 @@ HTML;
         return $this->redirect('/');
     }
 
-    public function actionLoginPost(): string
+    public function actionLoginPost(): Response|string
     {
         $userLoginForm = new UserLoginForm();
         if ($userLoginForm->load(Yii::$app->request->post()) && $userLoginForm->validate()) {
             $userLoginForm->login();
             Yii::$app->session->setFlash('success', 'Успешно', false);
-            return $this->redirect('/manager');
+            return $this->redirect($this->cabinetUrlForUser((int)Yii::$app->user->id));
         }
         return $this->render('login', compact('userLoginForm'));
+    }
+
+    private function cabinetUrlForUser(int $userId): string
+    {
+        $auth = Yii::$app->authManager;
+        if ($auth !== null && $auth->getAssignment('admin', $userId) !== null) {
+            return '/admin/clients';
+        }
+
+        return '/manager';
     }
 
 }

@@ -17,6 +17,7 @@ use yii\helpers\Html;
 $this->title = 'Менеджеры';
 $usedOperators = count($operators);
 $canAddOperator = $canCreateOperators && $usedOperators < $operatorLimit;
+$currentUserId = (int)Yii::$app->user->id;
 ?>
 
 <div class="uk-container uk-margin">
@@ -104,17 +105,6 @@ $canAddOperator = $canCreateOperators && $usedOperators < $operatorLimit;
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <?php if (!$operator->isOwner): ?>
-                            <div class="uk-text-nowrap">
-                                <?= Html::beginForm('/manager/operator/reset-password', 'post', ['style' => 'display:inline']) ?>
-                                    <?= Html::hiddenInput('id', (string)$operator->id) ?>
-                                    <?= Html::submitButton('Сбросить пароль', [
-                                        'class' => 'uk-button uk-button-default uk-button-small',
-                                        'onclick' => "return confirm('Сгенерировать новый пароль менеджеру?');",
-                                    ]) ?>
-                                <?= Html::endForm() ?>
-                            </div>
-                        <?php endif; ?>
                     </div>
 
                     <div class="uk-grid-small uk-child-width-1-2@s" uk-grid>
@@ -138,7 +128,7 @@ $canAddOperator = $canCreateOperators && $usedOperators < $operatorLimit;
 
                     <div class="uk-margin-small-top">
                         <?php $telegramCode = $telegramCodes[$operator->id] ?? ''; ?>
-                        <?php if ($telegramCode !== ''): ?>
+                        <?php if ($operator->id === $currentUserId && $telegramCode !== ''): ?>
                             <?= Html::a('Подключить Telegram', 'https://t.me/SiteWidgetBot?start=' . rawurlencode($telegramCode), [
                                 'class' => 'uk-button uk-button-default uk-button-small',
                                 'target' => '_blank',
@@ -149,7 +139,17 @@ $canAddOperator = $canCreateOperators && $usedOperators < $operatorLimit;
                     </div>
 
                     <?php if (!$operator->isOwner): ?>
-                        <div class="uk-margin-small-top">
+                        <div class="uk-margin-small-top uk-flex uk-flex-wrap uk-grid-small" uk-grid>
+                            <div>
+                                <?= Html::beginForm('/manager/operator/reset-password', 'post', ['style' => 'display:inline']) ?>
+                                    <?= Html::hiddenInput('id', (string)$operator->id) ?>
+                                    <?= Html::submitButton('Сбросить пароль', [
+                                        'class' => 'uk-button uk-button-default uk-button-small',
+                                        'onclick' => "return confirm('Сгенерировать новый пароль менеджеру?');",
+                                    ]) ?>
+                                <?= Html::endForm() ?>
+                            </div>
+                            <div>
                             <?= Html::beginForm('/manager/operator/disable', 'post', ['style' => 'display:inline']) ?>
                                 <?= Html::hiddenInput('id', (string)$operator->id) ?>
                                 <?= Html::submitButton('Отключить', [
@@ -157,6 +157,7 @@ $canAddOperator = $canCreateOperators && $usedOperators < $operatorLimit;
                                     'onclick' => "return confirm('Отключить менеджера?');",
                                 ]) ?>
                             <?= Html::endForm() ?>
+                            </div>
                         </div>
                     <?php endif; ?>
                 </div>

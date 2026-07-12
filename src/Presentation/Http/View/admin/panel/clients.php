@@ -40,6 +40,7 @@ $this->title = "Список пользователей ";
                             <h4 class="uk-margin-remove"><?= Html::encode((string)$user['firm']) ?></h4>
                         </div>
                         <div class="uk-text-nowrap">
+                            <a href="/admin/clients/view?id=<?= Html::encode((string)$user['id']) ?>" class="uk-icon-link uk-margin-small-right" uk-icon="eye" uk-tooltip="Проекты и лимиты"></a>
                             <a href="/admin/clients/update?id=<?= Html::encode((string)$user['id']) ?>" class="uk-icon-link uk-margin-small-right" uk-icon="file-edit" uk-tooltip="Редактировать"></a>
                             <?= $delete ?>
                         </div>

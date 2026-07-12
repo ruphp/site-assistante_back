@@ -180,6 +180,21 @@ $url_rules = [
     ],
 
     [
+        'pattern' => '/admin/clients/view',
+        'route' => 'admin/panel/view',
+    ],
+
+    [
+        'pattern' => '/admin/clients/dialogs',
+        'route' => 'admin/panel/dialogs',
+    ],
+
+    [
+        'pattern' => '/admin/clients/dialog',
+        'route' => 'admin/panel/dialog',
+    ],
+
+    [
         'pattern' => '/admin/clients/delete',
         'route' => 'admin/panel/delete',
     ],

@@ -47,9 +47,9 @@ class SupportManagerController extends Controller
             }
 
             $repo = new YiiSupportConversationRepository();
-            $status = Yii::$app->request->get('status');
-            if ($status === '' || $status === 'all') {
-                $status = null;
+            $status = (string)Yii::$app->request->get('status', 'open');
+            if ($status === '') {
+                $status = 'open';
             }
 
             $timeoutMinutes = (int)($_ENV['SUPPORT_AUTO_CLOSE_AFTER_OPERATOR_SEEN_MINUTES'] ?? 30);

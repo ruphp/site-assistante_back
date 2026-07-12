@@ -69,7 +69,11 @@ if ($isLandingPage) {
     $id_user = Yii::$app->user->identity->id;
     $supportPlan = SupportPlan::normalize((string)(Yii::$app->user->identity->support_plan ?? SupportPlan::FREE));
     $isOwner = (int)$id_user === (int)Yii::$app->user->identity->getPublicKey();
-    $menu = [
+    $assignments = Yii::$app->authManager === null ? [] : Yii::$app->authManager->getAssignments(Yii::$app->user->id);
+    $isAdmin = isset($assignments['admin']);
+    $menu = $isAdmin ? [
+        ['label' => 'Клиенты', 'url' => ['/admin/clients']],
+    ] : [
         ['label' => 'Мои проекты', 'url' => ['/manager']],
         [
             'label' => 'Онлайн-поддержка',
@@ -155,14 +159,19 @@ $this->beginPage();
                 <div class="sw-header__actions">
                     <?php if ($isLandingPage): ?>
                         <?php if (!Yii::$app->user->isGuest): ?>
-                            <a class="sw-header__login" href="<?= Html::encode(Url::to(['/manager'])) ?>">Личный кабинет</a>
+                            <?php
+                            $landingAssignments = Yii::$app->authManager === null ? [] : Yii::$app->authManager->getAssignments(Yii::$app->user->id);
+                            $landingCabinetUrl = isset($landingAssignments['admin']) ? ['/admin/clients'] : ['/manager'];
+                            ?>
+                            <a class="sw-header__login" href="<?= Html::encode(Url::to($landingCabinetUrl)) ?>">Личный кабинет</a>
                         <?php else: ?>
                             <a class="sw-header__login" href="/login">Войти</a>
                         <?php endif; ?>
                     <?php elseif (Yii::$app->user->isGuest): ?>
                         <a class="sw-header__login" href="/login">Войти</a>
                     <?php else: ?>
-                        <a class="sw-header__user" href="/manager/profile"><?= Html::encode($name_user) ?></a>
+                        <?php $profileUrl = ($isAdmin ?? false) ? '/admin/clients' : '/manager/profile'; ?>
+                        <a class="sw-header__user" href="<?= Html::encode($profileUrl) ?>"><?= Html::encode($name_user) ?></a>
                         <a class="sw-header__logout" href="/logout">Выход</a>
                     <?php endif; ?>
                     <button class="sw-header__burger" type="button" uk-toggle="target: #offcanvas"

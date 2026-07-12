@@ -275,7 +275,7 @@ class PanelController extends ManagerController
         } else {
             Yii::$app->session->setFlash(
                 'success',
-                'Новый пароль менеджера: ' . $password . '. Пароль также отправлен владельцу пуш-уведомлением.'
+                'Новый пароль менеджера: ' . $password
             );
         }
 

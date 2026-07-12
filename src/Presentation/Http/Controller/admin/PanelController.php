@@ -6,6 +6,7 @@ use app\Application\Admin\AdminClientService;
 use app\Application\Admin\Dto\CreateClientRequest;
 use app\Application\Admin\Dto\UpdateClientRequest;
 use app\Application\Admin\Monitoring\AdminMonitoringService;
+use app\Modules\Support\Application\UseCase\OperatorSupportUseCase;
 use app\Modules\Support\Application\Reporting\SupportUsageReportService;
 use app\Presentation\Http\Controller\AdminController;
 use app\Presentation\Http\Form\UserJoinForm;
@@ -23,6 +24,7 @@ class PanelController extends AdminController
         private readonly AdminClientService $clientService,
         private readonly AdminMonitoringService $monitoring,
         private readonly SupportUsageReportService $usageReport,
+        private readonly OperatorSupportUseCase $operatorSupport,
         $config = []
     ) {
         parent::__construct($id, $module, $config);
@@ -147,6 +149,59 @@ class PanelController extends AdminController
         return $this->redirect('/admin/clients/limits');
     }
 
+    public function actionView($id = null): string|Response
+    {
+        $id = (int)($id ?? Yii::$app->request->get('id'));
+        if ($id <= 0) {
+            Yii::$app->session->setFlash('error', 'Клиент не найден');
+
+            return $this->redirect('/admin/clients');
+        }
+
+        $data = $this->clientService->getUpdateViewData($id);
+        $user = $data['user'];
+        $publicKey = (int)($user?->public_key ?? $id);
+
+        return $this->render('view', [
+            'user' => $user,
+            'report' => $this->usageReport->clientReport($publicKey),
+        ]);
+    }
+
+    public function actionDialogs($publicKey = null, string $status = 'open'): string|Response
+    {
+        $publicKey = (int)($publicKey ?? Yii::$app->request->get('publicKey'));
+        if ($publicKey <= 0) {
+            Yii::$app->session->setFlash('error', 'Проект не найден');
+
+            return $this->redirect('/admin/clients');
+        }
+
+        return $this->render('dialogs', [
+            'publicKey' => $publicKey,
+            'status' => $status,
+            'conversations' => $this->operatorSupport->listConversations($publicKey, $status)->toArray()['conversations'] ?? [],
+        ]);
+    }
+
+    public function actionDialog($publicKey = null, $conversationId = null): string|Response
+    {
+        $publicKey = (int)($publicKey ?? Yii::$app->request->get('publicKey'));
+        $conversationId = (int)($conversationId ?? Yii::$app->request->get('conversationId'));
+        if ($publicKey <= 0 || $conversationId <= 0) {
+            Yii::$app->session->setFlash('error', 'Диалог не найден');
+
+            return $this->redirect('/admin/clients');
+        }
+
+        return $this->render('dialog', [
+            'publicKey' => $publicKey,
+            'conversationId' => $conversationId,
+            'conversation' => $this->operatorSupport->conversation($publicKey, $conversationId)->toArray()['conversation'] ?? [],
+            'messages' => $this->operatorSupport->listMessages($publicKey, $conversationId)->toArray()['messages'] ?? [],
+        ]);
+    }
+
     public function actionJoin(): Response|string
     {
         $userJoinForm = new UserJoinForm();
@@ -177,8 +232,15 @@ class PanelController extends AdminController
         return $this->redirect(['/admin/clients']);
     }
 
-    public function actionUpdate($id): Response|string
+    public function actionUpdate($id = null): Response|string
     {
+        $id = (int)($id ?? Yii::$app->request->get('id'));
+        if ($id <= 0) {
+            Yii::$app->session->setFlash('error', 'Клиент не найден');
+
+            return $this->redirect('/admin/clients');
+        }
+
         if (Yii::$app->request->post()) {
             try {
                 $password = $this->clientService->updateClient(

@@ -1887,3 +1887,77 @@ ul.ticket-messages-list {
         min-width: 0;
     }
 }
+
+.sw-entry-point-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.sw-entry-point-card {
+    background: #fff;
+    border: 1px solid var(--sw-line);
+    box-shadow: 0 10px 24px rgba(43, 36, 92, .08);
+    padding: 18px;
+}
+
+.sw-entry-point-card__form {
+    margin: 0;
+}
+
+.sw-entry-point-card__controls {
+    display: grid;
+    grid-template-columns: minmax(160px, 1fr) 96px 96px;
+    gap: 12px;
+}
+
+.sw-entry-point-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.sw-entry-point-card__enabled {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.sw-entry-point-card__actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+@media (max-width: 959px) {
+    .sw-entry-point-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 639px) {
+    .sw-entry-point-card {
+        padding: 14px;
+    }
+
+    .sw-entry-point-card__controls {
+        grid-template-columns: 1fr;
+    }
+
+    .sw-entry-point-card__footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .sw-entry-point-card__actions {
+        justify-content: stretch;
+    }
+
+    .sw-entry-point-card__actions .uk-button {
+        flex: 1;
+    }
+}
