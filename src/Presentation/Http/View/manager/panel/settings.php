@@ -27,7 +27,10 @@ $this->title = 'Настройки подключения ';
 <div class="uk-container uk-position-relative">
     <?= $this->render('_projectTabs', compact('projects', 'activeProject')) ?>
 
-
+    <p>
+        Public key проекта:
+        <code><?= Html::encode((string)$activeProject->publicKey) ?></code>
+    </p>
     <?php
     app\Presentation\Yii\Asset\AppAsset::register($this);
     $form = ActiveForm::begin(['options' => ['id' => 'testForm', 'class' => 'uk-form-stacked']]);
@@ -56,66 +59,30 @@ $this->title = 'Настройки подключения ';
     echo Html::submitButton('Сохранить', ['class' => 'uk-button uk-button-primary']);
     ActiveForm::end();
     ?>
-    <p>
-        Public key проекта:
-        <code><?= Html::encode((string)$activeProject->publicKey) ?></code>
-    </p>
 
-    <h3>Инструкция по подключению</h3>
 
-    <p>Скопируйте код ниже</p>
-    <div>
-        <pre class="uk-resize еее"><code><?php echo $code; ?></code></pre>
+    <div class="uk-card uk-card-default uk-card-body uk-margin-top">
+        <h3 class="uk-margin-remove-top">Код подключения</h3>
+        <p class="uk-text-muted uk-margin-small-bottom">
+            Скопируйте код ниже и разместите его на нужных страницах сайта перед закрывающим тегом
+            <code>&lt;/body&gt;</code> или <code>&lt;/head&gt;</code>.
+        </p>
+        <div>
+            <pre class="uk-resize еее"><code><?php echo $code; ?></code></pre>
+        </div>
     </div>
-    <p>И разместите его на сайте, на нужных страницах перед закрывающим тегом
-        <code>&lsaquo;/body&rsaquo;</code> или <code>&lsaquo;/head&rsaquo;</code>.
-    </p>
 
-    <p><strong>Как назначить пользователя:</strong></p>
-    <ul>
-        <li>Для указания идентификатора пользователя задайте его идентификатор в параметре <code>id</code>
-            (тип параметра integer - 1234 или BigInt - 6657365633458205532n).
-            <pre class="uk-resize еее"><code>
-    ...
-    <code>id: 1234</code>,
-    role: [4],
-    name: 'Some Name',
-    email: 'somemail@gmail.com'
-    ...
-</code></pre>
-        </li>
-    </ul>
-
-    <p><strong>Как назначить роли пользователя:</strong></p>
-    <ul>
-        <li>Для одной роли задайте идентификатор роли в массиве (тип параметра array[integer]):
-            <pre class="uk-resize еее"><code>
-    ...
-    id: 1234,
-    <code>role: [4]</code>,
-    name: 'Some Name',
-    email: 'somemail@gmail.com'
-    ...
-</code></pre>
-        </li>
-        <li>Для нескольких ролей устанавливают идентификаторы ролей в массиве (тип параметра array[integer]):
-            <pre class="uk-resize еее"><code>
-    ...
-    id: 1234,
-    <code>role: [4, 5, 6]</code>,
-    name: 'Some Name',
-    email: 'somemail@gmail.com'
-    ...
-</code></pre>
-        </li>
-    </ul>
-
-    <p><strong>Обновление виджета через команду js:</strong></p>
-    <ul>
-        <li>Если на странице есть элементы, которые добавляются динамически,
-            то в коде js вы можете вызвать функцию виджета для его обновления, и он увидит новые элементы:
-            <pre class="uk-resize еее"><code>window.SiteWidget.api.update();</code></pre>
-        </li>
-    </ul>
+    <div class="uk-card uk-card-default uk-card-body uk-margin-top">
+        <h3 class="uk-margin-remove-top">Инструкции</h3>
+        <p class="uk-text-muted uk-margin-small-bottom">
+            Подробные шаги вынесены в отдельный раздел. Здесь остаются только актуальный код подключения и public key проекта.
+        </p>
+        <ul class="uk-list uk-list-bullet uk-margin-remove-bottom">
+            <li><?= Html::a('Как подключить виджет', ['/instructions#connect']) ?></li>
+            <li><?= Html::a('Android-приложение', ['/instructions#android']) ?></li>
+            <li><?= Html::a('Telegram-бот', ['/instructions#telegram']) ?></li>
+            <li><?= Html::a('Онлайн-поддержка и быстрые кнопки', ['/instructions#support']) ?></li>
+        </ul>
+    </div>
 
 </div>

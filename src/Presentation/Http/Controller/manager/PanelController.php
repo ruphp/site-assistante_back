@@ -11,6 +11,7 @@ use app\Application\Panel\ManageAssistantSettingsService;
 use app\Application\Panel\Metrics\PanelMetricsService;
 use app\Modules\Support\Application\Bot\TelegramManagerBotService;
 use app\Modules\Support\Application\Reporting\SupportUsageReportService;
+use app\Modules\Support\Domain\SupportPlan;
 use app\Presentation\Http\Controller\ManagerController;
 use app\Presentation\Http\Form\ManagerOperatorForm;
 use app\Presentation\Http\Form\ManagerOwnerContactForm;
@@ -80,6 +81,12 @@ class PanelController extends ManagerController
         }
         if (!$this->isOwner()) {
             return $this->redirect('/manager/support/conversations');
+        }
+        $supportPlan = SupportPlan::normalize((string)(Yii::$app->user->identity->support_plan ?? SupportPlan::FREE));
+        if ($supportPlan === SupportPlan::FREE) {
+            Yii::$app->session->setFlash('warning', 'Создание нескольких проектов доступно на платном тарифе.');
+
+            return $this->redirect('/manager');
         }
 
         $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
@@ -180,8 +187,8 @@ class PanelController extends ManagerController
     public function actionOperators(): Response|string
     {
         $ownerPublicKey = (int)Yii::$app->user->identity->getPublicKey();
-        if (!$this->operators->canManage($ownerPublicKey, (int)Yii::$app->user->id)) {
-            Yii::$app->session->setFlash('error', 'Управление менеджерами доступно владельцу на платном тарифе');
+        if (!$this->isOwner()) {
+            Yii::$app->session->setFlash('error', 'Раздел менеджеров доступен владельцу аккаунта');
 
             return $this->redirect('/manager');
         }
@@ -189,6 +196,12 @@ class PanelController extends ManagerController
         $form = new ManagerOperatorForm();
 
         if (Yii::$app->request->isPost) {
+            if (!$this->operators->canManage($ownerPublicKey, (int)Yii::$app->user->id)) {
+                Yii::$app->session->setFlash('error', 'Добавление менеджеров доступно на платном тарифе. На бесплатном тарифе доступен только один менеджер — сам клиент');
+
+                return $this->redirect('/manager/operators');
+            }
+
             if ($form->load(Yii::$app->request->post())) {
                 $form->avatar = UploadedFile::getInstance($form, 'avatar');
             }
@@ -219,13 +232,14 @@ class PanelController extends ManagerController
             'ownerForm' => $this->operators->ownerContactForm($ownerPublicKey),
             'operatorLimit' => $this->operators->operatorLimit($ownerPublicKey),
             'telegramCodes' => $telegramCodes,
+            'canCreateOperators' => $this->operators->canManage($ownerPublicKey, (int)Yii::$app->user->id),
         ]);
     }
 
     public function actionOperatorOwnerContacts(): Response
     {
         $ownerPublicKey = (int)Yii::$app->user->identity->getPublicKey();
-        if (!$this->operators->canManage($ownerPublicKey, (int)Yii::$app->user->id)) {
+        if (!$this->isOwner()) {
             Yii::$app->session->setFlash('error', 'Недостаточно прав');
 
             return $this->redirect('/manager');

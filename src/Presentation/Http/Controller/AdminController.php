@@ -20,14 +20,7 @@ class AdminController extends SmartiusController
                 'admin/clients' => 'Панель администратора',
                 'admin/clients/limits' => 'Лимиты клиентов',
             ],
-            'lists' => [
-                '#' => [
-                    'Отчеты и аналитические панели',
-                    'admin/statistics' => 'Ключевая статистика',
-                    'admin/grafana' => 'Технический мониторинг',
-                    'admin/content_statistics' => 'Статистика по контенту',
-                ]
-            ],
+            'lists' => [],
         ]);
         return $behaviors;
     }

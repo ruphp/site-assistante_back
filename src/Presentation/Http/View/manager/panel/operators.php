@@ -11,10 +11,12 @@ use yii\helpers\Html;
  * @var ManagerOwnerContactForm $ownerForm
  * @var int $operatorLimit
  * @var array<int, string> $telegramCodes
+ * @var bool $canCreateOperators
  */
 
 $this->title = 'Менеджеры';
 $usedOperators = count($operators);
+$canAddOperator = $canCreateOperators && $usedOperators < $operatorLimit;
 ?>
 
 <div class="uk-container uk-margin">
@@ -160,63 +162,89 @@ $usedOperators = count($operators);
                 </div>
             </div>
         <?php endforeach; ?>
+
+        <div>
+            <a class="uk-card uk-card-default uk-card-body uk-display-block uk-text-center" href="<?= $canAddOperator ? '#modal-operator-create' : '#modal-operator-limit' ?>" uk-toggle>
+                <span uk-icon="icon: plus; ratio: 2"></span>
+                <div class="uk-margin-small-top">Добавить менеджера</div>
+            </a>
+        </div>
     </div>
 
-    <?php if ($usedOperators >= $operatorLimit): ?>
+    <?php if (!$canCreateOperators || $usedOperators >= $operatorLimit): ?>
         <div class="uk-alert-warning" uk-alert>
-            <p>Лимит менеджеров исчерпан. Для расширения тарифа напишите нам через виджет.</p>
+            <p>Добавление менеджеров доступно на платном тарифе. На бесплатном тарифе доступен один менеджер — владелец аккаунта.</p>
         </div>
-    <?php else: ?>
-        <h4>Добавить менеджера</h4>
-
-        <?= Html::beginForm('/manager/operators', 'post', ['class' => 'uk-form-stacked', 'enctype' => 'multipart/form-data']) ?>
-            <div class="uk-grid-small" uk-grid>
-                <div class="uk-width-1-2@s">
-                    <div class="uk-margin">
-                        <?= Html::activeLabel($form, 'name', ['class' => 'uk-form-label']) ?>
-                        <?= Html::activeTextInput($form, 'name', ['class' => 'uk-input']) ?>
-                        <?= Html::error($form, 'name', ['class' => 'uk-text-danger']) ?>
-                    </div>
-                </div>
-                <div class="uk-width-1-2@s">
-                    <div class="uk-margin">
-                        <?= Html::activeLabel($form, 'email', ['class' => 'uk-form-label']) ?>
-                        <?= Html::activeTextInput($form, 'email', ['class' => 'uk-input']) ?>
-                        <?= Html::error($form, 'email', ['class' => 'uk-text-danger']) ?>
-                    </div>
-                </div>
-                <div class="uk-width-1-3@s">
-                    <div class="uk-margin">
-                        <?= Html::activeLabel($form, 'phone', ['class' => 'uk-form-label']) ?>
-                        <?= Html::activeTextInput($form, 'phone', ['class' => 'uk-input']) ?>
-                    </div>
-                </div>
-                <div class="uk-width-1-2@s">
-                    <div class="uk-margin">
-                        <?= Html::activeLabel($form, 'avatar', ['class' => 'uk-form-label']) ?>
-                        <?= Html::activeFileInput($form, 'avatar', ['class' => 'uk-input', 'accept' => 'image/png,image/jpeg,image/webp']) ?>
-                        <?= Html::error($form, 'avatar', ['class' => 'uk-text-danger']) ?>
-                    </div>
-                </div>
-                <div class="uk-width-1-3@s">
-                    <div class="uk-margin">
-                        <?= Html::activeLabel($form, 'telegram', ['class' => 'uk-form-label']) ?>
-                        <?= Html::activeTextInput($form, 'telegram', ['class' => 'uk-input']) ?>
-                    </div>
-                </div>
-                <div class="uk-width-1-3@s">
-                    <div class="uk-margin">
-                        <?= Html::activeLabel($form, 'maxContact', ['class' => 'uk-form-label']) ?>
-                        <?= Html::activeTextInput($form, 'maxContact', ['class' => 'uk-input']) ?>
-                    </div>
+        <div id="modal-operator-limit" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <h3 class="uk-modal-title">Дополнительные менеджеры</h3>
+                <p>Чтобы добавить ещё менеджеров онлайн-поддержки, перейдите на платный тариф.</p>
+                <div class="uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Закрыть</button>
+                    <?= Html::a('Написать в виджет', '/', ['class' => 'uk-button uk-button-primary']) ?>
                 </div>
             </div>
+        </div>
+    <?php endif; ?>
 
-            <div class="uk-text-meta uk-margin-small-bottom">
-                Пароль создастся автоматически и появится на экране владельца.
+    <?php if ($canAddOperator): ?>
+        <div id="modal-operator-create" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <h3 class="uk-modal-title">Новый менеджер</h3>
+
+                <?= Html::beginForm('/manager/operators', 'post', ['class' => 'uk-form-stacked', 'enctype' => 'multipart/form-data']) ?>
+                    <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-2@s">
+                            <div class="uk-margin">
+                                <?= Html::activeLabel($form, 'name', ['class' => 'uk-form-label']) ?>
+                                <?= Html::activeTextInput($form, 'name', ['class' => 'uk-input']) ?>
+                                <?= Html::error($form, 'name', ['class' => 'uk-text-danger']) ?>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-2@s">
+                            <div class="uk-margin">
+                                <?= Html::activeLabel($form, 'email', ['class' => 'uk-form-label']) ?>
+                                <?= Html::activeTextInput($form, 'email', ['class' => 'uk-input']) ?>
+                                <?= Html::error($form, 'email', ['class' => 'uk-text-danger']) ?>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-3@s">
+                            <div class="uk-margin">
+                                <?= Html::activeLabel($form, 'phone', ['class' => 'uk-form-label']) ?>
+                                <?= Html::activeTextInput($form, 'phone', ['class' => 'uk-input']) ?>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-2@s">
+                            <div class="uk-margin">
+                                <?= Html::activeLabel($form, 'avatar', ['class' => 'uk-form-label']) ?>
+                                <?= Html::activeFileInput($form, 'avatar', ['class' => 'uk-input', 'accept' => 'image/png,image/jpeg,image/webp']) ?>
+                                <?= Html::error($form, 'avatar', ['class' => 'uk-text-danger']) ?>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-3@s">
+                            <div class="uk-margin">
+                                <?= Html::activeLabel($form, 'telegram', ['class' => 'uk-form-label']) ?>
+                                <?= Html::activeTextInput($form, 'telegram', ['class' => 'uk-input']) ?>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-3@s">
+                            <div class="uk-margin">
+                                <?= Html::activeLabel($form, 'maxContact', ['class' => 'uk-form-label']) ?>
+                                <?= Html::activeTextInput($form, 'maxContact', ['class' => 'uk-input']) ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="uk-text-meta uk-margin-small-bottom">
+                        Пароль создастся автоматически и появится на экране владельца.
+                    </div>
+
+                    <div class="uk-text-right">
+                        <button class="uk-button uk-button-default uk-modal-close" type="button">Отмена</button>
+                        <?= Html::submitButton('Создать менеджера', ['class' => 'uk-button uk-button-primary']) ?>
+                    </div>
+                <?= Html::endForm() ?>
             </div>
-
-            <?= Html::submitButton('Создать менеджера', ['class' => 'uk-button uk-button-primary']) ?>
-        <?= Html::endForm() ?>
+        </div>
     <?php endif; ?>
 </div>

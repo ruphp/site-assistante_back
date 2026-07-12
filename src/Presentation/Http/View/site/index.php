@@ -134,9 +134,6 @@ $this->registerMetaTag([
                         'class' => 'site-landing__button site-landing__button--primary',
                         'download' => true,
                     ]) ?>
-                    <?= Html::a('Инструкция', '/instructions#android', [
-                        'class' => 'site-landing__button site-landing__button--ghost',
-                    ]) ?>
                 </div>
             </div>
         </div>
@@ -161,9 +158,6 @@ $this->registerMetaTag([
                     'class' => 'site-landing__button site-landing__button--primary',
                     'target' => '_blank',
                     'rel' => 'noopener',
-                ]) ?>
-                <?= Html::a('Как подключить', '/instructions#telegram', [
-                    'class' => 'site-landing__button site-landing__button--ghost',
                 ]) ?>
             </div>
         </div>

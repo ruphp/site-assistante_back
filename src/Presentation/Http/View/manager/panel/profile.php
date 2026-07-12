@@ -7,10 +7,10 @@ use yii\helpers\Html;
 /** @var string|null $avatarUrl */
 /** @var string $telegramCode */
 
-$this->title = 'Личный кабинет';
+$this->title = 'Моя карточка менеджера';
 ?>
 <div class="uk-container uk-margin">
-    <h3>Личный кабинет</h3>
+    <h3>Моя карточка менеджера</h3>
 
     <div class="uk-card uk-card-default uk-card-body uk-margin">
         <?= Html::beginForm('/manager/profile', 'post', ['class' => 'uk-form-stacked', 'enctype' => 'multipart/form-data']) ?>

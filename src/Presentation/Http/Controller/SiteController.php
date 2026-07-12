@@ -126,7 +126,7 @@ HTML;
             Yii::$app->user->login($userIdentity);
         }
 
-        return $this->redirect('/');
+        return $this->redirect('/manager');
     }
 
     private function extractOAuthEmail(array $attributes): ?string
@@ -163,7 +163,13 @@ HTML;
             return $this->redirect('/login');
         }
 
-        return $this->redirect('/manager/instructions');
+        $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
+        $projectId = (int)Yii::$app->request->get('projectId') ?: null;
+        $publicKey = $this->projects->publicKeyForProject($ownerPublicKey, $projectId);
+
+        return $this->render('//manager/panel/instructions', [
+            'publicKey' => $publicKey,
+        ] + $this->projects->tabsData($ownerPublicKey, $projectId));
     }
 
     public function actionCmsPlugins(): string
@@ -179,17 +185,7 @@ HTML;
 
         // Р Р°Р·Р»РѕРіРёРЅРёРІР°РµРј, РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓР¶Рµ РІРѕС€С‘Р»
         if (!Yii::$app->user->isGuest) {
-            Yii::$app->user->logout();
-        }
-
-        if (!Yii::$app->user->isGuest) {
-            if (!is_null(Yii::$app->authManager->getAssignments(Yii::$app->user->id)['admin'] ?? null)) {
-                return $this->redirect('/admin');
-            }
-            elseif (!is_null(Yii::$app->authManager->getAssignments(Yii::$app->user->id)['manager'] ?? null)) {
-                return $this->redirect('/manager');
-            }
-            Yii::$app->user->logout();
+            return $this->redirect('/manager');
         }
         return $this->render('login', compact('userLoginForm'));
     }
@@ -402,7 +398,7 @@ HTML;
         if ($userLoginForm->load(Yii::$app->request->post()) && $userLoginForm->validate()) {
             $userLoginForm->login();
             Yii::$app->session->setFlash('success', 'Успешно', false);
-            $this->redirect('/');
+            return $this->redirect('/manager');
         }
         return $this->render('login', compact('userLoginForm'));
     }

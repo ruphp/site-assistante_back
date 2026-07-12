@@ -540,6 +540,34 @@ ul.ticket-messages-list {
     color: var(--sw-base);
 }
 
+.sw-header__nav-dropdown {
+    min-width: 240px;
+    padding: 8px 0;
+    background: var(--sw-base);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 12px;
+    box-shadow: 0 16px 32px rgba(43, 36, 92, .28);
+}
+
+.sw-header__nav-dropdown a {
+    display: block;
+    padding: 10px 16px;
+    color: #fff !important;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+}
+
+.sw-header__nav-dropdown a:hover,
+.sw-header__nav-dropdown a:focus {
+    background: rgba(255, 255, 255, .08);
+    color: var(--sw-warm) !important;
+}
+
+.sw-header.is-sticky .sw-header__nav-dropdown {
+    background: var(--sw-base);
+    border-color: rgba(255, 255, 255, .16);
+}
+
 .sw-header__actions {
     display: flex;
     align-items: center;

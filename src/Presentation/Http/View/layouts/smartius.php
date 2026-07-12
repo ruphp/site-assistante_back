@@ -7,11 +7,13 @@
 use app\Presentation\Yii\Asset\AppAsset;
 use app\Presentation\Yii\Asset\CodemirrorAsset;
 use app\Presentation\Yii\Widget\Alert;
+use app\Modules\Support\Domain\SupportPlan;
 use ruwmapps\yii2_uikit3\Nav;
 use ruwmapps\yii2_uikit3\NavBar;
 use ruwmapps\yii2_uikit3\Offcanvas;
 use ruwmapps\yii2_uikit3\UikitAsset;
 use yii\helpers\Html;
+use yii\helpers\Url;
 
 UikitAsset::register($this);
 AppAsset::register($this);
@@ -21,6 +23,16 @@ $email_user = '';
 $name_user = '';
 $id_user = null;
 $isOwner = false;
+$route = Yii::$app->requestedRoute ?? '';
+$controllerRoute = Yii::$app->controller?->route ?? '';
+$requestPath = trim((string)(parse_url(Yii::$app->request->url, PHP_URL_PATH) ?? ''), '/');
+$requestRoutePath = trim((string)Yii::$app->request->pathInfo, '/');
+$isAuthPage = in_array($route, ['site/login', 'site/join', 'site/send-email', 'site/auth'], true);
+$isLandingPage = in_array($route, ['site/index', 'site/index/'], true)
+    || in_array($controllerRoute, ['site/index', 'site/index/'], true)
+    || $requestRoutePath === 'site/index'
+    || $requestPath === ''
+    || $requestPath === 'index.php';
 
 if (Yii::$app->user->isGuest) {
     $role = [1];
@@ -31,24 +43,45 @@ $role = Yii::$app->request->get()['roles'] ?? $role;
 $testchatbots = Yii::$app->request->get()['testchatbots'] ?? 0;
 $str_role = implode(",", $role);
 
-if (Yii::$app->user->isGuest) {
+if ($isLandingPage) {
     $menu = [
-            ['label' => 'Модули', 'url' => '/#modules'],
-            ['label' => 'Как работает', 'url' => '/#how'],
-            ['label' => 'Интеграции', 'url' => '/#integrations'],
-            ['label' => 'Приложение', 'url' => '/#android-app'],
-            ['label' => 'Вход', 'url' => ['/login']],
+        ['label' => 'Модули', 'url' => '/#modules'],
+        ['label' => 'Как работает', 'url' => '/#how'],
+        ['label' => 'Интеграции', 'url' => '/#integrations'],
+        ['label' => 'Приложение', 'url' => '/#android-app'],
     ];
+} elseif (Yii::$app->user->isGuest) {
+    if ($isAuthPage) {
+        $menu = [
+            ['label' => 'Войти', 'url' => ['/login']],
+            ['label' => 'Регистрация', 'url' => ['/join']],
+            ['label' => 'Главная', 'url' => ['/']],
+        ];
+    } else {
+        $menu = [
+            ['label' => 'Главная', 'url' => ['/']],
+            ['label' => 'Войти', 'url' => ['/login']],
+        ];
+    }
 } else {
     $email_user = Yii::$app->user->identity->email;
     $name_user = Yii::$app->user->identity->name;
     $id_user = Yii::$app->user->identity->id;
+    $supportPlan = SupportPlan::normalize((string)(Yii::$app->user->identity->support_plan ?? SupportPlan::FREE));
     $isOwner = (int)$id_user === (int)Yii::$app->user->identity->getPublicKey();
     $menu = [
-            ['label' => 'Диалоги', 'url' => ['/manager/support/conversations']],
-            ['label' => $isOwner ? 'Панель управления' : 'Личный кабинет', 'url' => [$isOwner ? '/manager' : '/manager/profile']],
-            ['label' => 'Инструкции', 'url' => ['/manager/instructions']],
-            ['label' => 'Выход', 'url' => ['/logout']],
+        ['label' => 'Мои проекты', 'url' => ['/manager']],
+        [
+            'label' => 'Онлайн-поддержка',
+            'url' => ['/manager/support/conversations'],
+            'items' => array_values(array_filter([
+                ['label' => 'Диалоги', 'url' => ['/manager/support/conversations']],
+                ['label' => 'Кнопки быстрых обращений', 'url' => ['/manager/support/entry-points']],
+                $isOwner ? ['label' => 'Менеджеры', 'url' => ['/manager/operators']] : null,
+                ['label' => 'Настройки', 'url' => ['/manager/support']],
+            ])),
+        ],
+        ['label' => 'Инструкции', 'url' => ['/instructions']],
     ];
 }
 
@@ -94,19 +127,39 @@ $this->beginPage();
 </span>
                 </a>
                 <nav class="sw-header__nav" aria-label="Основная навигация">
-                    <?php if (Yii::$app->user->isGuest): ?>
-                        <a href="/#modules">Модули</a>
-                        <a href="/#how">Как работает</a>
-                        <a href="/#integrations">Интеграции</a>
-                        <a href="/#android-app">Приложение</a>
+                    <?php if ($isLandingPage): ?>
+                        <?php foreach ($menu as $item): ?>
+                            <a href="<?= Html::encode(Url::to($item['url'])) ?>"><?= Html::encode($item['label']) ?></a>
+                        <?php endforeach; ?>
+                    <?php elseif (Yii::$app->user->isGuest): ?>
+                        <?php foreach ($menu as $item): ?>
+                            <a href="<?= Html::encode(Url::to($item['url'])) ?>"><?= Html::encode($item['label']) ?></a>
+                        <?php endforeach; ?>
                     <?php else: ?>
-                        <a href="/manager/support/conversations">Диалоги</a>
-                        <a href="<?= $isOwner ? '/manager' : '/manager/profile' ?>"><?= $isOwner ? 'Панель управления' : 'Личный кабинет' ?></a>
-                        <a href="/manager/instructions">Инструкции</a>
+                        <?php foreach ($menu as $item): ?>
+                            <?php if (isset($item['items'])): ?>
+                                <div class="uk-inline">
+                                    <a class="sw-header__nav-group" href="<?= Html::encode(Url::to($item['url'])) ?>"><?= Html::encode($item['label']) ?></a>
+                                    <div uk-dropdown="mode: hover; pos: bottom-left; offset: 10" class="sw-header__nav-dropdown">
+                                        <?php foreach ($item['items'] as $child): ?>
+                                            <a href="<?= Html::encode(Url::to($child['url'])) ?>"><?= Html::encode($child['label']) ?></a>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php else: ?>
+                                <a href="<?= Html::encode(Url::to($item['url'])) ?>"><?= Html::encode($item['label']) ?></a>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
                     <?php endif; ?>
                 </nav>
                 <div class="sw-header__actions">
-                    <?php if (Yii::$app->user->isGuest): ?>
+                    <?php if ($isLandingPage): ?>
+                        <?php if (!Yii::$app->user->isGuest): ?>
+                            <a class="sw-header__login" href="<?= Html::encode(Url::to(['/manager'])) ?>">Личный кабинет</a>
+                        <?php else: ?>
+                            <a class="sw-header__login" href="/login">Войти</a>
+                        <?php endif; ?>
+                    <?php elseif (Yii::$app->user->isGuest): ?>
                         <a class="sw-header__login" href="/login">Войти</a>
                     <?php else: ?>
                         <a class="sw-header__user" href="/manager/profile"><?= Html::encode($name_user) ?></a>
@@ -127,18 +180,13 @@ $this->beginPage();
         <section class="osn uk-section uk-section-default uk-margin-remove uk-padding-remove"
                  uk-height-viewport="expand:true">
             <div class="uk-container uk-container-medium">
-                <div class="uk-grid-divider" uk-grid>
-                    <?php if (isset($this->blocks['block_left_menu'])): ?>
-                        <?= $this->blocks['block_left_menu'] ?>
-                    <?php endif; ?>
-                    <div class="<?= isset($this->blocks['block_left_menu']) ? 'uk-width-expand@s' : 'uk-width-1-1' ?>">
-                        <?= $content ?>
-                    </div>
+                <div class="uk-width-1-1">
+                    <?= $content ?>
                 </div>
             </div>
         </section>
         <?php if (empty($this->params['hideLayoutFooter'])): ?>
-            <footer class="sw-footer uk-margin-top"">
+            <footer class="sw-footer uk-margin-top">
                 <div class="sw-footer__inner">
                     <div class="sw-footer__col">
                         <span class="sw-footer__brand">SiteWidget</span>
@@ -180,9 +228,26 @@ $this->beginPage();
         </div>
     </div>
 
-    <?= Offcanvas::widget([
-            'items' => $menu,
-    ]) ?>
+    <div id="offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+            <ul class="uk-nav uk-nav-default">
+                <?php foreach ($menu as $item): ?>
+                    <li>
+                        <a href="<?= Html::encode(Url::to($item['url'])) ?>"><?= Html::encode($item['label']) ?></a>
+                        <?php if (!empty($item['items'])): ?>
+                            <ul class="uk-nav-sub">
+                                <?php foreach ($item['items'] as $child): ?>
+                                    <li>
+                                        <a href="<?= Html::encode(Url::to($child['url'])) ?>"><?= Html::encode($child['label']) ?></a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    </div>
 
     <?php $this->endBody() ?>
 

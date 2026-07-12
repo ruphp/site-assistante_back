@@ -61,8 +61,8 @@ class UserJoinForm extends Model
     public function attributeLabels(): array
     {
         return [
-            'firm' => 'Наименование организации',
-            'name' => 'Короткое наименование организации латиницей',
+            'firm' => 'Наименование организации/сервиса',
+            'name' => 'Название проекта',
         ];
     }
 }
