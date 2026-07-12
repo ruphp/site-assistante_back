@@ -85,7 +85,14 @@ if ($isLandingPage) {
                 ['label' => 'Настройки', 'url' => ['/manager/support']],
             ])),
         ],
-        ['label' => 'Инструкции', 'url' => ['/instructions']],
+        [
+            'label' => 'Инструкции',
+            'url' => ['/manager/instructions'],
+            'items' => [
+                ['label' => 'Материалы', 'url' => ['/manager/instructions']],
+                ['label' => 'Как подключить', 'url' => ['/instructions']],
+            ],
+        ],
     ];
 }
 

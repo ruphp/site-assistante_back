@@ -82,6 +82,18 @@ $url_rules = [
         'route' => 'manager/panel/operators',
     ],
     [
+        'pattern' => '/manager/instructions',
+        'route' => 'manager/instructions/index',
+    ],
+    [
+        'pattern' => '/manager/instructions/category-delete',
+        'route' => 'manager/instructions/delete-category',
+    ],
+    [
+        'pattern' => '/manager/instructions/article-delete',
+        'route' => 'manager/instructions/delete-article',
+    ],
+    [
         'pattern' => '/manager/profile',
         'route' => 'manager/panel/profile',
     ],
@@ -236,6 +248,34 @@ $url_rules = [
     [
         'pattern' => '/api/open_log',
         'route' => 'api/widget/log-open',
+    ],
+    [
+        'pattern' => '/api/courses',
+        'route' => 'api/instructions/courses',
+    ],
+    [
+        'pattern' => '/api/course',
+        'route' => 'api/instructions/course',
+    ],
+    [
+        'pattern' => '/api/search',
+        'route' => 'api/instructions/search',
+    ],
+    [
+        'pattern' => '/api/linktag',
+        'route' => 'api/instructions/linktag',
+    ],
+    [
+        'pattern' => '/api/favorites',
+        'route' => 'api/instructions/favorites',
+    ],
+    [
+        'pattern' => '/api/course_estimate',
+        'route' => 'api/instructions/course-estimate',
+    ],
+    [
+        'pattern' => '/api/log_interest',
+        'route' => 'api/instructions/log-interest',
     ],
     [
         'pattern' => '/api/support/state',
