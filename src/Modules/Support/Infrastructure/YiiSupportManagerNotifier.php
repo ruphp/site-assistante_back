@@ -8,6 +8,7 @@ use app\Modules\Support\Application\Contract\SupportManagerNotifierInterface;
 use app\Modules\Support\Application\Contract\SupportPushDeviceRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportPushNotificationSenderInterface;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
+use app\Modules\Support\Application\Service\SupportOperatorProjectAccessService;
 use app\Modules\Support\Domain\SupportConversation;
 use app\Modules\Support\Domain\SupportMessage;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportProjectRecord;
@@ -20,6 +21,7 @@ final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
         private readonly SupportPushDeviceRepositoryInterface $pushDevices,
         private readonly SupportPushNotificationSenderInterface $pushSender,
         private readonly TelegramManagerBotService $telegramManagerBot,
+        private readonly SupportOperatorProjectAccessService $projectAccess,
     ) {
     }
 
@@ -81,6 +83,7 @@ final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
             ->select('users.email')
             ->innerJoin('auth_assignment', 'auth_assignment.user_id = users.id')
             ->where([
+                'users.id' => $this->projectAccess->operatorIdsForProject($publicKey),
                 'users.public_key' => $ownerPublicKey,
                 'users.status' => 1,
                 'auth_assignment.item_name' => 'manager',
@@ -129,7 +132,9 @@ final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
 
     private function notifyPush(SupportConversation $conversation, SupportMessage $message): void
     {
-        $tokens = $this->pushDevices->activeTokensForClient($conversation->publicKey);
+        $tokens = $this->pushDevices->activeTokensForUsers(
+            $this->projectAccess->operatorIdsForProject($conversation->publicKey),
+        );
         if ($tokens === []) {
             return;
         }

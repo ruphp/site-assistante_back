@@ -19,4 +19,10 @@ interface SupportPushDeviceRepositoryInterface
      * @return string[]
      */
     public function activeTokensForUser(int $userId): array;
+
+    /**
+     * @param int[] $userIds
+     * @return string[]
+     */
+    public function activeTokensForUsers(array $userIds): array;
 }

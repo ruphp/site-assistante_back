@@ -37,9 +37,54 @@ final class OperatorSupportUseCase
         );
     }
 
+    /**
+     * @param int[] $publicKeys
+     */
+    public function listConversationsForPublicKeys(array $publicKeys, ?string $status = SupportConversation::STATUS_OPEN): SupportConversationListResponse
+    {
+        $publicKeys = array_values(array_unique(array_filter(array_map('intval', $publicKeys))));
+        if ($publicKeys === []) {
+            return new SupportConversationListResponse([]);
+        }
+
+        $conversations = [];
+        foreach ($publicKeys as $publicKey) {
+            array_push($conversations, ...$this->conversations->listForClient($publicKey, $status));
+        }
+
+        usort($conversations, static function (SupportConversation $left, SupportConversation $right): int {
+            if ($left->waitsForOperator() !== $right->waitsForOperator()) {
+                return $left->waitsForOperator() ? -1 : 1;
+            }
+
+            if ($left->priority !== $right->priority) {
+                return $right->priority <=> $left->priority;
+            }
+
+            return strcmp((string)$right->lastMessageAt, (string)$left->lastMessageAt);
+        });
+
+        return new SupportConversationListResponse(
+            $conversations,
+            $this->operatorReplyLimit($publicKeys[0]),
+        );
+    }
+
     public function listMessages(int $publicKey, int $conversationId): SupportMessageListResponse
     {
         $conversation = $this->assertConversationExists($publicKey, $conversationId);
+
+        return new SupportMessageListResponse(
+            $this->messages->listForConversation($conversation->publicKey, $conversationId),
+        );
+    }
+
+    /**
+     * @param int[] $publicKeys
+     */
+    public function listMessagesForPublicKeys(array $publicKeys, int $conversationId): SupportMessageListResponse
+    {
+        $conversation = $this->assertConversationExistsInPublicKeys($publicKeys, $conversationId);
 
         return new SupportMessageListResponse(
             $this->messages->listForConversation($conversation->publicKey, $conversationId),
@@ -50,6 +95,16 @@ final class OperatorSupportUseCase
     {
         return new SupportConversationResponse(
             $this->assertConversationExists($publicKey, $conversationId),
+        );
+    }
+
+    /**
+     * @param int[] $publicKeys
+     */
+    public function conversationForPublicKeys(array $publicKeys, int $conversationId): SupportConversationResponse
+    {
+        return new SupportConversationResponse(
+            $this->assertConversationExistsInPublicKeys($publicKeys, $conversationId),
         );
     }
 
@@ -78,6 +133,16 @@ final class OperatorSupportUseCase
         return $message;
     }
 
+    /**
+     * @param int[] $publicKeys
+     */
+    public function replyForPublicKeys(array $publicKeys, int $conversationId, int $operatorId, string $body): SupportMessage
+    {
+        $conversation = $this->assertConversationExistsInPublicKeys($publicKeys, $conversationId);
+
+        return $this->reply($conversation->publicKey, $conversationId, $operatorId, $body);
+    }
+
     public function closeConversation(int $publicKey, int $conversationId): void
     {
         $this->assertConversationExists($publicKey, $conversationId);
@@ -98,6 +163,21 @@ final class OperatorSupportUseCase
         }
 
         return $conversation;
+    }
+
+    /**
+     * @param int[] $publicKeys
+     */
+    private function assertConversationExistsInPublicKeys(array $publicKeys, int $conversationId): SupportConversation
+    {
+        foreach (array_values(array_unique(array_map('intval', $publicKeys))) as $publicKey) {
+            $conversation = $this->conversations->getForClient($publicKey, $conversationId);
+            if ($conversation !== null) {
+                return $conversation;
+            }
+        }
+
+        throw new SupportConversationNotFoundException('Conversation not found');
     }
 
     private function operatorReplyLimit(int $publicKey): array

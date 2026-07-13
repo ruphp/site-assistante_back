@@ -4,6 +4,7 @@ namespace app\Modules\Support\Application\Bot;
 
 use app\Infrastructure\YiiActiveRecord\Users;
 use app\Modules\Support\Application\Exception\SupportLimitExceededException;
+use app\Modules\Support\Application\Service\SupportOperatorProjectAccessService;
 use app\Modules\Support\Application\UseCase\OperatorSupportUseCase;
 use app\Modules\Support\Domain\SupportConversation;
 use app\Modules\Support\Domain\SupportMessage;
@@ -17,6 +18,7 @@ final class TelegramManagerBotService
 {
     public function __construct(
         private readonly OperatorSupportUseCase $operatorSupport,
+        private readonly SupportOperatorProjectAccessService $projectAccess,
     ) {
     }
 
@@ -193,7 +195,12 @@ final class TelegramManagerBotService
     private function replyToConversation(SupportTelegramManagerLinkRecord $link, int $conversationId, string $body): void
     {
         try {
-            $this->operatorSupport->reply((int)$link->public_key, $conversationId, (int)$link->user_id, $body);
+            $this->operatorSupport->replyForPublicKeys(
+                $this->projectAccess->publicKeysForOperator((int)$link->public_key, (int)$link->user_id),
+                $conversationId,
+                (int)$link->user_id,
+                $body,
+            );
             $link->pending_conversation_id = null;
             $link->updated_at = new \yii\db\Expression('NOW()');
             $link->save(false, ['pending_conversation_id', 'updated_at']);
@@ -214,7 +221,12 @@ final class TelegramManagerBotService
             return;
         }
 
-        $response = $this->operatorSupport->listConversations((int)$link->public_key, SupportConversation::STATUS_OPEN)->toArray();
+        $response = $this->operatorSupport
+            ->listConversationsForPublicKeys(
+                $this->projectAccess->publicKeysForOperator((int)$link->public_key, (int)$link->user_id),
+                SupportConversation::STATUS_OPEN,
+            )
+            ->toArray();
         $conversations = array_slice($response['conversations'] ?? [], 0, 10);
         if ($conversations === []) {
             $this->sendMessage($chatId, 'Открытых диалогов нет.');
@@ -234,9 +246,18 @@ final class TelegramManagerBotService
             ->where(['public_key' => $publicKey, 'enabled' => 1])
             ->scalar() ?: $publicKey);
 
-        return SupportTelegramManagerLinkRecord::find()
+        $links = SupportTelegramManagerLinkRecord::find()
             ->where(['public_key' => $ownerPublicKey, 'is_active' => 1])
             ->all();
+
+        return array_values(array_filter(
+            $links,
+            fn(SupportTelegramManagerLinkRecord $link): bool => in_array(
+                $publicKey,
+                $this->projectAccess->publicKeysForOperator($ownerPublicKey, (int)$link->user_id),
+                true,
+            ),
+        ));
     }
 
     private function linkByChat(string $chatId): ?SupportTelegramManagerLinkRecord

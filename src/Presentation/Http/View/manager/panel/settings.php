@@ -37,7 +37,8 @@ $this->title = 'Настройки подключения ';
 
     echo $form->field($params, 'domain',
         ['options' => ['id' => 'testForm', 'class' => 'uk-margin']])
-        ->label('URL сайта/сайтов в формате<code>https://domain.ru,https://domain2.ru,https://domain3.ru</code>')->input('string', ['class' => 'uk-input uk-form-width-large']);
+        ->label('URL сайта в формате <code>https://domain.ru</code>. Один проект - один сайт.')
+        ->input('string', ['class' => 'uk-input uk-form-width-large']);
 
     //echo $form->field($params, 'run')->hiddenInput(['value' => 0])->label('');
 

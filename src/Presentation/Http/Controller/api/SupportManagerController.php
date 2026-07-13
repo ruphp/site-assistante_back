@@ -3,6 +3,7 @@
 namespace app\Presentation\Http\Controller\api;
 
 use app\Infrastructure\User\UserIdentity;
+use app\Modules\Support\Application\Service\SupportOperatorProjectAccessService;
 use app\Modules\Support\Application\Exception\SupportAccessDeniedException;
 use app\Modules\Support\Application\Exception\SupportLimitExceededException;
 use app\Modules\Support\Application\Contract\SupportPushDeviceRepositoryInterface;
@@ -22,6 +23,7 @@ class SupportManagerController extends Controller
         private readonly OperatorSupportUseCase $operatorSupport,
         private readonly SupportPushDeviceRepositoryInterface $pushDevices,
         private readonly SupportPushNotificationSenderInterface $pushSender,
+        private readonly SupportOperatorProjectAccessService $projectAccess,
         $config = [],
     ) {
         parent::__construct($id, $module, $config);
@@ -56,7 +58,7 @@ class SupportManagerController extends Controller
             $repo->closeExpiredAfterOperatorSeen(max(60, $timeoutMinutes * 60));
 
             $response = $this->operatorSupport
-                ->listConversations((int)$user->public_key, $status)
+                ->listConversationsForPublicKeys($this->projectPublicKeysFor($user), $status)
                 ->toArray();
 
             return [
@@ -100,7 +102,9 @@ class SupportManagerController extends Controller
                 return $this->errorResponse(401, 'Токен недействителен');
             }
 
-            return $this->operatorSupport->listMessages((int)$user->public_key, (int)$conversationId)->toArray()['messages'];
+            return $this->operatorSupport
+                ->listMessagesForPublicKeys($this->projectPublicKeysFor($user), (int)$conversationId)
+                ->toArray()['messages'];
         } catch (\Throwable $e) {
             Yii::error($e->getMessage(), 'support-manager');
             return $this->errorResponse(500, 'Не удалось загрузить сообщения');
@@ -125,8 +129,8 @@ class SupportManagerController extends Controller
                 return $this->errorResponse(400, 'Заполните все поля');
             }
 
-            $message = $this->operatorSupport->reply(
-                (int)$user->public_key,
+            $message = $this->operatorSupport->replyForPublicKeys(
+                $this->projectPublicKeysFor($user),
                 $conversationId,
                 (int)$user->id,
                 $body,
@@ -217,6 +221,12 @@ class SupportManagerController extends Controller
             'message' => $message,
         ];
     }
+
+    private function projectPublicKeysFor(UserIdentity $user): array
+    {
+        return $this->projectAccess->publicKeysForOperator((int)$user->public_key, (int)$user->id);
+    }
+
 
     private function requestData(): array
     {

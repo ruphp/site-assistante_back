@@ -1,6 +1,7 @@
 <?php
 
 use app\Application\Panel\Dto\ManagerOperatorView;
+use app\Application\Panel\Dto\ClientProjectView;
 use app\Presentation\Http\Form\ManagerOperatorForm;
 use app\Presentation\Http\Form\ManagerOwnerContactForm;
 use yii\helpers\Html;
@@ -12,6 +13,7 @@ use yii\helpers\Html;
  * @var int $operatorLimit
  * @var array<int, string> $telegramCodes
  * @var bool $canCreateOperators
+ * @var ClientProjectView[] $projects
  */
 
 $this->title = 'Менеджеры';
@@ -138,6 +140,32 @@ $currentUserId = (int)Yii::$app->user->id;
                         <?php endif; ?>
                     </div>
 
+                    <div class="uk-margin-small-top">
+                        <div class="uk-text-meta">Доступ к проектам</div>
+                        <?php if ($operator->isOwner): ?>
+                            <div>Все проекты владельца</div>
+                        <?php else: ?>
+                            <?= Html::beginForm('/manager/operator/projects', 'post', ['class' => 'uk-form-stacked uk-margin-small-top']) ?>
+                                <?= Html::hiddenInput('id', (string)$operator->id) ?>
+                                <div class="uk-grid-small uk-child-width-1-2@s" uk-grid>
+                                    <?php foreach ($projects as $project): ?>
+                                        <label>
+                                            <?= Html::checkbox(
+                                                'projectIds[]',
+                                                in_array($project->id, $operator->projectIds, true),
+                                                ['value' => (string)$project->id],
+                                            ) ?>
+                                            <?= Html::encode($project->name) ?>
+                                        </label>
+                                    <?php endforeach; ?>
+                                </div>
+                                <div class="uk-margin-small-top">
+                                    <?= Html::submitButton('Сохранить проекты', ['class' => 'uk-button uk-button-default uk-button-small']) ?>
+                                </div>
+                            <?= Html::endForm() ?>
+                        <?php endif; ?>
+                    </div>
+
                     <?php if (!$operator->isOwner): ?>
                         <div class="uk-margin-small-top uk-flex uk-flex-wrap uk-grid-small" uk-grid>
                             <div>
@@ -232,6 +260,23 @@ $currentUserId = (int)Yii::$app->user->id;
                             <div class="uk-margin">
                                 <?= Html::activeLabel($form, 'maxContact', ['class' => 'uk-form-label']) ?>
                                 <?= Html::activeTextInput($form, 'maxContact', ['class' => 'uk-input']) ?>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1">
+                            <div class="uk-margin">
+                                <?= Html::activeLabel($form, 'projectIds', ['class' => 'uk-form-label']) ?>
+                                <div class="uk-grid-small uk-child-width-1-2@s" uk-grid>
+                                    <?php foreach ($projects as $project): ?>
+                                        <label>
+                                            <?= Html::checkbox(
+                                                Html::getInputName($form, 'projectIds') . '[]',
+                                                $form->projectIds === [] || in_array($project->id, $form->projectIds, true),
+                                                ['value' => (string)$project->id],
+                                            ) ?>
+                                            <?= Html::encode($project->name) ?>
+                                        </label>
+                                    <?php endforeach; ?>
+                                </div>
                             </div>
                         </div>
                     </div>

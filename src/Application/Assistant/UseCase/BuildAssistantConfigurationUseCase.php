@@ -91,7 +91,7 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
             }
 
             if (in_array($module, ['surveys', 'polls'], true)) {
-                return $plan === SupportPlan::PRO;
+                return in_array($plan, [SupportPlan::START, SupportPlan::PRO], true);
             }
 
             if ($module === 'hints') {

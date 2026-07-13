@@ -43,7 +43,7 @@ final class ClientPanelMenuService
 
     public function rolesEnabledForClient(int $publicKey): bool
     {
-        return SupportPlan::normalize($this->supportSettings->getForClient($publicKey)->plan) === SupportPlan::PRO;
+        return SupportPlan::normalize($this->supportSettings->getForClient($publicKey)->plan) !== SupportPlan::FREE;
     }
 
     public function operatorsEnabledForClient(int $publicKey): bool

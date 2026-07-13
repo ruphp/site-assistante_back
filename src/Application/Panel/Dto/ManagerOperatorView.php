@@ -13,6 +13,7 @@ final class ManagerOperatorView
         public readonly string $maxContact,
         public readonly ?string $avatarUrl,
         public readonly bool $isOwner,
+        public readonly array $projectIds = [],
     ) {
     }
 }

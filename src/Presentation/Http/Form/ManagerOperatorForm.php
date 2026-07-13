@@ -12,6 +12,7 @@ final class ManagerOperatorForm extends Model
     public string $phone = '';
     public string $telegram = '';
     public string $maxContact = '';
+    public array $projectIds = [];
     public $avatar = null;
 
     public function rules(): array
@@ -22,6 +23,7 @@ final class ManagerOperatorForm extends Model
             ['email', 'email'],
             ['email', 'validateEmailIsFree'],
             [['phone', 'telegram', 'maxContact'], 'string', 'max' => 128],
+            ['projectIds', 'each', 'rule' => ['integer']],
             [['name', 'email', 'phone', 'telegram', 'maxContact'], 'trim'],
             ['avatar', 'file', 'extensions' => ['png', 'jpg', 'jpeg', 'webp'], 'maxSize' => 2 * 1024 * 1024, 'skipOnEmpty' => true],
         ];
@@ -47,6 +49,7 @@ final class ManagerOperatorForm extends Model
             'telegram' => 'Telegram',
             'maxContact' => 'MAX',
             'avatar' => 'Аватар',
+            'projectIds' => 'Проекты',
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 use app\Application\Panel\Dto\ClientProjectView;
 use app\Modules\Support\Domain\SupportPlan;
+use app\Modules\Support\Domain\SupportPlanLimit;
 use yii\helpers\Html;
 
 /**
@@ -14,7 +15,8 @@ if ($path === '/') {
     $path = '/manager';
 }
 $supportPlan = SupportPlan::normalize((string)(Yii::$app->user->identity->support_plan ?? SupportPlan::FREE));
-$canCreateProjects = $supportPlan !== SupportPlan::FREE;
+$projectLimit = SupportPlanLimit::forPlan($supportPlan);
+$canCreateProjects = count($projects) < $projectLimit->maxProjects;
 ?>
 
 <div class="uk-margin">
@@ -74,7 +76,7 @@ $canCreateProjects = $supportPlan !== SupportPlan::FREE;
     <div id="modal-project-limit" uk-modal>
         <div class="uk-modal-dialog uk-modal-body">
             <h3 class="uk-modal-title">Дополнительные проекты</h3>
-            <p>На бесплатном тарифе доступен один проект. Чтобы подключить несколько сайтов или тематик, перейдите на платный тариф.</p>
+            <p>На текущем тарифе доступно проектов: <?= Html::encode((string)$projectLimit->maxProjects) ?>. Чтобы подключить несколько сайтов или тематик, перейдите на Pro-тариф.</p>
             <div class="uk-text-right">
                 <button class="uk-button uk-button-default uk-modal-close" type="button">Закрыть</button>
                 <?= Html::a('Написать в виджет', '/', ['class' => 'uk-button uk-button-primary']) ?>

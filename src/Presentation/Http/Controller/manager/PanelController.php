@@ -12,6 +12,7 @@ use app\Application\Panel\Metrics\PanelMetricsService;
 use app\Modules\Support\Application\Bot\TelegramManagerBotService;
 use app\Modules\Support\Application\Reporting\SupportUsageReportService;
 use app\Modules\Support\Domain\SupportPlan;
+use app\Modules\Support\Domain\SupportPlanLimit;
 use app\Presentation\Http\Controller\ManagerController;
 use app\Presentation\Http\Form\ManagerOperatorForm;
 use app\Presentation\Http\Form\ManagerOwnerContactForm;
@@ -82,14 +83,15 @@ class PanelController extends ManagerController
         if (!$this->isOwner()) {
             return $this->redirect('/manager/support/conversations');
         }
+        $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
         $supportPlan = SupportPlan::normalize((string)(Yii::$app->user->identity->support_plan ?? SupportPlan::FREE));
-        if ($supportPlan === SupportPlan::FREE) {
-            Yii::$app->session->setFlash('warning', 'Создание нескольких проектов доступно на платном тарифе.');
+        $projectLimit = SupportPlanLimit::forPlan($supportPlan);
+        if (count($this->projects->projectsForOwner($ownerPublicKey)) >= $projectLimit->maxProjects) {
+            Yii::$app->session->setFlash('warning', 'Лимит проектов на текущем тарифе исчерпан. Дополнительные проекты доступны на Pro-тарифе.');
 
             return $this->redirect('/manager');
         }
 
-        $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
         $name = (string)Yii::$app->request->post('name', '');
         $domain = (string)Yii::$app->request->post('domain', '');
 
@@ -233,6 +235,7 @@ class PanelController extends ManagerController
             'operatorLimit' => $this->operators->operatorLimit($ownerPublicKey),
             'telegramCodes' => $telegramCodes,
             'canCreateOperators' => $this->operators->canManage($ownerPublicKey, (int)Yii::$app->user->id),
+            'projects' => $this->projects->projectsForOwner($ownerPublicKey),
         ]);
     }
 
@@ -253,6 +256,30 @@ class PanelController extends ManagerController
             Yii::$app->session->setFlash('success', 'Контакты владельца сохранены');
         } else {
             Yii::$app->session->setFlash('error', 'Не удалось сохранить контакты владельца');
+        }
+
+        return $this->redirect('/manager/operators');
+    }
+
+    public function actionOperatorProjects(): Response
+    {
+        $ownerPublicKey = (int)Yii::$app->user->identity->getPublicKey();
+        if (!$this->operators->canManage($ownerPublicKey, (int)Yii::$app->user->id)) {
+            Yii::$app->session->setFlash('error', 'Недостаточно прав');
+
+            return $this->redirect('/manager');
+        }
+
+        $operatorId = (int)Yii::$app->request->post('id');
+        $projectIds = Yii::$app->request->post('projectIds', []);
+        if (!is_array($projectIds)) {
+            $projectIds = [];
+        }
+
+        if ($this->operators->updateProjects($ownerPublicKey, $operatorId, $projectIds)) {
+            Yii::$app->session->setFlash('success', 'Проекты менеджера сохранены');
+        } else {
+            Yii::$app->session->setFlash('error', 'Не удалось сохранить проекты менеджера');
         }
 
         return $this->redirect('/manager/operators');

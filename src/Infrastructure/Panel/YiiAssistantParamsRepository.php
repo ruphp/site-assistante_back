@@ -28,6 +28,10 @@ final class YiiAssistantParamsRepository implements AssistantParamsRepositoryInt
 
     public function saveFromPost(mixed $params, array $post, int $publicKey): bool
     {
+        if (isset($post['Params']['domain'])) {
+            $post['Params']['domain'] = $this->firstDomain((string)$post['Params']['domain']);
+        }
+
         if (!$params->load($post)) {
             return false;
         }
@@ -35,5 +39,12 @@ final class YiiAssistantParamsRepository implements AssistantParamsRepositoryInt
         $params->public_key = $publicKey;
 
         return $params->save();
+    }
+
+    private function firstDomain(string $value): string
+    {
+        $parts = preg_split('/[\s,;]+/', trim($value)) ?: [];
+
+        return trim((string)($parts[0] ?? ''));
     }
 }

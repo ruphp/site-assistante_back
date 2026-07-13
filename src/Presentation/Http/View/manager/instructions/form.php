@@ -50,25 +50,28 @@ $urlText = implode("\n", array_map(static function (InstructionArticleUrlRecord 
             </div>
         </div>
         <div class="uk-margin">
-            <label class="uk-form-label">Текст инструкции</label>
+            <label class="uk-form-label">Содержание инструкции</label>
             <div class="sw-instruction-editor-toolbar" role="toolbar" aria-label="Редактор инструкции">
-                <button class="uk-button uk-button-default uk-button-small" type="button" data-command="bold"><b>B</b></button>
-                <button class="uk-button uk-button-default uk-button-small" type="button" data-command="italic"><i>I</i></button>
-                <button class="uk-button uk-button-default uk-button-small" type="button" data-command="insertUnorderedList">Список</button>
-                <button class="uk-button uk-button-default uk-button-small" type="button" data-command="formatBlock" data-value="h3">Заголовок</button>
-                <button class="uk-button uk-button-default uk-button-small" type="button" data-action="link">Ссылка</button>
-                <button class="uk-button uk-button-default uk-button-small" type="button" data-action="image">Картинка URL</button>
-                <button class="uk-button uk-button-default uk-button-small" type="button" data-command="removeFormat">Очистить</button>
+                <button class="uk-button uk-button-default uk-button-small sw-editor-button" type="button" data-command="formatBlock" data-value="h3">H3</button>
+                <button class="uk-button uk-button-default uk-button-small sw-editor-button" type="button" data-command="bold"><b>B</b></button>
+                <button class="uk-button uk-button-default uk-button-small sw-editor-button" type="button" data-command="italic"><i>I</i></button>
+                <button class="uk-button uk-button-default uk-button-small sw-editor-button" type="button" data-command="insertUnorderedList">Список</button>
+                <button class="uk-button uk-button-default uk-button-small sw-editor-button" type="button" data-command="insertOrderedList">1.2.</button>
+                <button class="uk-button uk-button-default uk-button-small sw-editor-button" type="button" data-action="link">Ссылка</button>
+                <button class="uk-button uk-button-default uk-button-small sw-editor-button" type="button" data-action="image">Изображение</button>
+                <button class="uk-button uk-button-default uk-button-small sw-editor-button" type="button" data-action="video">Видео</button>
+                <button class="uk-button uk-button-default uk-button-small sw-editor-button" type="button" data-command="removeFormat">Очистить</button>
             </div>
             <div class="sw-instruction-editor-view" contenteditable="true" data-editor-view><?= $article->html ?></div>
-            <textarea class="uk-textarea sw-instruction-editor-source" name="InstructionArticle[html]" rows="10" data-editor-source><?= Html::encode($article->html) ?></textarea>
-            <div class="uk-text-meta">Картинки лучше добавлять ссылками на файлы или внешнее хранилище. Хранить изображения base64/blob в базе не стоит: быстро съест лимит.</div>
+            <textarea class="sw-instruction-editor-source" name="InstructionArticle[html]" data-editor-source hidden style="display:none"><?= Html::encode($article->html) ?></textarea>
+            <div class="uk-text-meta sw-instruction-editor-help">
+                Изображения можно вставлять по прямой ссылке: с вашего сайта, Cloudinary, ImageKit, Uploadcare, ImgBB или другого сервиса.
+                Видео удобнее вставлять ссылкой с YouTube, Rutube или VK Video.
+            </div>
         </div>
-        <div class="uk-margin">
-            <label class="uk-form-label">Роли пользователя сайта</label>
-            <?php if ($roles === []): ?>
-                <div class="uk-text-meta">Роли еще не настроены. Если роли не выбраны, инструкция видна всем.</div>
-            <?php else: ?>
+        <?php if ($roles !== []): ?>
+            <div class="uk-margin">
+                <label class="uk-form-label">Роли пользователя сайта</label>
                 <div class="sw-instruction-role-list">
                     <?php foreach ($roles as $role): ?>
                         <label>
@@ -78,8 +81,8 @@ $urlText = implode("\n", array_map(static function (InstructionArticleUrlRecord 
                     <?php endforeach; ?>
                 </div>
                 <div class="uk-text-meta">Если не выбрать ни одной роли, инструкция видна всем посетителям.</div>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php endif; ?>
         <div class="uk-margin">
             <label class="uk-form-label">URL-привязки</label>
             <?php if ($urlBindingsEnabled): ?>
@@ -107,6 +110,32 @@ $this->registerJs(<<<'JS'
         source.value = editor.innerHTML.trim();
     };
 
+    const insertHtml = html => {
+        editor.focus();
+        document.execCommand('insertHTML', false, html);
+        syncSource();
+    };
+
+    const escapeAttr = value => String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    const buildVideoHtml = url => {
+        const safeUrl = escapeAttr(url);
+        const youtube = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]+)/);
+        const rutube = url.match(/rutube\.ru\/video\/([A-Za-z0-9]+)/);
+        if (youtube) {
+            return '<div class="sw-instruction-media"><iframe src="https://www.youtube.com/embed/' + escapeAttr(youtube[1]) + '" allowfullscreen loading="lazy"></iframe></div>';
+        }
+        if (rutube) {
+            return '<div class="sw-instruction-media"><iframe src="https://rutube.ru/play/embed/' + escapeAttr(rutube[1]) + '" allowfullscreen loading="lazy"></iframe></div>';
+        }
+
+        return '<p><a href="' + safeUrl + '" target="_blank" rel="noopener noreferrer">' + safeUrl + '</a></p>';
+    };
+
     document.querySelectorAll('[data-command]').forEach(button => {
         button.addEventListener('click', () => {
             editor.focus();
@@ -125,9 +154,15 @@ $this->registerJs(<<<'JS'
                 }
             }
             if (button.dataset.action === 'image') {
-                const url = window.prompt('URL картинки');
+                const url = window.prompt('Прямая ссылка на изображение');
                 if (url) {
-                    document.execCommand('insertImage', false, url);
+                    insertHtml('<img src="' + escapeAttr(url) + '" alt="">');
+                }
+            }
+            if (button.dataset.action === 'video') {
+                const url = window.prompt('Ссылка на видео');
+                if (url) {
+                    insertHtml(buildVideoHtml(url));
                 }
             }
             syncSource();

@@ -63,7 +63,7 @@ final class ClientProjectService
     {
         $this->ensureDefaultProject($ownerPublicKey);
         $projectName = trim($name) !== '' ? trim($name) : 'Новый проект';
-        $projectDomain = trim($domain);
+        $projectDomain = $this->firstDomain($domain);
         $projectUser = new Users();
         $projectUser->name = mb_substr(preg_replace('/[^a-zA-Z0-9_-]+/', '-', $projectName) ?: 'project', 0, 64);
         $projectUser->email = 'project-' . Yii::$app->security->generateRandomString(12) . '@sitewidget.local';
@@ -132,8 +132,9 @@ final class ClientProjectService
                 $record->name = trim($name);
                 $changed = true;
             }
-            if (trim($domain) !== '' && ($record->domain === null || (string)$record->domain === '')) {
-                $record->domain = trim($domain);
+            $firstDomain = $this->firstDomain($domain);
+            if ($firstDomain !== '' && ($record->domain === null || (string)$record->domain === '')) {
+                $record->domain = $firstDomain;
                 $changed = true;
             }
             if ($changed) {
@@ -146,7 +147,8 @@ final class ClientProjectService
         $record->owner_public_key = $ownerPublicKey;
         $record->public_key = $ownerPublicKey;
         $record->name = trim($name) !== '' ? trim($name) : 'Основной сайт';
-        $record->domain = trim($domain) !== '' ? trim($domain) : null;
+        $firstDomain = $this->firstDomain($domain);
+        $record->domain = $firstDomain !== '' ? $firstDomain : null;
         $record->enabled = 1;
         $record->is_default = 1;
         $record->save(false);
@@ -163,5 +165,12 @@ final class ClientProjectService
             enabled: (bool)$record->enabled,
             isDefault: (bool)$record->is_default,
         );
+    }
+
+    private function firstDomain(string $value): string
+    {
+        $parts = preg_split('/[\s,;]+/', trim($value)) ?: [];
+
+        return trim((string)($parts[0] ?? ''));
     }
 }

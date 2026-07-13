@@ -4,6 +4,7 @@ namespace app\Modules\Support\Presentation\Http\Controller;
 
 use app\Application\Panel\ClientProjectService;
 use app\Modules\Support\Application\Contract\SupportRealtimeTokenIssuerInterface;
+use app\Modules\Support\Application\Service\SupportOperatorProjectAccessService;
 use app\Modules\Support\Application\UseCase\ManageSupportEntryPointsUseCase;
 use app\Modules\Support\Application\UseCase\ManageSupportSettingsUseCase;
 use app\Modules\Support\Application\UseCase\OperatorSupportUseCase;
@@ -21,6 +22,7 @@ final class ManagerSupportController extends ManagerController
         private readonly OperatorSupportUseCase $operatorSupport,
         private readonly SupportRealtimeTokenIssuerInterface $realtimeTokenIssuer,
         private readonly ClientProjectService $projects,
+        private readonly SupportOperatorProjectAccessService $projectAccess,
         $config = [],
     ) {
         parent::__construct($id, $module, $config);
@@ -54,11 +56,12 @@ final class ManagerSupportController extends ManagerController
 
     public function actionConversations(): Response|string
     {
-        $publicKey = Yii::$app->user->identity->getPublicKey();
         $status = Yii::$app->request->get('status', 'open');
 
         return $this->render('@app/src/Modules/Support/Presentation/Http/View/manager/conversations', [
-            'conversations' => $this->operatorSupport->listConversations($publicKey, $status)->toArray()['conversations'],
+            'conversations' => $this->operatorSupport
+                ->listConversationsForPublicKeys($this->projectPublicKeysForCurrentUser(), $status)
+                ->toArray()['conversations'],
             'status' => $status,
         ]);
     }
@@ -115,7 +118,6 @@ final class ManagerSupportController extends ManagerController
 
     public function actionConversation(): Response|string
     {
-        $publicKey = Yii::$app->user->identity->getPublicKey();
         $conversationId = (int)Yii::$app->request->get('id');
 
         if ($conversationId <= 0) {
@@ -125,20 +127,28 @@ final class ManagerSupportController extends ManagerController
 
         return $this->render('@app/src/Modules/Support/Presentation/Http/View/manager/conversation', [
             'conversationId' => $conversationId,
-            'conversation' => $this->operatorSupport->conversation($publicKey, $conversationId)?->toArray()['conversation'],
-            'messages' => $this->operatorSupport->listMessages($publicKey, $conversationId)->toArray()['messages'],
+            'conversation' => $this->operatorSupport
+                ->conversationForPublicKeys($this->projectPublicKeysForCurrentUser(), $conversationId)
+                ->toArray()['conversation'],
+            'messages' => $this->operatorSupport
+                ->listMessagesForPublicKeys($this->projectPublicKeysForCurrentUser(), $conversationId)
+                ->toArray()['messages'],
         ]);
     }
 
     public function actionReply(): Response
     {
-        $publicKey = Yii::$app->user->identity->getPublicKey();
         $conversationId = (int)Yii::$app->request->post('conversation_id');
         $body = (string)Yii::$app->request->post('body', '');
         $operatorId = (int)Yii::$app->user->id;
 
         try {
-            $this->operatorSupport->reply($publicKey, $conversationId, $operatorId, $body);
+            $this->operatorSupport->replyForPublicKeys(
+                $this->projectPublicKeysForCurrentUser(),
+                $conversationId,
+                $operatorId,
+                $body,
+            );
             Yii::$app->session->setFlash('success', 'Ответ отправлен');
         } catch (\Throwable $exception) {
             Yii::$app->session->setFlash('error', 'Не удалось отправить ответ');
@@ -149,6 +159,11 @@ final class ManagerSupportController extends ManagerController
 
     public function actionConversationClose(): Response
     {
+        if (!$this->isOwner()) {
+            Yii::$app->session->setFlash('error', 'Закрывать диалог может только владелец аккаунта');
+            return $this->redirect('/manager/support/conversations');
+        }
+
         $publicKey = Yii::$app->user->identity->getPublicKey();
         $conversationId = (int)Yii::$app->request->post('id', Yii::$app->request->get('id'));
 
@@ -166,6 +181,11 @@ final class ManagerSupportController extends ManagerController
 
     public function actionConversationDelete(): Response
     {
+        if (!$this->isOwner()) {
+            Yii::$app->session->setFlash('error', 'Удалять диалог может только владелец аккаунта');
+            return $this->redirect('/manager/support/conversations');
+        }
+
         $publicKey = Yii::$app->user->identity->getPublicKey();
         $conversationId = (int)Yii::$app->request->post('id', Yii::$app->request->get('id'));
 
@@ -201,5 +221,13 @@ final class ManagerSupportController extends ManagerController
     private function isOwner(): bool
     {
         return (int)Yii::$app->user->identity->getId() === (int)Yii::$app->user->identity->getPublicKey();
+    }
+
+    private function projectPublicKeysForCurrentUser(): array
+    {
+        return $this->projectAccess->publicKeysForOperator(
+            (int)Yii::$app->user->identity->getPublicKey(),
+            (int)Yii::$app->user->identity->getId(),
+        );
     }
 }

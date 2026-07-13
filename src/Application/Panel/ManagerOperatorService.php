@@ -5,7 +5,9 @@ namespace app\Application\Panel;
 use app\Application\Panel\Dto\ManagerOperatorView;
 use app\Infrastructure\YiiActiveRecord\Users;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
+use app\Modules\Support\Application\Service\SupportOperatorProjectAccessService;
 use app\Modules\Support\Domain\SupportPlanLimit;
+use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportProjectRecord;
 use app\Presentation\Http\Form\ManagerOperatorForm;
 use app\Presentation\Http\Form\ManagerOwnerContactForm;
 use Yii;
@@ -15,6 +17,7 @@ final class ManagerOperatorService
 {
     public function __construct(
         private readonly SupportSettingsRepositoryInterface $supportSettings,
+        private readonly SupportOperatorProjectAccessService $projectAccess,
     ) {
     }
 
@@ -54,6 +57,7 @@ final class ManagerOperatorService
                 maxContact: (string)($row['max_contact'] ?? ''),
                 avatarUrl: $this->avatarUrl($row['avatar_path'] ?? null),
                 isOwner: (int)$row['id'] === $ownerPublicKey,
+                projectIds: $this->projectAccess->projectIdsForOperator($ownerPublicKey, (int)$row['id']),
             ),
             $rows,
         );
@@ -170,7 +174,27 @@ final class ManagerOperatorService
         }
 
         $this->assignManagerRole($operator);
+        $projectIds = $form->projectIds;
+        if ($projectIds === []) {
+            $projectIds = $this->defaultProjectIds($ownerPublicKey);
+        }
+        $this->projectAccess->saveAssignments($ownerPublicKey, (int)$operator->id, $projectIds);
+
         return $password;
+    }
+
+    /**
+     * @param int[] $projectIds
+     */
+    public function updateProjects(int $ownerPublicKey, int $operatorId, array $projectIds): bool
+    {
+        $operator = $this->operator($ownerPublicKey, $operatorId);
+        if (!$operator instanceof Users || (int)$operator->id === $ownerPublicKey) {
+            return false;
+        }
+
+        $this->projectAccess->saveAssignments($ownerPublicKey, $operatorId, $projectIds);
+        return true;
     }
 
     public function resetPassword(int $ownerPublicKey, int $operatorId): ?string
@@ -222,6 +246,17 @@ final class ManagerOperatorService
         if ($role !== null && $auth->getAssignment('manager', (int)$operator->id) === null) {
             $auth->assign($role, (int)$operator->id);
         }
+    }
+
+    /**
+     * @return int[]
+     */
+    private function defaultProjectIds(int $ownerPublicKey): array
+    {
+        return array_values(array_map('intval', SupportProjectRecord::find()
+            ->select('id')
+            ->where(['owner_public_key' => $ownerPublicKey, 'enabled' => 1])
+            ->column()));
     }
 
     private function saveAvatar(int $userId, string $extension, string $temporaryPath): string

@@ -27,7 +27,7 @@ final class SupportPlanLimit
             attachmentsEnabled: false,
             maxEntryPoints: 1,
             maxEntryPointPriority: 5,
-            maxOperatorRepliesPerDay: 30,
+            maxOperatorRepliesPerDay: 50,
             maxProjects: 1,
         );
     }
@@ -40,9 +40,9 @@ final class SupportPlanLimit
             maxMessagesPerMonth: 30000,
             historyDays: 90,
             attachmentsEnabled: false,
-            maxEntryPoints: 3,
+            maxEntryPoints: 5,
             maxEntryPointPriority: 5,
-            maxOperatorRepliesPerDay: 200,
+            maxOperatorRepliesPerDay: 500,
             maxProjects: 1,
         );
     }
@@ -50,15 +50,15 @@ final class SupportPlanLimit
     public static function pro(): self
     {
         return new self(
-            maxOperators: 10,
+            maxOperators: 5,
             maxConversationsPerMonth: 10000,
             maxMessagesPerMonth: 100000,
             historyDays: 180,
             attachmentsEnabled: false,
             maxEntryPoints: 5,
             maxEntryPointPriority: 5,
-            maxOperatorRepliesPerDay: 500,
-            maxProjects: 5,
+            maxOperatorRepliesPerDay: 1500,
+            maxProjects: 3,
         );
     }
 
