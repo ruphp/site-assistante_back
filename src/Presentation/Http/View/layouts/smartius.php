@@ -13,6 +13,7 @@ use ruwmapps\yii2_uikit3\NavBar;
 use ruwmapps\yii2_uikit3\Offcanvas;
 use ruwmapps\yii2_uikit3\UikitAsset;
 use yii\helpers\Html;
+use yii\helpers\Json;
 use yii\helpers\Url;
 
 UikitAsset::register($this);
@@ -94,7 +95,17 @@ if ($isLandingPage) {
                 ['label' => 'Создать инструкцию', 'url' => ['/manager/instructions/create']],
             ],
         ],
+        [
+            'label' => 'Онбординг',
+            'url' => ['/manager/onboarding'],
+            'items' => [
+                ['label' => 'Сценарии', 'url' => ['/manager/onboarding']],
+                ['label' => 'Подсказки', 'url' => ['/manager/onboarding/hints']],
+                ['label' => 'Создать сценарий', 'url' => ['/manager/onboarding/create']],
+            ],
+        ],
     ];
+    $menu = array_values(array_filter($menu));
 }
 
 $id_user = Yii::$app->request->get()['id_user'] ?? $id_user;
@@ -283,8 +294,8 @@ $this->beginPage();
                     id: null,
                     <?php endif; ?>
                     role: [<?= $str_role ?>],
-                    name: null,
-                    email: null
+                    name: <?= Json::htmlEncode($name_user ?: null) ?>,
+                    email: <?= Json::htmlEncode($email_user ?: null) ?>
                 }
             };
 

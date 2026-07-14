@@ -110,6 +110,62 @@ $url_rules = [
         'route' => 'manager/instructions/delete-article',
     ],
     [
+        'pattern' => '/manager/onboarding',
+        'route' => 'manager/onboarding/index',
+    ],
+    [
+        'pattern' => '/manager/onboarding/create',
+        'route' => 'manager/onboarding/create',
+    ],
+    [
+        'pattern' => '/manager/onboarding/update',
+        'route' => 'manager/onboarding/update',
+    ],
+    [
+        'pattern' => '/manager/onboarding/delete',
+        'route' => 'manager/onboarding/delete',
+    ],
+    [
+        'pattern' => '/manager/onboarding/sections',
+        'route' => 'manager/onboarding/sections',
+    ],
+    [
+        'pattern' => '/manager/onboarding/section-delete',
+        'route' => 'manager/onboarding/section-delete',
+    ],
+    [
+        'pattern' => '/manager/onboarding/steps',
+        'route' => 'manager/onboarding/steps',
+    ],
+    [
+        'pattern' => '/manager/onboarding/step-delete',
+        'route' => 'manager/onboarding/step-delete',
+    ],
+    [
+        'pattern' => '/manager/onboarding/hints',
+        'route' => 'manager/onboarding/hints',
+    ],
+    [
+        'pattern' => '/manager/onboarding/hint-create',
+        'route' => 'manager/onboarding/hint-create',
+    ],
+    [
+        'pattern' => '/manager/onboarding/hint-update',
+        'route' => 'manager/onboarding/hint-update',
+    ],
+    [
+        'pattern' => '/manager/onboarding/hint-delete',
+        'route' => 'manager/onboarding/hint-delete',
+    ],
+    [
+        'pattern' => '/manager/onboarding/selector-session',
+        'route' => 'manager/onboarding/selector-session',
+    ],
+    [
+        'pattern' => '/manager/onboarding/selector-status',
+        'route' => 'manager/onboarding/selector-status',
+    ],
+    [
         'pattern' => '/manager/profile',
         'route' => 'manager/panel/profile',
     ],
@@ -308,6 +364,30 @@ $url_rules = [
     [
         'pattern' => '/api/log_instruction_interest',
         'route' => 'api/instructions/log-interest',
+    ],
+    [
+        'pattern' => '/api/hints',
+        'route' => 'api/onboarding/hints',
+    ],
+    [
+        'pattern' => '/api/onboardings',
+        'route' => 'api/onboarding/onboardings',
+    ],
+    [
+        'pattern' => '/api/allonboardings',
+        'route' => 'api/onboarding/allonboardings',
+    ],
+    [
+        'pattern' => '/api/tooltip',
+        'route' => 'api/onboarding/tooltip',
+    ],
+    [
+        'pattern' => '/api/onboarding_log',
+        'route' => 'api/onboarding/onboarding-log',
+    ],
+    [
+        'pattern' => '/api/onboarding/selector-complete',
+        'route' => 'api/onboarding/selector-complete',
     ],
     [
         'pattern' => '/api/support/state',

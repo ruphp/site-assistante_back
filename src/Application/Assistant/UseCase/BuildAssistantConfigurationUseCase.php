@@ -12,6 +12,11 @@ use app\Modules\Instructions\Domain\InstructionPlanLimit;
 use app\Modules\Instructions\Domain\InstructionsModule;
 use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleRecord;
 use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleUrlRecord;
+use app\Modules\Onboarding\Domain\OnboardingPlanLimit;
+use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingHintRecord;
+use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingHintUrlRecord;
+use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingRecord;
+use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingSectionRecord;
 use app\Modules\Support\Domain\SupportSettings;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Domain\SupportPlan;
@@ -43,8 +48,10 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
         $context = $this->assistantContextRepository->getByPublicKey($request->publicKey, $request->requestContext);
         $this->accessGuard->assertAllowed($context, $request->requestContext);
         $client = $context->client;
-        $modules = $this->allowedEnabledModules($client->publicKey, $client->enabledModules());
         $supportSettings = $this->supportSettingsRepository->getForClient($client->publicKey);
+        $plan = SupportPlan::normalize($supportSettings->plan);
+        $modules = $this->allowedEnabledModules($client->publicKey, $client->enabledModules());
+        $modules = $this->withTariffModules($modules, $plan);
         $modules = $this->filterModulesForPlanAndPage($modules, $supportSettings, $request);
 
         $response = new AssistantConfigurationResponse(
@@ -76,18 +83,33 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
         return $this->moduleAccessRepository->getForClient($publicKey)->filterAllowed($enabledModules);
     }
 
+    private function withTariffModules(array $modules, string $plan): array
+    {
+        $modules[] = InstructionsModule::NAME;
+
+        if (in_array($plan, [SupportPlan::START, SupportPlan::PRO], true)) {
+            $modules[] = 'onboarding';
+            $modules[] = 'hints';
+            $modules[] = 'surveys';
+            $modules[] = 'polls';
+        }
+
+        return array_values(array_unique($modules));
+    }
+
     private function filterModulesForPlanAndPage(array $modules, SupportSettings $settings, BuildAssistantConfigurationRequest $request): array
     {
         $plan = SupportPlan::normalize($settings->plan);
         $instructionLimit = InstructionPlanLimit::forPlan($plan);
+        $onboardingLimit = OnboardingPlanLimit::forPlan($plan);
 
-        return array_values(array_filter($modules, function (string $module) use ($plan, $instructionLimit, $request): bool {
+        return array_values(array_filter($modules, function (string $module) use ($plan, $instructionLimit, $onboardingLimit, $request): bool {
             if ($module === InstructionsModule::NAME) {
                 return $instructionLimit->enabled && $this->hasInstructionsForPage($request, $instructionLimit->urlBindingsEnabled);
             }
 
             if ($module === 'onboarding') {
-                return in_array($plan, [SupportPlan::START, SupportPlan::PRO], true);
+                return $onboardingLimit->enabled && $this->hasOnboardingsForPage($request, $onboardingLimit->urlBindingsEnabled);
             }
 
             if (in_array($module, ['surveys', 'polls'], true)) {
@@ -95,7 +117,7 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
             }
 
             if ($module === 'hints') {
-                return in_array($plan, [SupportPlan::START, SupportPlan::PRO], true);
+                return $onboardingLimit->enabled && $this->hasHintsForPage($request, $onboardingLimit->urlBindingsEnabled);
             }
 
             return true;
@@ -138,6 +160,80 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
         }
 
         return false;
+    }
+
+    private function hasOnboardingsForPage(BuildAssistantConfigurationRequest $request, bool $urlBindingsEnabled): bool
+    {
+        $onboardingIds = OnboardingRecord::find()
+            ->where(['public_key' => $request->publicKey, 'is_active' => true])
+            ->select('id')
+            ->column();
+        if ($onboardingIds === []) {
+            return false;
+        }
+
+        $sections = OnboardingSectionRecord::find()
+            ->where(['onboarding_id' => $onboardingIds, 'is_active' => true])
+            ->all();
+
+        foreach ($sections as $section) {
+            if ($section->url === '' || $this->urlMatchesRequest(
+                $request,
+                (string)$section->url,
+                $urlBindingsEnabled && (bool)$section->include_children,
+                $urlBindingsEnabled && (bool)$section->include_query,
+            )) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasHintsForPage(BuildAssistantConfigurationRequest $request, bool $urlBindingsEnabled): bool
+    {
+        $hintIds = OnboardingHintRecord::find()
+            ->where(['public_key' => $request->publicKey, 'is_active' => true, 'standalone_enabled' => true])
+            ->select('id')
+            ->column();
+        if ($hintIds === []) {
+            return false;
+        }
+        $boundHintIds = OnboardingHintUrlRecord::find()
+            ->where(['hint_id' => $hintIds])
+            ->select('hint_id')
+            ->distinct()
+            ->column();
+        if (count($boundHintIds) < count($hintIds)) {
+            return true;
+        }
+
+        foreach (OnboardingHintUrlRecord::find()->where(['hint_id' => $hintIds])->all() as $url) {
+            if ($this->urlMatchesRequest(
+                $request,
+                (string)$url->url,
+                $urlBindingsEnabled && (bool)$url->include_children,
+                $urlBindingsEnabled && (bool)$url->include_query,
+            )) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function urlMatchesRequest(BuildAssistantConfigurationRequest $request, string $target, bool $includeChildren, bool $includeQuery): bool
+    {
+        $target = rtrim(trim($target), '/');
+        if ($target === '') {
+            return true;
+        }
+
+        $pathname = $request->requestContext?->pathname ?? '';
+        $pageUrl = $pathname . ($request->requestContext?->getparams ?? '');
+        $current = rtrim($includeQuery ? $pageUrl : $pathname, '/');
+
+        return $includeChildren ? strpos($current, $target) === 0 : $current === $target;
     }
 
     private function brandingForSettings(SupportSettings $settings): array

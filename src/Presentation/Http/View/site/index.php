@@ -87,7 +87,7 @@ $this->registerMetaTag([
                     <p>База знаний внутри виджета: разделы, иллюстрированные статьи и короткие материалы. Возможность добавления в избранное.</p>
                 </article>
                 <article class="site-landing__card">
-                    <img class="site-landing__card-icon" src="/img/sitewidget-module-navigator.svg" alt="">
+                    <img class="site-landing__card-icon" src="/img/sitewidget-module-onboarding.svg" alt="">
                     <h3>Онбординг</h3>
                     <p>Навигатор по страницам и подсказки к элементам, чтобы сложить сложный сценарий как пазл и провести пользователя сайта до результата.</p>
                 </article>
