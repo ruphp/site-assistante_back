@@ -305,7 +305,7 @@ final class OnboardingController extends ManagerController
             $data = Yii::$app->request->post('OnboardingHint', []);
             $hint->public_key = $publicKey;
             $hint->title = trim((string)($data['title'] ?? ''));
-            $hint->content = $this->limitHintContent((string)($data['content'] ?? ''), 500, 60);
+            $hint->content = str_replace(["\r\n", "\r"], "\n", (string)($data['content'] ?? ''));
             $hint->selector = trim((string)($data['selector'] ?? ''));
             $hint->position = (int)($data['position'] ?? 2);
             $hint->type_bind = (bool)($data['type_bind'] ?? false);
@@ -413,24 +413,6 @@ final class OnboardingController extends ManagerController
                 'include_query' => in_array($query, ['1', 'yes', 'true', 'query'], true),
             ]))->save(false);
         }
-    }
-
-    private function limitHintContent(string $content, int $limit, int $lineWeight): string
-    {
-        $content = str_replace(["\r\n", "\r"], "\n", $content);
-        $result = '';
-        $weight = 0;
-
-        foreach (preg_split('//u', $content, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $char) {
-            $charWeight = $char === "\n" ? $lineWeight : 1;
-            if ($weight + $charWeight > $limit) {
-                break;
-            }
-            $result .= $char;
-            $weight += $charWeight;
-        }
-
-        return $result;
     }
 
     private function limit(int $publicKey): OnboardingPlanLimit

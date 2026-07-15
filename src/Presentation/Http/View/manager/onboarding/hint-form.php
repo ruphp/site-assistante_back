@@ -25,7 +25,7 @@ $bindModes = [0 => 'К элементу', 1 => 'Поверх страницы'];
 $themes = ['light' => 'Светлая', 'dark' => 'Темная'];
 $triggers = ['hover' => 'При наведении', 'click' => 'По клику'];
 $icons = ['question' => '?', 'exclamation' => '!', 'none' => 'Без символа'];
-$contentMaxLength = 500;
+$contentMaxLength = 300;
 $instructionOptions = ['' => 'Не открывать инструкцию'] + ArrayHelper::map($instructions, 'id', 'title');
 $urlsText = implode("\n", array_map(static fn(OnboardingHintUrlRecord $url): string => $url->url . ($url->include_children ? '|children' : '') . ($url->include_query ? '|query' : ''), $hintUrls));
 ?>
@@ -59,7 +59,7 @@ $urlsText = implode("\n", array_map(static fn(OnboardingHintUrlRecord $url): str
                 'data-line-weight' => 60,
             ]) ?>
             <div class="uk-text-meta">
-                До <?= $contentMaxLength ?> условных символов. Пробел считается символом, перенос строки считается как строка.
+                До <?= $contentMaxLength ?> условных символов. Пробел считается символом, перенос строки считается как 60 символов.
                 <span id="hint-content-counter"></span>
             </div>
         </div>
@@ -157,29 +157,30 @@ $this->registerJs(<<<JS
         return total;
     }
 
-    function trimToLimit(value) {
-        var total = 0;
-        var result = '';
-        Array.from(value.replace(/\\r\\n|\\r/g, '\\n')).some(function (char) {
-            var charWeight = char === '\\n' ? lineWeight : 1;
-            if (total + charWeight > max) return true;
-            total += charWeight;
-            result += char;
-            return false;
-        });
-        return result;
-    }
-
     function sync() {
-        var value = input.value;
-        if (weight(value) > max) {
-            input.value = trimToLimit(value);
-        }
-        counter.textContent = ' Осталось: ' + Math.max(0, max - weight(input.value)) + '.';
+        var current = weight(input.value);
+        var isOverLimit = current > max;
+        input.classList.toggle('sw-field-over-limit', isOverLimit);
+        counter.classList.toggle('sw-text-over-limit', isOverLimit);
+        counter.textContent = isOverLimit
+            ? ' Превышение: ' + (current - max) + '.'
+            : ' Осталось: ' + (max - current) + '.';
     }
 
     input.addEventListener('input', sync);
     sync();
 })();
 JS);
+
+$this->registerCss(<<<CSS
+.sw-field-over-limit {
+    border-color: #e3342f !important;
+    box-shadow: 0 0 0 1px #e3342f inset;
+}
+
+.sw-text-over-limit {
+    color: #e3342f;
+    font-weight: 700;
+}
+CSS);
 ?>
