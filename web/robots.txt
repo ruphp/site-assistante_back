@@ -1,3 +1,10 @@
 User-agent: *
+Disallow: /admin/
+Disallow: /manager/
+Disallow: /api/
+Disallow: /login
+Disallow: /join
+Disallow: /send-email
+Allow: /
 
-Disallow: /
+Sitemap: https://sitewidget.ru/sitemap.xml

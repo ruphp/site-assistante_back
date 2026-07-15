@@ -986,6 +986,24 @@ ul.ticket-messages-list {
     line-height: 1.5;
 }
 
+.site-landing__link {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 9px 14px;
+    color: var(--sw-base);
+    background: var(--sw-lavender);
+    border: 1px solid var(--sw-line);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.site-landing__link:hover {
+    color: var(--sw-base);
+    background: #fff;
+    border-color: var(--sw-primary);
+    text-decoration: none;
+}
+
 .site-landing__steps {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1079,6 +1097,7 @@ ul.ticket-messages-list {
 
 .site-docs__hero {
     padding-top: 62px;
+    border-top: 0;
 }
 
 .site-docs__anchors .site-landing__button {

@@ -5,9 +5,27 @@
 use yii\helpers\Html;
 
 $this->title = 'SiteWidget | Модули и плагины для CMS';
+$this->params['seoDescription'] = 'Готовые модули и плагины SiteWidget для WordPress, Joomla и OpenCart: где скачать, как установить и настроить public key.';
+$this->params['seoCanonical'] = '/cms-plugins';
+$this->params['seoBreadcrumbs'] = [
+    ['name' => 'Главная', 'url' => '/'],
+    ['name' => 'CMS-модули', 'url' => '/cms-plugins'],
+];
+$this->params['seoSchemas'][] = [
+    '@context' => 'https://schema.org',
+    '@type' => 'CollectionPage',
+    'name' => 'Модули и плагины SiteWidget для CMS',
+    'url' => 'https://sitewidget.ru/cms-plugins',
+    'description' => $this->params['seoDescription'],
+    'isPartOf' => [
+        '@type' => 'WebSite',
+        'name' => 'SiteWidget',
+        'url' => 'https://sitewidget.ru',
+    ],
+];
 $this->registerMetaTag([
     'name' => 'description',
-    'content' => 'Готовые модули и плагины SiteWidget для WordPress, Joomla и OpenCart: где скачать, как установить и настроить public key.',
+    'content' => $this->params['seoDescription'],
 ]);
 
 $repoUrl = 'https://github.com/ruphp/sitewidget_integrations';

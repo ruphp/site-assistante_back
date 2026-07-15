@@ -16,7 +16,7 @@ final class OnboardingRecord extends ActiveRecord
         return [
             [['public_key', 'title'], 'required'],
             [['public_key', 'timeout', 'type', 'sort_order'], 'integer'],
-            [['is_blur', 'is_active'], 'boolean'],
+            [['is_blur', 'auto_start', 'is_active'], 'boolean'],
             [['title'], 'string', 'max' => 255],
         ];
     }

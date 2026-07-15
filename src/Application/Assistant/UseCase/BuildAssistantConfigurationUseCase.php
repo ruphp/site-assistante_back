@@ -90,8 +90,6 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
         if (in_array($plan, [SupportPlan::START, SupportPlan::PRO], true)) {
             $modules[] = 'onboarding';
             $modules[] = 'hints';
-            $modules[] = 'surveys';
-            $modules[] = 'polls';
         }
 
         return array_values(array_unique($modules));
@@ -110,10 +108,6 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
 
             if ($module === 'onboarding') {
                 return $onboardingLimit->enabled && $this->hasOnboardingsForPage($request, $onboardingLimit->urlBindingsEnabled);
-            }
-
-            if (in_array($module, ['surveys', 'polls'], true)) {
-                return in_array($plan, [SupportPlan::START, SupportPlan::PRO], true);
             }
 
             if ($module === 'hints') {

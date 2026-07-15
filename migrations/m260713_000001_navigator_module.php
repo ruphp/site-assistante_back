@@ -59,6 +59,7 @@ final class m260713_000001_navigator_module extends Migration
             'timeout' => $this->integer()->notNull()->defaultValue(0),
             'type' => $this->integer()->notNull()->defaultValue(0),
             'is_blur' => $this->boolean()->notNull()->defaultValue(false),
+            'auto_start' => $this->boolean()->notNull()->defaultValue(true),
             'is_active' => $this->boolean()->notNull()->defaultValue(true),
             'sort_order' => $this->integer()->notNull()->defaultValue(100),
             'created_at' => $this->dateTime()->notNull()->defaultExpression('CURRENT_TIMESTAMP'),

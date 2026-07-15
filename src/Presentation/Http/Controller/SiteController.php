@@ -171,6 +171,21 @@ HTML;
         return $this->render('cms-plugins');
     }
 
+    public function actionFaqInstructions(): string
+    {
+        return $this->render('faq-instructions');
+    }
+
+    public function actionOnboarding(): string
+    {
+        return $this->render('onboarding');
+    }
+
+    public function actionSurveys(): string
+    {
+        return $this->render('surveys');
+    }
+
     public function actionLogin(): Response|string
     {
         if (Yii::$app->request->isPost)

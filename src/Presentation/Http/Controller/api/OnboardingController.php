@@ -33,7 +33,7 @@ final class OnboardingController extends ApiController
         Yii::$app->response->format = Response::FORMAT_JSON;
         $id = (int)Yii::$app->request->get('id', 0);
         $query = OnboardingRecord::find()
-            ->where(['public_key' => $publicKey, 'is_active' => true])
+            ->where(['public_key' => $publicKey, 'is_active' => true, 'auto_start' => true])
             ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC]);
 
         if ($id > 0) {
@@ -64,6 +64,7 @@ final class OnboardingController extends ApiController
                 'timeout' => (int)$onboarding->timeout,
                 'title' => (string)$onboarding->title,
                 'type' => (int)$onboarding->type,
+                'auto_start' => (bool)$onboarding->auto_start,
                 'repeat_count' => 0,
                 'data' => array_map(fn(OnboardingSectionRecord $section): array => $this->sectionPayload($section), $sections),
                 'is_blur' => (bool)$onboarding->is_blur ? 1 : 0,
@@ -101,6 +102,7 @@ final class OnboardingController extends ApiController
                 'id' => (int)$onboarding->id,
                 'start_url' => $firstSection instanceof OnboardingSectionRecord ? (string)$firstSection->url : '',
                 'title' => (string)$onboarding->title,
+                'auto_start' => (bool)$onboarding->auto_start,
                 'count_viewed' => $countViewed,
                 'count_unviewed' => max(0, $stepsCount - $countViewed),
             ];

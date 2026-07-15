@@ -34,6 +34,10 @@ $isLandingPage = in_array($route, ['site/index', 'site/index/'], true)
     || $requestRoutePath === 'site/index'
     || $requestPath === ''
     || $requestPath === 'index.php';
+$isPublicModulePage = in_array($route, ['site/faq-instructions', 'site/onboarding', 'site/surveys'], true)
+    || in_array($controllerRoute, ['site/faq-instructions', 'site/onboarding', 'site/surveys'], true)
+    || in_array($requestRoutePath, ['faq-instructions', 'onboarding', 'surveys'], true)
+    || in_array($requestPath, ['faq-instructions', 'onboarding', 'surveys'], true);
 
 if (Yii::$app->user->isGuest) {
     $role = [1];
@@ -46,22 +50,45 @@ $str_role = implode(",", $role);
 
 if ($isLandingPage) {
     $menu = [
-        ['label' => 'Модули', 'url' => '/#modules'],
+        [
+            'label' => 'Модули',
+            'url' => '/#modules',
+            'items' => [
+                ['label' => 'Онлайн-поддержка', 'url' => '/#support'],
+                ['label' => 'FAQ и инструкции', 'url' => ['/faq-instructions']],
+                ['label' => 'Онбординг', 'url' => ['/onboarding']],
+                ['label' => 'Опросы и анкеты', 'url' => ['/surveys']],
+            ],
+        ],
         ['label' => 'Как работает', 'url' => '/#how'],
         ['label' => 'Интеграции', 'url' => '/#integrations'],
         ['label' => 'Приложение', 'url' => '/#android-app'],
     ];
+} elseif ($isPublicModulePage) {
+    $menu = [
+        ['label' => 'Главная', 'url' => ['/']],
+        [
+            'label' => 'Модули',
+            'url' => '/#modules',
+            'items' => [
+                ['label' => 'Онлайн-поддержка', 'url' => '/#support'],
+                ['label' => 'FAQ и инструкции', 'url' => ['/faq-instructions']],
+                ['label' => 'Онбординг', 'url' => ['/onboarding']],
+                ['label' => 'Опросы и анкеты', 'url' => ['/surveys']],
+            ],
+        ],
+        ['label' => 'Как работает', 'url' => '#how'],
+        ['label' => 'Для чего', 'url' => '#use-cases'],
+    ];
 } elseif (Yii::$app->user->isGuest) {
     if ($isAuthPage) {
         $menu = [
-            ['label' => 'Войти', 'url' => ['/login']],
             ['label' => 'Регистрация', 'url' => ['/join']],
             ['label' => 'Главная', 'url' => ['/']],
         ];
     } else {
         $menu = [
             ['label' => 'Главная', 'url' => ['/']],
-            ['label' => 'Войти', 'url' => ['/login']],
         ];
     }
 } else {
@@ -110,6 +137,50 @@ if ($isLandingPage) {
 
 $id_user = Yii::$app->request->get()['id_user'] ?? $id_user;
 $request = Yii::$app->request;
+$siteBaseUrl = 'https://sitewidget.ru';
+$isPublicSeoPage = $isLandingPage || $isPublicModulePage || in_array($requestPath, ['cms-plugins'], true);
+$seoDescription = $this->params['seoDescription'] ?? null;
+$seoCanonical = $this->params['seoCanonical'] ?? ($isLandingPage ? '/' : ('/' . $requestPath));
+$seoCanonicalUrl = strpos((string)$seoCanonical, 'http') === 0
+    ? (string)$seoCanonical
+    : $siteBaseUrl . '/' . ltrim((string)$seoCanonical, '/');
+$seoImageUrl = $siteBaseUrl . ($this->params['seoImage'] ?? '/img/sitewidget-logo.svg');
+$seoRobots = $this->params['seoRobots'] ?? ($isPublicSeoPage ? 'index,follow' : 'noindex,nofollow');
+$seoSchemas = $this->params['seoSchemas'] ?? [];
+
+if ($isPublicSeoPage) {
+    $seoSchemas[] = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Organization',
+        'name' => 'SiteWidget',
+        'url' => $siteBaseUrl,
+        'logo' => $siteBaseUrl . '/img/sitewidget-logo.svg',
+        'email' => 'sitewidget@ya.ru',
+    ];
+    $seoSchemas[] = [
+        '@context' => 'https://schema.org',
+        '@type' => 'WebSite',
+        'name' => 'SiteWidget',
+        'url' => $siteBaseUrl,
+    ];
+}
+
+if (!empty($this->params['seoBreadcrumbs']) && is_array($this->params['seoBreadcrumbs'])) {
+    $seoSchemas[] = [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => array_map(
+            static fn(array $item, int $index): array => [
+                '@type' => 'ListItem',
+                'position' => $index + 1,
+                'name' => (string)($item['name'] ?? ''),
+                'item' => $siteBaseUrl . '/' . ltrim((string)($item['url'] ?? '/'), '/'),
+            ],
+            $this->params['seoBreadcrumbs'],
+            array_keys($this->params['seoBreadcrumbs'])
+        ),
+    ];
+}
 
 $this->beginPage();
 
@@ -123,6 +194,24 @@ $this->beginPage();
         <?= Html::csrfMetaTags() ?>
         <?php $this->registerCsrfMetaTags() ?>
         <title><?= Html::encode($this->title) ?></title>
+        <link rel="canonical" href="<?= Html::encode($seoCanonicalUrl) ?>">
+        <meta name="robots" content="<?= Html::encode($seoRobots) ?>">
+        <meta property="og:locale" content="ru_RU">
+        <meta property="og:site_name" content="SiteWidget">
+        <meta property="og:type" content="<?= Html::encode($this->params['seoOgType'] ?? 'website') ?>">
+        <meta property="og:title" content="<?= Html::encode($this->title) ?>">
+        <?php if ($seoDescription !== null): ?>
+            <meta property="og:description" content="<?= Html::encode($seoDescription) ?>">
+            <meta name="twitter:description" content="<?= Html::encode($seoDescription) ?>">
+        <?php endif; ?>
+        <meta property="og:url" content="<?= Html::encode($seoCanonicalUrl) ?>">
+        <meta property="og:image" content="<?= Html::encode($seoImageUrl) ?>">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="<?= Html::encode($this->title) ?>">
+        <meta name="twitter:image" content="<?= Html::encode($seoImageUrl) ?>">
+        <?php foreach ($seoSchemas as $schema): ?>
+            <script type="application/ld+json"><?= Json::htmlEncode($schema) ?></script>
+        <?php endforeach; ?>
         <link rel="icon" type="image/svg+xml" href="/favicon.svg">
         <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" media="(prefers-color-scheme: dark)">
         <?php $this->head() ?>
@@ -150,30 +239,20 @@ $this->beginPage();
 </span>
                 </a>
                 <nav class="sw-header__nav" aria-label="Основная навигация">
-                    <?php if ($isLandingPage): ?>
-                        <?php foreach ($menu as $item): ?>
-                            <a href="<?= Html::encode(Url::to($item['url'])) ?>"><?= Html::encode($item['label']) ?></a>
-                        <?php endforeach; ?>
-                    <?php elseif (Yii::$app->user->isGuest): ?>
-                        <?php foreach ($menu as $item): ?>
-                            <a href="<?= Html::encode(Url::to($item['url'])) ?>"><?= Html::encode($item['label']) ?></a>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <?php foreach ($menu as $item): ?>
-                            <?php if (isset($item['items'])): ?>
-                                <div class="uk-inline">
-                                    <a class="sw-header__nav-group" href="<?= Html::encode(Url::to($item['url'])) ?>"><?= Html::encode($item['label']) ?></a>
-                                    <div uk-dropdown="mode: hover; pos: bottom-left; offset: 10" class="sw-header__nav-dropdown">
-                                        <?php foreach ($item['items'] as $child): ?>
-                                            <a href="<?= Html::encode(Url::to($child['url'])) ?>"><?= Html::encode($child['label']) ?></a>
-                                        <?php endforeach; ?>
-                                    </div>
+                    <?php foreach ($menu as $item): ?>
+                        <?php if (isset($item['items'])): ?>
+                            <div class="uk-inline">
+                                <a class="sw-header__nav-group" href="<?= Html::encode(Url::to($item['url'])) ?>"><?= Html::encode($item['label']) ?></a>
+                                <div uk-dropdown="mode: hover; pos: bottom-left; offset: 10" class="sw-header__nav-dropdown">
+                                    <?php foreach ($item['items'] as $child): ?>
+                                        <a href="<?= Html::encode(Url::to($child['url'])) ?>"><?= Html::encode($child['label']) ?></a>
+                                    <?php endforeach; ?>
                                 </div>
-                            <?php else: ?>
-                                <a href="<?= Html::encode(Url::to($item['url'])) ?>"><?= Html::encode($item['label']) ?></a>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <a href="<?= Html::encode(Url::to($item['url'])) ?>"><?= Html::encode($item['label']) ?></a>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
                 </nav>
                 <div class="sw-header__actions">
                     <?php if ($isLandingPage): ?>

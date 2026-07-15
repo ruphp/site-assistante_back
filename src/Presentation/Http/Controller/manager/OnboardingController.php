@@ -253,7 +253,7 @@ final class OnboardingController extends ManagerController
     {
         [$projects, $ownerPublicKey, $projectId, $publicKey] = $this->projectContext();
         $onboarding = $id === null
-            ? new OnboardingRecord(['public_key' => $publicKey, 'is_active' => true, 'sort_order' => 100])
+            ? new OnboardingRecord(['public_key' => $publicKey, 'is_active' => true, 'auto_start' => true, 'sort_order' => 100])
             : OnboardingRecord::findOne(['id' => $id, 'public_key' => $publicKey]);
         if (!$onboarding instanceof OnboardingRecord) {
             return $this->redirect($this->projectUrl('/manager/onboarding', $projectId));
@@ -266,6 +266,7 @@ final class OnboardingController extends ManagerController
             $onboarding->timeout = (int)($data['timeout'] ?? 0);
             $onboarding->type = (int)($data['type'] ?? 0);
             $onboarding->is_blur = (bool)($data['is_blur'] ?? false);
+            $onboarding->auto_start = (bool)($data['auto_start'] ?? false);
             $onboarding->is_active = (bool)($data['is_active'] ?? false);
             $onboarding->sort_order = (int)($data['sort_order'] ?? 100);
             if ($onboarding->save()) {

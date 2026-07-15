@@ -27,6 +27,18 @@ $url_rules = [
         'route' => 'site/cms-plugins',
     ],
     [
+        'pattern' => '/faq-instructions',
+        'route' => 'site/faq-instructions',
+    ],
+    [
+        'pattern' => '/onboarding',
+        'route' => 'site/onboarding',
+    ],
+    [
+        'pattern' => '/surveys',
+        'route' => 'site/surveys',
+    ],
+    [
         'pattern' => '/instructions',
         'route' => 'site/instructions',
     ],

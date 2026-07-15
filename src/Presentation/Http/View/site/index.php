@@ -4,25 +4,121 @@
 
 use yii\helpers\Html;
 
-$this->title = 'SiteWidget | Виджет-ассистент для посетителей вашего сайта';
+$this->title = 'Обратная связь на сайт: форма, чат и виджет поддержки | SiteWidget';
+$this->params['seoDescription'] = 'SiteWidget добавляет на сайт форму обратной связи, чат с менеджером, быстрые кнопки обращений, Android-уведомления, Telegram-бота, базу знаний, анкеты и онбординг.';
+$this->params['seoCanonical'] = '/';
+$this->params['seoSchemas'][] = [
+    '@context' => 'https://schema.org',
+    '@type' => 'SoftwareApplication',
+    'name' => 'SiteWidget',
+    'applicationCategory' => 'BusinessApplication',
+    'operatingSystem' => 'Web, Android, Telegram',
+    'url' => 'https://sitewidget.ru/',
+    'description' => $this->params['seoDescription'],
+    'offers' => [
+        '@type' => 'AggregateOffer',
+        'lowPrice' => '0',
+        'highPrice' => '999',
+        'priceCurrency' => 'RUB',
+    ],
+];
+$this->params['seoSchemas'][] = [
+    '@context' => 'https://schema.org',
+    '@type' => 'WebApplication',
+    'name' => 'SiteWidget',
+    'alternateName' => 'Виджет обратной связи для сайта',
+    'applicationCategory' => 'BusinessApplication',
+    'browserRequirements' => 'JavaScript',
+    'url' => 'https://sitewidget.ru/',
+    'description' => $this->params['seoDescription'],
+    'featureList' => [
+        'форма обратной связи на сайт',
+        'онлайн-поддержка и чат с менеджером',
+        'быстрые кнопки обращений',
+        'уведомления в Android-приложении',
+        'уведомления и ответы через Telegram-бота',
+        'FAQ и инструкции для пользователей сайта',
+        'онбординг и подсказки на сайте',
+        'опросы и анкеты для сайта',
+    ],
+    'offers' => [
+        '@type' => 'AggregateOffer',
+        'lowPrice' => '0',
+        'highPrice' => '999',
+        'priceCurrency' => 'RUB',
+        'availability' => 'https://schema.org/InStock',
+    ],
+];
+$this->params['seoSchemas'][] = [
+    '@context' => 'https://schema.org',
+    '@type' => 'Service',
+    'name' => 'Виджет обратной связи и онлайн-поддержки для сайта',
+    'provider' => [
+        '@type' => 'Organization',
+        'name' => 'SiteWidget',
+        'url' => 'https://sitewidget.ru',
+    ],
+    'serviceType' => 'Форма обратной связи, чат поддержки, FAQ, онбординг, опросы и анкеты для сайта',
+    'url' => 'https://sitewidget.ru/',
+    'description' => $this->params['seoDescription'],
+    'hasOfferCatalog' => [
+        '@type' => 'OfferCatalog',
+        'name' => 'Модули SiteWidget',
+        'itemListElement' => [
+            [
+                '@type' => 'Offer',
+                'itemOffered' => [
+                    '@type' => 'Service',
+                    'name' => 'Онлайн-поддержка на сайт',
+                    'description' => 'Чат с менеджером, обращения как тикеты, быстрые кнопки тем, Android-уведомления и Telegram-бот.',
+                ],
+            ],
+            [
+                '@type' => 'Offer',
+                'itemOffered' => [
+                    '@type' => 'Service',
+                    'name' => 'FAQ и инструкции для сайта',
+                    'description' => 'Разделы, справочные статьи, полезные ответы и инструкции внутри виджета.',
+                ],
+            ],
+            [
+                '@type' => 'Offer',
+                'itemOffered' => [
+                    '@type' => 'Service',
+                    'name' => 'Онбординг пользователей на сайте',
+                    'description' => 'Пошаговые подсказки к элементам страницы и интерактивные сценарии.',
+                ],
+            ],
+            [
+                '@type' => 'Offer',
+                'itemOffered' => [
+                    '@type' => 'Service',
+                    'name' => 'Опросы и анкеты для сайта',
+                    'description' => 'Модальные анкеты и опросы для сбора заявок и уточнения потребностей посетителя.',
+                ],
+            ],
+        ],
+    ],
+];
 $this->registerMetaTag([
         'name' => 'description',
-        'content' => 'SiteWidget | Виджет-ассистент для посетителей вашего сайта: онлайн-поддержка, инструкции, онбординг и анкеты.',
+        'content' => $this->params['seoDescription'],
 ]);
 $this->registerMetaTag([
         'name' => 'keywords',
-        'content' => 'SiteWidget, виджет помощи, онлайн-поддержка, навигатор по сайту, инструкции, анкеты',
+        'content' => 'обратная связь на сайт, форма обратной связи, виджет обратной связи, онлайн-поддержка на сайт, чат поддержки на сайт, кнопки обратной связи, SiteWidget',
 ]);
 ?>
 
 <main class="site-landing">
     <section class="site-landing__hero">
         <div>
-            <div class="site-landing__eyebrow">Когда сайт сложный, а путь должен быть понятным</div>
-            <h1>Виджет-ассистент для посетителей вашего сайта</h1>
+            <div class="site-landing__eyebrow">Когда посетителю нужен быстрый ответ</div>
+            <h1>Виджет обратной связи для сайта</h1>
             <p class="site-landing__lead">
-                SiteWidget подключается одной вставкой JavaScript и помогает пользователям сайта не теряться:
-                онлайн-чат с оператором, инструкции, навигатор по страницам и анкеты работают в одном виджете.
+                SiteWidget добавляет на сайт обратную связь: форму обращения, онлайн-чат с менеджером,
+                быстрые кнопки вопросов, Android-уведомления, Telegram-бота, базу знаний, анкеты и онбординг
+                в одном виджете.
             </p>
             <div class="site-landing__actions">
                 <?= Html::a('Начать использовать', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
@@ -70,31 +166,34 @@ $this->registerMetaTag([
 
     <section id="modules" class="site-landing__section site-landing__section--tint">
         <div class="site-landing__inner">
-            <h2>Модули, которые закрывают частые вопросы пользователей сайта</h2>
+            <h2>Форма обратной связи, чат и подсказки в одном виджете</h2>
             <p class="site-landing__section-lead">
-                Каждый модуль можно включать владельцу сайта по тарифу и настраивать отдельно. На старте продукт держит
-                обязательный минимум поддержки, а остальные сценарии расширяют самообслуживание.
+                SiteWidget закрывает несколько задач сразу: посетитель может написать менеджеру,
+                выбрать частый вопрос, оставить контакты, открыть инструкцию из подсказки или пройти сценарий онбординга.
             </p>
             <div class="site-landing__grid">
-                <article class="site-landing__card">
+                <article class="site-landing__card" id="support">
                     <img class="site-landing__card-icon" src="/img/sitewidget-module-support.svg" alt="">
-                    <h3>Онлайн-поддержка</h3>
-                    <p>Чат с оператором, обращения как тикеты, быстрые кнопки тем, уведомления менеджерам и контроль ожидания ответа.</p>
+                    <h3>Онлайн-поддержка на сайт</h3>
+                    <p>Чат с оператором, форма обратной связи, быстрые кнопки тем и тикеты. Менеджеры видят горячие обращения в панели, Android-приложении и Telegram-боте.</p>
                 </article>
                 <article class="site-landing__card">
                     <img class="site-landing__card-icon" src="/img/sitewidget-module-instructions.svg" alt="">
-                    <h3>Инструкции</h3>
-                    <p>База знаний внутри виджета: разделы, иллюстрированные статьи и короткие материалы. Возможность добавления в избранное.</p>
+                    <h3>FAQ и инструкции</h3>
+                    <p>FAQ, справочные статьи и инструкции внутри виджета. Подсказка на странице может открыть нужную инструкцию в один клик.</p>
+                    <?= Html::a('Подробнее об инструкциях', ['/faq-instructions'], ['class' => 'site-landing__link']) ?>
                 </article>
                 <article class="site-landing__card">
                     <img class="site-landing__card-icon" src="/img/sitewidget-module-onboarding.svg" alt="">
-                    <h3>Онбординг</h3>
-                    <p>Навигатор по страницам и подсказки к элементам, чтобы сложить сложный сценарий как пазл и провести пользователя сайта до результата.</p>
+                    <h3>Онбординг на сайт</h3>
+                    <p>Пошаговые подсказки к элементам страницы: провести посетителя по сценарию, открыть инструкцию или довести до действия.</p>
+                    <?= Html::a('Подробнее об онбординге', ['/onboarding'], ['class' => 'site-landing__link']) ?>
                 </article>
                 <article class="site-landing__card">
                     <img class="site-landing__card-icon" src="/img/sitewidget-checkbox.svg" alt="">
-                    <h3>Анкетирование</h3>
-                    <p>Пошаговые анкеты с разными типами вопросов, с возможностью вернуться к ним позже, удобный конструктор форм.</p>
+                    <h3>Опросы и анкеты</h3>
+                    <p>Пошаговые формы и мини-опросы: вопросы, сбор данных, заявки и возможность вернуться к заполнению позже. Для подбора и заявок.</p>
+                    <?= Html::a('Подробнее об анкетах', ['/surveys'], ['class' => 'site-landing__link']) ?>
                 </article>
             </div>
         </div>
@@ -102,19 +201,19 @@ $this->registerMetaTag([
 
     <section id="how" class="site-landing__section">
         <div class="site-landing__inner">
-            <h2>Как это работает</h2>
+            <h2>Как подключается обратная связь</h2>
             <div class="site-landing__steps">
                 <div class="site-landing__step">
                     <strong>01. Подключение</strong>
-                    <p>Владелец сайта вставляет JS-код. Виджет получает конфигурацию по public key и домену сайта и выводит нужный контент.</p>
+                    <p>Владелец сайта вставляет JS-код или подключает CMS-модуль. Виджет получает конфигурацию по public key и домену сайта.</p>
                 </div>
                 <div class="site-landing__step">
                     <strong>02. Настройка</strong>
-                    <p>В панели владельца сайта настраиваются оформление, модули, расписание операторов, уведомления и роли.</p>
+                    <p>В панели владельца сайта настраиваются форма обратной связи, оформление, модули, расписание операторов, уведомления и роли.</p>
                 </div>
                 <div class="site-landing__step">
                     <strong>03. Работа</strong>
-                    <p>Пользователь сайта получает помощь на месте, а владелец сайта видит обращения, метрики и другие отчёты.</p>
+                    <p>Пользователь сайта получает помощь на месте, а владелец сайта видит обращения, историю диалогов и активность виджета.</p>
                 </div>
             </div>
         </div>
@@ -126,7 +225,7 @@ $this->registerMetaTag([
                 <div>
                     <h2>Приложение для менеджера</h2>
                     <p class="site-landing__section-lead">
-                        Android-приложение помогает не пропускать обращения: отправляет менеджеру push-уведомления о новых обращениях и неотвеченных диалогах, даже в свернутом режиме..
+                        Android-приложение помогает не пропускать обращения: отправляет менеджеру push-уведомления о новых обращениях и неотвеченных диалогах, даже в свернутом режиме.
                     </p>
                 </div>
                 <div class="site-landing__actions">
@@ -200,22 +299,24 @@ $this->registerMetaTag([
 
     <section class="site-landing__section">
         <div class="site-landing__inner">
-            <h2>Контроль после подключения</h2>
+            <h2>Обратная связь с сайта без пропущенных заявок</h2>
             <p class="site-landing__section-lead">
-                Владелец сайта видит не только обращения, но и то, как посетители взаимодействуют с виджетом.
+                Обращения не теряются в почте и не ждут, пока кто-то случайно откроет админку.
+                Менеджер получает уведомления в Android-приложении и Telegram-боте, видит новые и
+                неотвеченные диалоги, а владелец сайта контролирует историю общения.
             </p>
             <div class="site-landing__steps">
                 <div class="site-landing__step">
-                    <strong>История</strong>
-                    <p>Хранение истории взаимодействия посетителей с виджетом.</p>
+                    <strong>Горячие вопросы</strong>
+                    <p>Новые обращения и неотвеченные диалоги подсвечиваются, чтобы менеджер быстро понял, где нужен ответ.</p>
                 </div>
                 <div class="site-landing__step">
-                    <strong>Отчетность</strong>
-                    <p>Настраиваемая отчетность по обращениям, модулям и активности.</p>
+                    <strong>Android и Telegram</strong>
+                    <p>Push-уведомления, активные напоминания и ответы из приложения или Telegram помогают не пропускать посетителей.</p>
                 </div>
                 <div class="site-landing__step">
-                    <strong>Понимание</strong>
-                    <p>Видно, где посетители чаще всего застревают и какие сценарии требуют доработки.</p>
+                    <strong>История диалогов</strong>
+                    <p>Все обращения остаются в панели управления: видно, кто писал, что спросил и как менеджер ответил.</p>
                 </div>
             </div>
         </div>
@@ -223,7 +324,7 @@ $this->registerMetaTag([
 
     <section id="pricing" class="site-landing__section site-landing__section--tint">
         <div class="site-landing__inner">
-            <h2>Тарифы под рост обращений</h2>
+            <h2>Тарифы под рост обратной связи</h2>
             <p class="site-landing__section-lead">
                 Онлайн-поддержка доступна сразу. Платные тарифы открывают больше ответов, операторов,
                 дополнительные модули, а Pro — несколько проектов. Оплату подключим позже, сейчас тариф можно
@@ -288,25 +389,13 @@ $this->registerMetaTag([
                 </article>
             </div>
 
-            <div class="site-landing__addons">
-                <div>
-                    <h3>Пакеты сверх тарифа</h3>
-                    <p>Если стандартного лимита не хватает, можно добавить ответы без смены тарифа.</p>
-                </div>
-                <ul>
-                    <li><strong>+500 ответов/день</strong><span>500 ₽/мес</span></li>
-                    <li><strong>+1000 ответов/день</strong><span>1000 ₽/мес</span></li>
-                    <li><strong>Индивидуальный пакет</strong><span>по договоренности</span></li>
-                </ul>
-            </div>
-
             <div class="site-landing__business">
                 <strong>Для высоконагруженных сайтов</strong>
                 <span>
                     Можно согласовать индивидуальный лимит, отдельные условия хранения истории и расширенные настройки
                     нагрузки.
                 </span><br><br>
-                <strong> Для подключения тарифа или пакета напишите через виджет справа по кнопке быстрого обращения - Подключить тариф.</strong>
+                <strong>Для подключения тарифа напишите через виджет справа по кнопке быстрого обращения - Подключить тариф.</strong>
             </div>
         </div>
     </section>
@@ -314,7 +403,7 @@ $this->registerMetaTag([
     <section class="site-landing__section">
         <div class="site-landing__inner">
             <div class="site-landing__cta">
-                <h2>SiteWidget делает сложный сайт понятнее</h2>
+                <h2>SiteWidget превращает обратную связь в понятный диалог</h2>
                 <p class="site-landing__section-lead">
                     Онлайн-поддержка доступна как базовый модуль. В Start добавляются инструкции, онбординг,
                     анкетирование и роли. Pro нужен для нескольких проектов и повышенных лимитов.

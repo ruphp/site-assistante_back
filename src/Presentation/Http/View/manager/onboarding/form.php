@@ -43,6 +43,9 @@ $this->title = $onboarding->isNewRecord ? 'Создать сценарий' : '�
         <div class="uk-margin">
             <label><?= Html::checkbox('Onboarding[is_blur]', (bool)$onboarding->is_blur) ?> Затемнять страницу вокруг активного элемента</label>
         </div>
+        <div class="uk-margin">
+            <label><?= Html::checkbox('Onboarding[auto_start]', (bool)$onboarding->auto_start) ?> Запускать автоматически, если посетитель ещё не проходил этот онбординг</label>
+        </div>
         <?php if ($roles !== []): ?>
             <div class="uk-margin">
                 <div class="uk-form-label">Показывать ролям</div>
