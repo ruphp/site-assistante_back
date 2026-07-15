@@ -31,7 +31,6 @@ $statusTokenGlue = strpos($statusUrl, '?') === false ? '?' : '&';
         </div>
     </div>
     <div class="uk-alert-primary uk-margin-small-top uk-hidden js-selector-panel" uk-alert>
-        <button type="button" class="uk-alert-close js-selector-close" aria-label="Закрыть выбор элемента" uk-close></button>
         <div class="js-selector-message">
             Откройте страницу, зажмите значок пазла виджета на 5 секунд или используйте ссылку выбора. Затем кликните по нужному элементу.
         </div>
@@ -47,7 +46,6 @@ $js = <<<JS
     var urlInput = root.querySelector('.js-selector-url');
     var startButton = root.querySelector('.js-selector-start');
     var fetchButton = root.querySelector('.js-selector-fetch');
-    var closeButton = root.querySelector('.js-selector-close');
     var panel = root.querySelector('.js-selector-panel');
     var message = root.querySelector('.js-selector-message');
     var token = '';
@@ -62,20 +60,6 @@ $js = <<<JS
     function setMessage(text) {
         panel.classList.remove('uk-hidden');
         message.textContent = text;
-    }
-
-    function cleanupSelectorHash() {
-        if (window.location.hash.indexOf('sitewidget-selector=') === -1) return;
-        history.replaceState(null, document.title, window.location.pathname + window.location.search);
-    }
-
-    function closeSelectorPanel() {
-        token = '';
-        fetchButton.disabled = true;
-        if (timer) window.clearInterval(timer);
-        timer = null;
-        panel.classList.add('uk-hidden');
-        cleanupSelectorHash();
     }
 
     function checkStatus() {
@@ -128,7 +112,6 @@ $js = <<<JS
     });
 
     fetchButton.addEventListener('click', checkStatus);
-    closeButton.addEventListener('click', closeSelectorPanel);
 })();
 JS;
 $this->registerJs($js);

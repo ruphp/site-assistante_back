@@ -16,7 +16,7 @@ final class OnboardingHintRecord extends ActiveRecord
         return [
             [['public_key', 'title'], 'required'],
             [['public_key', 'position', 'type', 'autostart', 'vision', 'instruction_id', 'button_instruction_id', 'left_offset', 'top_offset'], 'integer'],
-            [['content'], 'string'],
+            [['content'], 'string', 'max' => 500],
             [['type_bind', 'is_leftward', 'standalone_enabled', 'hide_after_view', 'is_active'], 'boolean'],
             [['title'], 'string', 'max' => 255],
             [['selector'], 'string', 'max' => 1000],

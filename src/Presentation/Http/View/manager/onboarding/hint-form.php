@@ -24,6 +24,8 @@ $positions = [0 => 'Сверху', 1 => 'Справа', 2 => 'Снизу', 3 => 
 $bindModes = [0 => 'К элементу', 1 => 'Поверх страницы'];
 $themes = ['light' => 'Светлая', 'dark' => 'Темная'];
 $triggers = ['hover' => 'При наведении', 'click' => 'По клику'];
+$icons = ['question' => '?', 'exclamation' => '!', 'none' => 'Без символа'];
+$contentMaxLength = 500;
 $instructionOptions = ['' => 'Не открывать инструкцию'] + ArrayHelper::map($instructions, 'id', 'title');
 $urlsText = implode("\n", array_map(static fn(OnboardingHintUrlRecord $url): string => $url->url . ($url->include_children ? '|children' : '') . ($url->include_query ? '|query' : ''), $hintUrls));
 ?>
@@ -49,9 +51,19 @@ $urlsText = implode("\n", array_map(static fn(OnboardingHintUrlRecord $url): str
         </div>
         <div class="uk-margin">
             <?= Html::label('Текст подсказки', 'hint-content', ['class' => 'uk-form-label']) ?>
-            <?= Html::textarea('OnboardingHint[content]', $hint->content, ['id' => 'hint-content', 'class' => 'uk-textarea', 'rows' => 5]) ?>
+            <?= Html::textarea('OnboardingHint[content]', $hint->content, [
+                'id' => 'hint-content',
+                'class' => 'uk-textarea',
+                'rows' => 5,
+                'data-max-weight' => $contentMaxLength,
+                'data-line-weight' => 60,
+            ]) ?>
+            <div class="uk-text-meta">
+                До <?= $contentMaxLength ?> условных символов. Пробел считается символом, перенос строки считается как строка.
+                <span id="hint-content-counter"></span>
+            </div>
         </div>
-        <div class="uk-grid-small uk-child-width-1-2@m" uk-grid>
+        <div class="uk-grid-small uk-child-width-1-3@m" uk-grid>
             <div>
                 <?= Html::label('Стиль подсказки', 'hint-theme', ['class' => 'uk-form-label']) ?>
                 <?= Html::dropDownList('OnboardingHint[theme]', $hint->theme ?: 'light', $themes, ['id' => 'hint-theme', 'class' => 'uk-select']) ?>
@@ -59,6 +71,10 @@ $urlsText = implode("\n", array_map(static fn(OnboardingHintUrlRecord $url): str
             <div>
                 <?= Html::label('Как открывать', 'hint-trigger', ['class' => 'uk-form-label']) ?>
                 <?= Html::dropDownList('OnboardingHint[trigger_type]', $hint->trigger_type ?: 'hover', $triggers, ['id' => 'hint-trigger', 'class' => 'uk-select']) ?>
+            </div>
+            <div>
+                <?= Html::label('Символ на точке', 'hint-icon', ['class' => 'uk-form-label']) ?>
+                <?= Html::dropDownList('OnboardingHint[icon_type]', $hint->icon_type ?: 'question', $icons, ['id' => 'hint-icon', 'class' => 'uk-select']) ?>
             </div>
         </div>
         <div class="uk-grid-small uk-child-width-1-3@m" uk-grid>
@@ -97,7 +113,7 @@ $urlsText = implode("\n", array_map(static fn(OnboardingHintUrlRecord $url): str
                 </div>
                 <div>
                     <?= Html::label('Ссылка', 'hint-button-url', ['class' => 'uk-form-label']) ?>
-                    <?= Html::input('text', 'OnboardingHint[button_url]', $hint->button_url, ['id' => 'hint-button-url', 'class' => 'uk-input', 'placeholder' => 'https://... или #modules']) ?>
+                    <?= Html::input('text', 'OnboardingHint[button_url]', $hint->button_url, ['id' => 'hint-button-url', 'class' => 'uk-input', 'placeholder' => 'https://...']) ?>
                 </div>
                 <div>
                     <?= Html::label('Или инструкция', 'hint-button-instruction', ['class' => 'uk-form-label']) ?>
@@ -123,3 +139,47 @@ $urlsText = implode("\n", array_map(static fn(OnboardingHintUrlRecord $url): str
         </div>
     <?= Html::endForm() ?>
 </div>
+
+<?php
+$this->registerJs(<<<JS
+(function () {
+    var input = document.getElementById('hint-content');
+    var counter = document.getElementById('hint-content-counter');
+    if (!input || !counter) return;
+    var max = Number(input.dataset.maxWeight || 500);
+    var lineWeight = Number(input.dataset.lineWeight || 60);
+
+    function weight(value) {
+        var total = 0;
+        Array.from(value.replace(/\\r\\n|\\r/g, '\\n')).forEach(function (char) {
+            total += char === '\\n' ? lineWeight : 1;
+        });
+        return total;
+    }
+
+    function trimToLimit(value) {
+        var total = 0;
+        var result = '';
+        Array.from(value.replace(/\\r\\n|\\r/g, '\\n')).some(function (char) {
+            var charWeight = char === '\\n' ? lineWeight : 1;
+            if (total + charWeight > max) return true;
+            total += charWeight;
+            result += char;
+            return false;
+        });
+        return result;
+    }
+
+    function sync() {
+        var value = input.value;
+        if (weight(value) > max) {
+            input.value = trimToLimit(value);
+        }
+        counter.textContent = ' Осталось: ' + Math.max(0, max - weight(input.value)) + '.';
+    }
+
+    input.addEventListener('input', sync);
+    sync();
+})();
+JS);
+?>

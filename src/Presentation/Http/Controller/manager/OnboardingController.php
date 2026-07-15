@@ -305,13 +305,14 @@ final class OnboardingController extends ManagerController
             $data = Yii::$app->request->post('OnboardingHint', []);
             $hint->public_key = $publicKey;
             $hint->title = trim((string)($data['title'] ?? ''));
-            $hint->content = (string)($data['content'] ?? '');
+            $hint->content = $this->limitHintContent((string)($data['content'] ?? ''), 500, 60);
             $hint->selector = trim((string)($data['selector'] ?? ''));
             $hint->position = (int)($data['position'] ?? 2);
             $hint->type_bind = (bool)($data['type_bind'] ?? false);
             $hint->standalone_enabled = (bool)($data['standalone_enabled'] ?? false);
             $hint->theme = in_array(($data['theme'] ?? 'light'), ['light', 'dark'], true) ? $data['theme'] : 'light';
             $hint->trigger_type = in_array(($data['trigger_type'] ?? 'hover'), ['hover', 'click'], true) ? $data['trigger_type'] : 'hover';
+            $hint->icon_type = in_array(($data['icon_type'] ?? 'question'), ['question', 'exclamation', 'none'], true) ? $data['icon_type'] : 'question';
             $hint->hide_after_view = (bool)($data['hide_after_view'] ?? false);
             $hint->button_label = trim((string)($data['button_label'] ?? ''));
             $hint->button_url = trim((string)($data['button_url'] ?? ''));
@@ -412,6 +413,24 @@ final class OnboardingController extends ManagerController
                 'include_query' => in_array($query, ['1', 'yes', 'true', 'query'], true),
             ]))->save(false);
         }
+    }
+
+    private function limitHintContent(string $content, int $limit, int $lineWeight): string
+    {
+        $content = str_replace(["\r\n", "\r"], "\n", $content);
+        $result = '';
+        $weight = 0;
+
+        foreach (preg_split('//u', $content, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $char) {
+            $charWeight = $char === "\n" ? $lineWeight : 1;
+            if ($weight + $charWeight > $limit) {
+                break;
+            }
+            $result .= $char;
+            $weight += $charWeight;
+        }
+
+        return $result;
     }
 
     private function limit(int $publicKey): OnboardingPlanLimit
