@@ -4,6 +4,7 @@ namespace app\Presentation\Http\Controller\manager;
 
 use app\Application\Panel\ClientProjectService;
 use app\Infrastructure\YiiActiveRecord\Roles;
+use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleRecord;
 use app\Modules\Onboarding\Domain\OnboardingPlanLimit;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingHintRecord;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingHintRoleRecord;
@@ -285,7 +286,16 @@ final class OnboardingController extends ManagerController
     {
         [$projects, $ownerPublicKey, $projectId, $publicKey] = $this->projectContext();
         $hint = $id === null
-            ? new OnboardingHintRecord(['public_key' => $publicKey, 'is_active' => true, 'standalone_enabled' => false, 'position' => 2])
+            ? new OnboardingHintRecord([
+                'public_key' => $publicKey,
+                'is_active' => true,
+                'standalone_enabled' => false,
+                'position' => 2,
+                'theme' => 'light',
+                'trigger_type' => 'hover',
+                'icon_color' => '#FBBF24',
+                'background_color' => '#FAFAFF',
+            ])
             : OnboardingHintRecord::findOne(['id' => $id, 'public_key' => $publicKey]);
         if (!$hint instanceof OnboardingHintRecord) {
             return $this->redirect($this->projectUrl('/manager/onboarding/hints', $projectId));
@@ -300,6 +310,14 @@ final class OnboardingController extends ManagerController
             $hint->position = (int)($data['position'] ?? 2);
             $hint->type_bind = (bool)($data['type_bind'] ?? false);
             $hint->standalone_enabled = (bool)($data['standalone_enabled'] ?? false);
+            $hint->theme = in_array(($data['theme'] ?? 'light'), ['light', 'dark'], true) ? $data['theme'] : 'light';
+            $hint->trigger_type = in_array(($data['trigger_type'] ?? 'hover'), ['hover', 'click'], true) ? $data['trigger_type'] : 'hover';
+            $hint->hide_after_view = (bool)($data['hide_after_view'] ?? false);
+            $hint->button_label = trim((string)($data['button_label'] ?? ''));
+            $hint->button_url = trim((string)($data['button_url'] ?? ''));
+            $hint->button_instruction_id = empty($data['button_instruction_id']) ? null : (int)$data['button_instruction_id'];
+            $hint->icon_color = $hint->theme === 'dark' ? '#2B245C' : '#FBBF24';
+            $hint->background_color = $hint->theme === 'dark' ? '#2B245C' : '#FAFAFF';
             $hint->is_active = (bool)($data['is_active'] ?? false);
             $hint->left_offset = (int)($data['left_offset'] ?? 0);
             $hint->top_offset = (int)($data['top_offset'] ?? 0);
@@ -317,6 +335,10 @@ final class OnboardingController extends ManagerController
             'selectedRoleIds' => $hint->isNewRecord ? [] : OnboardingHintRoleRecord::find()->where(['hint_id' => $hint->id])->select('role_id')->column(),
             'hintUrls' => $hint->isNewRecord ? [] : OnboardingHintUrlRecord::find()->where(['hint_id' => $hint->id])->all(),
             'urlBindingsEnabled' => $this->limit($publicKey)->urlBindingsEnabled,
+            'instructions' => InstructionArticleRecord::find()
+                ->where(['public_key' => $publicKey, 'is_active' => true, 'admin_blocked' => false])
+                ->orderBy(['title' => SORT_ASC])
+                ->all(),
         ] + $projects->tabsData($ownerPublicKey, $projectId));
     }
 

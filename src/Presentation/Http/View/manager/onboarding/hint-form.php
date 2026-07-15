@@ -2,6 +2,7 @@
 
 use app\Application\Panel\Dto\ClientProjectView;
 use app\Infrastructure\YiiActiveRecord\Roles;
+use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleRecord;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingHintRecord;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingHintUrlRecord;
 use yii\helpers\ArrayHelper;
@@ -13,6 +14,7 @@ use yii\helpers\Html;
  * @var int[] $selectedRoleIds
  * @var OnboardingHintUrlRecord[] $hintUrls
  * @var bool $urlBindingsEnabled
+ * @var InstructionArticleRecord[] $instructions
  * @var ClientProjectView[] $projects
  * @var ClientProjectView $activeProject
  */
@@ -20,6 +22,9 @@ use yii\helpers\Html;
 $this->title = $hint->isNewRecord ? 'Создать подсказку' : 'Редактировать подсказку';
 $positions = [0 => 'Сверху', 1 => 'Справа', 2 => 'Снизу', 3 => 'Слева'];
 $bindModes = [0 => 'К элементу', 1 => 'Поверх страницы'];
+$themes = ['light' => 'Светлая', 'dark' => 'Темная'];
+$triggers = ['hover' => 'При наведении', 'click' => 'По клику'];
+$instructionOptions = ['' => 'Не открывать инструкцию'] + ArrayHelper::map($instructions, 'id', 'title');
 $urlsText = implode("\n", array_map(static fn(OnboardingHintUrlRecord $url): string => $url->url . ($url->include_children ? '|children' : '') . ($url->include_query ? '|query' : ''), $hintUrls));
 ?>
 
@@ -46,6 +51,16 @@ $urlsText = implode("\n", array_map(static fn(OnboardingHintUrlRecord $url): str
             <?= Html::label('Текст подсказки', 'hint-content', ['class' => 'uk-form-label']) ?>
             <?= Html::textarea('OnboardingHint[content]', $hint->content, ['id' => 'hint-content', 'class' => 'uk-textarea', 'rows' => 5]) ?>
         </div>
+        <div class="uk-grid-small uk-child-width-1-2@m" uk-grid>
+            <div>
+                <?= Html::label('Стиль подсказки', 'hint-theme', ['class' => 'uk-form-label']) ?>
+                <?= Html::dropDownList('OnboardingHint[theme]', $hint->theme ?: 'light', $themes, ['id' => 'hint-theme', 'class' => 'uk-select']) ?>
+            </div>
+            <div>
+                <?= Html::label('Как открывать', 'hint-trigger', ['class' => 'uk-form-label']) ?>
+                <?= Html::dropDownList('OnboardingHint[trigger_type]', $hint->trigger_type ?: 'hover', $triggers, ['id' => 'hint-trigger', 'class' => 'uk-select']) ?>
+            </div>
+        </div>
         <div class="uk-grid-small uk-child-width-1-3@m" uk-grid>
             <div>
                 <?= Html::label('Позиция', 'hint-position', ['class' => 'uk-form-label']) ?>
@@ -67,8 +82,28 @@ $urlsText = implode("\n", array_map(static fn(OnboardingHintUrlRecord $url): str
             <label><?= Html::checkbox('OnboardingHint[standalone_enabled]', (bool)$hint->standalone_enabled) ?> Показывать отдельно от онбординга</label>
         </div>
         <div class="uk-margin">
+            <label><?= Html::checkbox('OnboardingHint[hide_after_view]', (bool)$hint->hide_after_view) ?> Прятать после просмотра</label>
+        </div>
+        <div class="uk-margin">
             <?= Html::label('Способ привязки', 'hint-bind-mode', ['class' => 'uk-form-label']) ?>
             <?= Html::dropDownList('OnboardingHint[type_bind]', (int)(bool)$hint->type_bind, $bindModes, ['id' => 'hint-bind-mode', 'class' => 'uk-select uk-form-width-medium']) ?>
+        </div>
+        <div class="uk-card uk-card-default uk-card-small uk-card-body uk-margin">
+            <h4 class="uk-margin-small-bottom">Кнопка в подсказке</h4>
+            <div class="uk-grid-small uk-child-width-1-3@m" uk-grid>
+                <div>
+                    <?= Html::label('Текст кнопки', 'hint-button-label', ['class' => 'uk-form-label']) ?>
+                    <?= Html::input('text', 'OnboardingHint[button_label]', $hint->button_label, ['id' => 'hint-button-label', 'class' => 'uk-input', 'placeholder' => 'Например: Подробнее']) ?>
+                </div>
+                <div>
+                    <?= Html::label('Ссылка', 'hint-button-url', ['class' => 'uk-form-label']) ?>
+                    <?= Html::input('text', 'OnboardingHint[button_url]', $hint->button_url, ['id' => 'hint-button-url', 'class' => 'uk-input', 'placeholder' => 'https://... или #modules']) ?>
+                </div>
+                <div>
+                    <?= Html::label('Или инструкция', 'hint-button-instruction', ['class' => 'uk-form-label']) ?>
+                    <?= Html::dropDownList('OnboardingHint[button_instruction_id]', $hint->button_instruction_id, $instructionOptions, ['id' => 'hint-button-instruction', 'class' => 'uk-select']) ?>
+                </div>
+            </div>
         </div>
         <?php if ($roles !== []): ?>
             <div class="uk-margin">
