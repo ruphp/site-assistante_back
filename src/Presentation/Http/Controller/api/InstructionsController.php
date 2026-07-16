@@ -211,6 +211,7 @@ final class InstructionsController extends ApiController
                 'parent_id' => $category->parent_id === null ? null : $this->categoryNodeId((int)$category->parent_id),
                 'is_course' => false,
                 'html' => '',
+                'sort_order' => (int)$category->sort_order,
                 'urls' => [],
             ];
         }
@@ -273,6 +274,7 @@ final class InstructionsController extends ApiController
             'parent_id' => $article->category_id === null ? null : $this->categoryNodeId((int)$article->category_id),
             'is_course' => true,
             'html' => $withHtml ? $article->html : '',
+            'sort_order' => (int)$article->sort_order,
             'views' => (int)$article->views,
             'like' => (int)$article->likes,
             'dislike' => (int)$article->dislikes,
