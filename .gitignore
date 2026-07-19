@@ -45,9 +45,6 @@ tests/_support/_generated
 ./modules/*
 !/modules/courses/README.md
 /web/static/*
-!/web/static/
-!/web/static/lib.js
-!/web/static/lib.css
 /web/custom
 /smguide.zip
 vendor.zip
