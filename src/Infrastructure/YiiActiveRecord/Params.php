@@ -120,7 +120,6 @@ class Params extends ActiveRecord
             email: null
         }
     };
-    window.Smartius = window.SiteWidget;
     var script = document.createElement('script');
     script.src = '$domainstatic/lib.js', document.head.appendChild(script);
 &lt;/script&gt;";

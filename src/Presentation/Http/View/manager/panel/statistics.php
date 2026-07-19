@@ -6,7 +6,7 @@
 /** @var $js_chart_usage */
 /** @var $html_chart_usage */
 
-$this->title = "Панель управления виджетом - Отчеты";
+$this->title = "Отчеты";
 
 if (count($names)) {
     $this->registerJsFile('../js/charts.js');

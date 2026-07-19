@@ -19,12 +19,12 @@ $end_date = $chart_filters['end_date'] ?? date("d-m-Y");
 $system = $chart_filters['system'] ?? 0;
 $html = '
 <div class="uk-card uk-card-body uk-card-default stat_all">
-    <h3 class="uk-card-title">Суммарные показатели по количеству пользователей, использующих модули ИС ЦИПП ПК</h3> 
+    <h3 class="uk-card-title">Суммарные показатели по использованию модулей SiteWidget</h3> 
     <div uk-grid class="uk-child-width-1-2 uk-margin">   
         <div>';
 if(count($users_list )) {
     $html .='<div>';
-    $html .='<label class="control-label">Выбор системы</label>';
+    $html .='<label class="control-label">Выбор клиента</label>';
 
     $params = [
         'class'  => 'form-control uk-select',

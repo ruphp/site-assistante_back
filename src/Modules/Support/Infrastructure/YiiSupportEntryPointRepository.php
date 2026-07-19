@@ -50,6 +50,7 @@ final class YiiSupportEntryPointRepository implements SupportEntryPointRepositor
         $record->public_key = $entryPoint->publicKey;
         $record->title = $entryPoint->title;
         $record->description = $entryPoint->description;
+        $record->response_type = $entryPoint->responseType;
         $record->priority = $entryPoint->priority;
         $record->enabled = $entryPoint->enabled ? 1 : 0;
         $record->sort_order = $entryPoint->sortOrder;
@@ -71,6 +72,7 @@ final class YiiSupportEntryPointRepository implements SupportEntryPointRepositor
             publicKey: (int)$record->public_key,
             title: (string)$record->title,
             description: (string)$record->description,
+            responseType: SupportEntryPoint::normalizeResponseType((string)($record->response_type ?? SupportEntryPoint::RESPONSE_ANSWER)),
             priority: (int)$record->priority,
             enabled: (bool)$record->enabled,
             sortOrder: (int)$record->sort_order,

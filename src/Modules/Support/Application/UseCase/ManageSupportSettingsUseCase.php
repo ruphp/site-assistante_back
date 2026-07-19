@@ -2,11 +2,10 @@
 
 namespace app\Modules\Support\Application\UseCase;
 
-use app\Application\Client\Contract\ClientModuleAccessRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportManagerRecipientRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Application\Dto\SupportSettingsViewData;
-use app\Modules\Support\Domain\SupportModule;
+use app\Modules\Support\Domain\SupportPlan;
 use app\Modules\Support\Domain\SupportPlanLimit;
 use app\Modules\Support\Domain\SupportSettings;
 
@@ -14,7 +13,6 @@ final class ManageSupportSettingsUseCase
 {
     public function __construct(
         private readonly SupportSettingsRepositoryInterface $settings,
-        private readonly ClientModuleAccessRepositoryInterface $moduleAccess,
         private readonly SupportManagerRecipientRepositoryInterface $managerRecipients,
     ) {
     }
@@ -33,40 +31,40 @@ final class ManageSupportSettingsUseCase
 
     public function saveFromPost(int $publicKey, array $post): bool
     {
-        if (!$this->moduleAccess->getForClient($publicKey)->allows(SupportModule::NAME)) {
-            return false;
-        }
-
         $data = $post['SupportSettings'] ?? [];
         $schedule = $this->schedule($post['SupportSchedule'] ?? []);
+        $currentSettings = $this->settings->getForClient($publicKey);
+        $plan = $currentSettings->plan;
+        $canDisableBranding = $plan !== SupportPlan::FREE;
 
         return $this->settings->save(new SupportSettings(
             publicKey: $publicKey,
-            plan: $this->settings->getForClient($publicKey)->plan,
+            plan: $plan,
             enabled: true,
             title: $this->text($data, 'title', 'Онлайн-поддержка'),
             welcomeMessage: $this->text($data, 'welcomeMessage', 'Здравствуйте! Напишите нам, мы поможем.'),
-            offlineMessage: $this->text($data, 'offlineMessage', 'Мы сейчас не онлайн, но ответим позже.'),
-            contactInfo: $this->text($data, 'contactInfo'),
+            offlineMessage: $this->text($data, 'offlineMessage', 'Сейчас операторы не в сети - но вы можете оставить сообщение, мы свяжемся с вами.'),
             timezone: $this->text($data, 'timezone', 'Asia/Yekaterinburg'),
             workingHours: $this->workingHoursLabel($schedule['work'], $schedule['holidays']),
             workSchedule: $schedule['work'],
             holidaySchedule: $schedule['holidays'],
-            askName: (bool)($data['askName'] ?? false),
-            askEmail: (bool)($data['askEmail'] ?? false),
-            askPhone: (bool)($data['askPhone'] ?? false),
-            requireEmailOffline: (bool)($data['requireEmailOffline'] ?? false),
+            keepWidgetOpenWhenOnline: (bool)($data['keepWidgetOpenWhenOnline'] ?? false),
+            autoOpenSnoozeMinutes: max(0, min(1440, (int)($data['autoOpenSnoozeMinutes'] ?? 0))),
+            showBranding: $canDisableBranding ? (bool)($data['showBranding'] ?? false) : true,
+            askName: (bool)($data['askName'] ?? true),
+            askEmail: true,
+            askPhone: (bool)($data['askPhone'] ?? true),
             autoReply: $this->text($data, 'autoReply', 'Спасибо, мы получили сообщение.'),
             pollingIntervalSeconds: max(3, min(60, (int)($data['pollingIntervalSeconds'] ?? 5))),
             notifyEmail: (bool)($data['notifyEmail'] ?? false),
             notificationEmails: $this->text($data, 'notificationEmails'),
-            notifyTelegram: (bool)($data['notifyTelegram'] ?? false),
-            telegramBotToken: $this->text($data, 'telegramBotToken'),
-            telegramChatId: $this->text($data, 'telegramChatId'),
-            notifyMax: (bool)($data['notifyMax'] ?? false),
-            maxApiUrl: $this->text($data, 'maxApiUrl', 'https://platform-api.max.ru'),
-            maxBotToken: $this->text($data, 'maxBotToken'),
-            maxChatId: $this->text($data, 'maxChatId'),
+            notifyTelegram: false,
+            telegramBotToken: '',
+            telegramChatId: '',
+            notifyMax: false,
+            maxApiUrl: '',
+            maxBotToken: '',
+            maxChatId: '',
         ));
     }
 
@@ -198,3 +196,4 @@ final class ManageSupportSettingsUseCase
         ];
     }
 }
+

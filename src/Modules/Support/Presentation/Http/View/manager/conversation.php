@@ -9,6 +9,31 @@ use yii\helpers\Html;
  */
 
 $this->title = 'Диалог поддержки';
+
+$visitorLabel = static function (?array $conversation): string {
+    if ($conversation === null) {
+        return '';
+    }
+
+    $name = trim((string)($conversation['visitor_name'] ?? ''));
+    if ($name !== '') {
+        return $name;
+    }
+
+    $email = trim((string)($conversation['visitor_email'] ?? ''));
+    if ($email !== '') {
+        return $email;
+    }
+
+    $visitorId = trim((string)($conversation['visitor_id'] ?? ''));
+    if (str_starts_with($visitorId, 'email:')) {
+        return substr($visitorId, 6);
+    }
+
+    return $visitorId;
+};
+
+$isArchived = ($conversation['status'] ?? null) === 'closed';
 ?>
 
 <div class="uk-container uk-position-relative">
@@ -23,9 +48,22 @@ $this->title = 'Диалог поддержки';
     <?php if ($conversation !== null): ?>
         <div class="uk-alert-primary" uk-alert>
             <p>
-                Посетитель:
-                <?= Html::encode((string)($conversation['visitor_email'] ?: $conversation['visitor_id'])) ?>
+                Проект:
+                <strong><?= Html::encode(trim((string)($conversation['project_name'] ?? '')) ?: 'Основной сайт') ?></strong>
+                <?php if (trim((string)($conversation['project_domain'] ?? '')) !== ''): ?>
+                    <span class="uk-text-meta">· <?= Html::encode((string)$conversation['project_domain']) ?></span>
+                <?php endif; ?>
             </p>
+            <p>
+                Посетитель:
+                <strong style="display:inline-block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;"><?= Html::encode($visitorLabel($conversation)) ?></strong>
+            </p>
+            <?php if (trim((string)($conversation['visitor_email'] ?? '')) !== ''): ?>
+                <p>Email: <?= Html::encode((string)$conversation['visitor_email']) ?></p>
+            <?php endif; ?>
+            <?php if (trim((string)($conversation['visitor_phone'] ?? '')) !== ''): ?>
+                <p>Телефон: <?= Html::encode((string)$conversation['visitor_phone']) ?></p>
+            <?php endif; ?>
             <?php if ($conversation['page_url']): ?>
                 <p>
                     Страница:
@@ -34,6 +72,13 @@ $this->title = 'Диалог поддержки';
                     </a>
                 </p>
             <?php endif; ?>
+            <p>
+                Кнопка:
+                <strong><?= Html::encode(trim((string)($conversation['entry_point_title'] ?? '')) ?: '—') ?></strong>
+            </p>
+            <p class="uk-text-meta">
+                Приоритет: <?= Html::encode((string)($conversation['priority'] ?? 0)) ?>
+            </p>
         </div>
     <?php endif; ?>
 
@@ -59,18 +104,46 @@ $this->title = 'Диалог поддержки';
         <?php endif; ?>
     </div>
 
-    <?= Html::beginForm('/manager/support/reply', 'post', ['class' => 'uk-form-stacked']) ?>
-        <?= Html::hiddenInput('conversation_id', (string)$conversationId) ?>
-        <div class="uk-margin">
-            <?= Html::label('Ответ оператора', 'support-reply-body', ['class' => 'uk-form-label']) ?>
-            <?= Html::textarea('body', '', [
-                'id' => 'support-reply-body',
-                'class' => 'uk-textarea',
-                'rows' => 5,
-            ]) ?>
+    <?php if ($isArchived): ?>
+        <div class="uk-alert-primary" uk-alert>
+            <p>Диалог находится в архиве.</p>
         </div>
-        <?= Html::submitButton('Отправить', ['class' => 'uk-button uk-button-primary']) ?>
-    <?= Html::endForm() ?>
+    <?php endif; ?>
+
+    <div class="uk-margin uk-flex uk-flex-gap-small">
+        <?php if (!$isArchived): ?>
+            <?= Html::beginForm(['/manager/support/conversation-close'], 'post', ['style' => 'display:inline']) ?>
+                <?= Html::hiddenInput('id', (string)$conversationId) ?>
+                <?= Html::submitButton('В архив', [
+                    'class' => 'uk-button uk-button-default',
+                    'onclick' => "return confirm('Отправить диалог в архив?');",
+                ]) ?>
+            <?= Html::endForm() ?>
+        <?php endif; ?>
+
+        <?= Html::beginForm(['/manager/support/conversation-delete'], 'post', ['style' => 'display:inline']) ?>
+            <?= Html::hiddenInput('id', (string)$conversationId) ?>
+            <?= Html::submitButton('Удалить', [
+                'class' => 'uk-button uk-button-danger',
+                'onclick' => "return confirm('Удалить диалог и сообщения?');",
+            ]) ?>
+        <?= Html::endForm() ?>
+    </div>
+
+    <?php if (!$isArchived): ?>
+        <?= Html::beginForm('/manager/support/reply', 'post', ['class' => 'uk-form-stacked']) ?>
+            <?= Html::hiddenInput('conversation_id', (string)$conversationId) ?>
+            <div class="uk-margin">
+                <?= Html::label('Ответ оператора', 'support-reply-body', ['class' => 'uk-form-label']) ?>
+                <?= Html::textarea('body', '', [
+                    'id' => 'support-reply-body',
+                    'class' => 'uk-textarea',
+                    'rows' => 5,
+                ]) ?>
+            </div>
+            <?= Html::submitButton('Отправить', ['class' => 'uk-button uk-button-primary']) ?>
+        <?= Html::endForm() ?>
+    <?php endif; ?>
 </div>
 
 <?php

@@ -12,6 +12,8 @@ final class SupportPlanLimit
         public readonly bool $attachmentsEnabled,
         public readonly int $maxEntryPoints,
         public readonly int $maxEntryPointPriority,
+        public readonly int $maxOperatorRepliesPerDay = 30,
+        public readonly int $maxProjects = 1,
     ) {
     }
 
@@ -19,12 +21,29 @@ final class SupportPlanLimit
     {
         return new self(
             maxOperators: 1,
-            maxConversationsPerMonth: 100,
-            maxMessagesPerMonth: 1000,
+            maxConversationsPerMonth: 300,
+            maxMessagesPerMonth: 3000,
             historyDays: 30,
             attachmentsEnabled: false,
             maxEntryPoints: 1,
             maxEntryPointPriority: 5,
+            maxOperatorRepliesPerDay: 50,
+            maxProjects: 1,
+        );
+    }
+
+    public static function start(): self
+    {
+        return new self(
+            maxOperators: 3,
+            maxConversationsPerMonth: 3000,
+            maxMessagesPerMonth: 30000,
+            historyDays: 90,
+            attachmentsEnabled: false,
+            maxEntryPoints: 5,
+            maxEntryPointPriority: 5,
+            maxOperatorRepliesPerDay: 500,
+            maxProjects: 1,
         );
     }
 
@@ -32,18 +51,24 @@ final class SupportPlanLimit
     {
         return new self(
             maxOperators: 5,
-            maxConversationsPerMonth: 1000,
-            maxMessagesPerMonth: 10000,
-            historyDays: 90,
+            maxConversationsPerMonth: 10000,
+            maxMessagesPerMonth: 100000,
+            historyDays: 180,
             attachmentsEnabled: false,
             maxEntryPoints: 5,
             maxEntryPointPriority: 5,
+            maxOperatorRepliesPerDay: 1500,
+            maxProjects: 3,
         );
     }
 
     public static function forPlan(string $plan): self
     {
-        return SupportPlan::normalize($plan) === SupportPlan::PRO ? self::pro() : self::free();
+        return match (SupportPlan::normalize($plan)) {
+            SupportPlan::START => self::start(),
+            SupportPlan::PRO => self::pro(),
+            default => self::free(),
+        };
     }
 
     public function canStartConversation(int $usedConversations): bool
@@ -54,6 +79,11 @@ final class SupportPlanLimit
     public function canSendMessage(int $usedMessages): bool
     {
         return $usedMessages < $this->maxMessagesPerMonth;
+    }
+
+    public function canOperatorReply(int $usedReplies): bool
+    {
+        return $usedReplies < $this->maxOperatorRepliesPerDay;
     }
 
     public function canAddEntryPoint(int $usedEntryPoints): bool

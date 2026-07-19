@@ -2,18 +2,20 @@
 
 namespace app\Modules\Support\Application\UseCase;
 
-use app\Application\Client\Contract\ClientModuleAccessRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportConversationRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportMessageRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportRealtimePublisherInterface;
 use app\Modules\Support\Application\Contract\SupportReplyNotifierInterface;
+use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportUsageRepositoryInterface;
 use app\Modules\Support\Application\Dto\SupportConversationListResponse;
 use app\Modules\Support\Application\Dto\SupportConversationResponse;
 use app\Modules\Support\Application\Dto\SupportMessageListResponse;
-use app\Modules\Support\Application\Exception\SupportAccessDeniedException;
+use app\Modules\Support\Application\Exception\SupportLimitExceededException;
 use app\Modules\Support\Application\Exception\SupportConversationNotFoundException;
 use app\Modules\Support\Domain\SupportConversation;
-use app\Modules\Support\Domain\SupportModule;
+use app\Modules\Support\Domain\SupportMessage;
+use app\Modules\Support\Domain\SupportPlanLimit;
 
 final class OperatorSupportUseCase
 {
@@ -21,26 +23,71 @@ final class OperatorSupportUseCase
         private readonly SupportConversationRepositoryInterface $conversations,
         private readonly SupportMessageRepositoryInterface $messages,
         private readonly SupportReplyNotifierInterface $replyNotifier,
-        private readonly ClientModuleAccessRepositoryInterface $moduleAccess,
+        private readonly SupportUsageRepositoryInterface $usage,
+        private readonly SupportSettingsRepositoryInterface $settings,
         private readonly SupportRealtimePublisherInterface $realtimePublisher,
     ) {
     }
 
     public function listConversations(int $publicKey, ?string $status = SupportConversation::STATUS_OPEN): SupportConversationListResponse
     {
-        $this->assertModuleAvailable($publicKey);
-
         return new SupportConversationListResponse(
             $this->conversations->listForClient($publicKey, $status),
+            $this->operatorReplyLimit($publicKey),
+        );
+    }
+
+    /**
+     * @param int[] $publicKeys
+     */
+    public function listConversationsForPublicKeys(array $publicKeys, ?string $status = SupportConversation::STATUS_OPEN): SupportConversationListResponse
+    {
+        $publicKeys = array_values(array_unique(array_filter(array_map('intval', $publicKeys))));
+        if ($publicKeys === []) {
+            return new SupportConversationListResponse([]);
+        }
+
+        $conversations = [];
+        foreach ($publicKeys as $publicKey) {
+            array_push($conversations, ...$this->conversations->listForClient($publicKey, $status));
+        }
+
+        usort($conversations, static function (SupportConversation $left, SupportConversation $right): int {
+            if ($left->waitsForOperator() !== $right->waitsForOperator()) {
+                return $left->waitsForOperator() ? -1 : 1;
+            }
+
+            if ($left->priority !== $right->priority) {
+                return $right->priority <=> $left->priority;
+            }
+
+            return strcmp((string)$right->lastMessageAt, (string)$left->lastMessageAt);
+        });
+
+        return new SupportConversationListResponse(
+            $conversations,
+            $this->operatorReplyLimit($publicKeys[0]),
         );
     }
 
     public function listMessages(int $publicKey, int $conversationId): SupportMessageListResponse
     {
-        $this->assertConversationExists($publicKey, $conversationId);
+        $conversation = $this->assertConversationExists($publicKey, $conversationId);
 
         return new SupportMessageListResponse(
-            $this->messages->listForConversation($publicKey, $conversationId),
+            $this->messages->listForConversation($conversation->publicKey, $conversationId),
+        );
+    }
+
+    /**
+     * @param int[] $publicKeys
+     */
+    public function listMessagesForPublicKeys(array $publicKeys, int $conversationId): SupportMessageListResponse
+    {
+        $conversation = $this->assertConversationExistsInPublicKeys($publicKeys, $conversationId);
+
+        return new SupportMessageListResponse(
+            $this->messages->listForConversation($conversation->publicKey, $conversationId),
         );
     }
 
@@ -51,7 +98,17 @@ final class OperatorSupportUseCase
         );
     }
 
-    public function reply(int $publicKey, int $conversationId, int $operatorId, string $body): void
+    /**
+     * @param int[] $publicKeys
+     */
+    public function conversationForPublicKeys(array $publicKeys, int $conversationId): SupportConversationResponse
+    {
+        return new SupportConversationResponse(
+            $this->assertConversationExistsInPublicKeys($publicKeys, $conversationId),
+        );
+    }
+
+    public function reply(int $publicKey, int $conversationId, int $operatorId, string $body): SupportMessage
     {
         $body = trim($body);
         if ($body === '') {
@@ -59,15 +116,47 @@ final class OperatorSupportUseCase
         }
 
         $conversation = $this->assertConversationExists($publicKey, $conversationId);
-        $message = $this->messages->addOperatorMessage($publicKey, $conversationId, $operatorId, $body);
+        $today = new \DateTimeImmutable('today');
+        $month = new \DateTimeImmutable('first day of this month 00:00:00');
+        $limit = SupportPlanLimit::forPlan($this->settings->getForClient($conversation->publicKey)->plan);
+        if (!$limit->canOperatorReply($this->usage->dailyOperatorReplyCount($conversation->publicKey, $today))) {
+            throw new SupportLimitExceededException('Operator daily reply limit exceeded');
+        }
+
+        $message = $this->messages->addOperatorMessage($conversation->publicKey, $conversationId, $operatorId, $body);
+        $this->conversations->markOperatorReply($conversation->publicKey, $conversationId);
+        $this->usage->incrementOperatorReplies($conversation->publicKey, $today);
+        $this->usage->incrementMessages($conversation->publicKey, $month);
         $this->replyNotifier->notifyOperatorReply($conversation, $message);
         $this->realtimePublisher->publishMessage($conversation, $message);
+
+        return $message;
+    }
+
+    /**
+     * @param int[] $publicKeys
+     */
+    public function replyForPublicKeys(array $publicKeys, int $conversationId, int $operatorId, string $body): SupportMessage
+    {
+        $conversation = $this->assertConversationExistsInPublicKeys($publicKeys, $conversationId);
+
+        return $this->reply($conversation->publicKey, $conversationId, $operatorId, $body);
+    }
+
+    public function closeConversation(int $publicKey, int $conversationId): void
+    {
+        $this->assertConversationExists($publicKey, $conversationId);
+        $this->conversations->closeForClient($publicKey, $conversationId);
+    }
+
+    public function deleteConversation(int $publicKey, int $conversationId): void
+    {
+        $this->assertConversationExists($publicKey, $conversationId);
+        $this->conversations->deleteForClient($publicKey, $conversationId);
     }
 
     private function assertConversationExists(int $publicKey, int $conversationId): SupportConversation
     {
-        $this->assertModuleAvailable($publicKey);
-
         $conversation = $this->conversations->getForClient($publicKey, $conversationId);
         if ($conversation === null) {
             throw new SupportConversationNotFoundException('Conversation not found');
@@ -76,10 +165,33 @@ final class OperatorSupportUseCase
         return $conversation;
     }
 
-    private function assertModuleAvailable(int $publicKey): void
+    /**
+     * @param int[] $publicKeys
+     */
+    private function assertConversationExistsInPublicKeys(array $publicKeys, int $conversationId): SupportConversation
     {
-        if (!$this->moduleAccess->getForClient($publicKey)->allows(SupportModule::NAME)) {
-            throw new SupportAccessDeniedException('Support module is not available for this client');
+        foreach (array_values(array_unique(array_map('intval', $publicKeys))) as $publicKey) {
+            $conversation = $this->conversations->getForClient($publicKey, $conversationId);
+            if ($conversation !== null) {
+                return $conversation;
+            }
         }
+
+        throw new SupportConversationNotFoundException('Conversation not found');
+    }
+
+    private function operatorReplyLimit(int $publicKey): array
+    {
+        $today = new \DateTimeImmutable('today');
+        $limit = SupportPlanLimit::forPlan($this->settings->getForClient($publicKey)->plan);
+        $used = $this->usage->dailyOperatorReplyCount($publicKey, $today);
+        $remaining = max(0, $limit->maxOperatorRepliesPerDay - $used);
+
+        return [
+            'operator_replies_per_day' => $limit->maxOperatorRepliesPerDay,
+            'used_operator_replies_today' => $used,
+            'operator_replies_remaining_today' => $remaining,
+            'operator_reply_limit_exhausted' => $remaining <= 0,
+        ];
     }
 }

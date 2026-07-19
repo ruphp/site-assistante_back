@@ -12,28 +12,34 @@ final class SupportWidgetStateResponse
         public readonly SupportPlanLimit $limit,
         public readonly int $usedConversations,
         public readonly int $usedMessages,
+        public readonly int $usedOperatorRepliesToday = 0,
         public readonly array $entryPoints = [],
     ) {
     }
 
     public function toArray(): array
     {
+        $operatorRepliesRemaining = max(
+            0,
+            $this->limit->maxOperatorRepliesPerDay - $this->usedOperatorRepliesToday
+        );
+
         return [
             'enabled' => $this->settings->enabled,
             'plan' => $this->settings->plan,
             'title' => $this->settings->title,
             'welcome_message' => $this->settings->welcomeMessage,
             'offline_message' => $this->settings->offlineMessage,
-            'contact_info' => $this->settings->contactInfo,
             'timezone' => $this->settings->timezone,
             'working_hours' => $this->settings->workingHours,
             'work_schedule' => $this->settings->normalizedWorkSchedule(),
             'holiday_schedule' => $this->settings->holidaySchedule,
+            'keep_widget_open_when_online' => $this->settings->keepWidgetOpenWhenOnline,
+            'auto_open_snooze_minutes' => $this->settings->autoOpenSnoozeMinutes,
             'visitor_form' => [
                 'ask_name' => $this->settings->askName,
                 'ask_email' => $this->settings->askEmail,
-                'ask_phone' => $this->settings->askPhone,
-                'require_email_offline' => $this->settings->requireEmailOffline,
+                'ask_phone' => $this->settings->askPhone && $this->limit->canOperatorReply($this->usedOperatorRepliesToday),
             ],
             'auto_reply' => $this->settings->autoReply,
             'polling_interval_seconds' => $this->settings->pollingIntervalSeconds,
@@ -45,8 +51,12 @@ final class SupportWidgetStateResponse
                 'attachments_enabled' => $this->limit->attachmentsEnabled,
                 'entry_points' => $this->limit->maxEntryPoints,
                 'entry_point_priority' => $this->limit->entryPointRankLimit(),
+                'operator_replies_per_day' => $this->limit->maxOperatorRepliesPerDay,
                 'used_conversations' => $this->usedConversations,
                 'used_messages' => $this->usedMessages,
+                'used_operator_replies_today' => $this->usedOperatorRepliesToday,
+                'operator_replies_remaining_today' => $operatorRepliesRemaining,
+                'operator_reply_limit_exhausted' => $operatorRepliesRemaining <= 0,
             ],
             'entry_points' => array_map(
                 static fn($entryPoint): array => (new SupportEntryPointResponse($entryPoint))->toArray(),

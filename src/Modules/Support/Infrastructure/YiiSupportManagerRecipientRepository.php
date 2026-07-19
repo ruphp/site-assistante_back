@@ -5,16 +5,29 @@ namespace app\Modules\Support\Infrastructure;
 use app\Infrastructure\YiiActiveRecord\Users;
 use app\Modules\Support\Application\Contract\SupportManagerRecipientRepositoryInterface;
 use app\Modules\Support\Application\Dto\SupportManagerRecipient;
+use app\Modules\Support\Application\Service\SupportOperatorProjectAccessService;
+use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportProjectRecord;
 
 final class YiiSupportManagerRecipientRepository implements SupportManagerRecipientRepositoryInterface
 {
+    public function __construct(
+        private readonly SupportOperatorProjectAccessService $projectAccess,
+    ) {
+    }
+
     public function listForClient(int $publicKey): array
     {
+        $ownerPublicKey = (int)(SupportProjectRecord::find()
+            ->select('owner_public_key')
+            ->where(['public_key' => $publicKey, 'enabled' => 1])
+            ->scalar() ?: $publicKey);
+
         $rows = Users::find()
             ->select(['users.id', 'users.name', 'users.email'])
             ->innerJoin('auth_assignment', 'auth_assignment.user_id = users.id')
             ->where([
-                'users.public_key' => $publicKey,
+                'users.id' => $this->projectAccess->operatorIdsForProject($publicKey),
+                'users.public_key' => $ownerPublicKey,
                 'users.status' => 1,
                 'auth_assignment.item_name' => 'manager',
             ])

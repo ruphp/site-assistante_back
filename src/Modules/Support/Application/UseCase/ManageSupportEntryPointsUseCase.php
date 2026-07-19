@@ -2,11 +2,9 @@
 
 namespace app\Modules\Support\Application\UseCase;
 
-use app\Application\Client\Contract\ClientModuleAccessRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportEntryPointRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Domain\SupportEntryPoint;
-use app\Modules\Support\Domain\SupportModule;
 use app\Modules\Support\Domain\SupportPlanLimit;
 
 final class ManageSupportEntryPointsUseCase
@@ -14,7 +12,6 @@ final class ManageSupportEntryPointsUseCase
     public function __construct(
         private readonly SupportEntryPointRepositoryInterface $entryPoints,
         private readonly SupportSettingsRepositoryInterface $settings,
-        private readonly ClientModuleAccessRepositoryInterface $moduleAccess,
     ) {
     }
 
@@ -31,10 +28,6 @@ final class ManageSupportEntryPointsUseCase
 
     public function saveFromPost(int $publicKey, array $post): bool
     {
-        if (!$this->moduleAccess->getForClient($publicKey)->allows(SupportModule::NAME)) {
-            return false;
-        }
-
         $data = is_array($post['SupportEntryPoint'] ?? null) ? $post['SupportEntryPoint'] : [];
         $id = (int)($data['id'] ?? 0);
         $isNew = $id <= 0;
@@ -43,7 +36,7 @@ final class ManageSupportEntryPointsUseCase
         $entryPointCount = $this->entryPoints->countForClient($publicKey);
 
         if ($isNew && !$limit->canAddEntryPoint($entryPointCount)) {
-            throw new \DomainException('На Free-тарифе можно создать только одну кнопку обращения');
+            throw new \DomainException('На текущем тарифе достигнут лимит кнопок быстрых обращения');
         }
 
         $title = trim((string)($data['title'] ?? ''));
@@ -51,13 +44,15 @@ final class ManageSupportEntryPointsUseCase
             throw new \InvalidArgumentException('Укажите название кнопки');
         }
 
+        $description = trim((string)($data['description'] ?? ''));
         $rankLimit = min($limit->entryPointRankLimit(), max(1, $entryPointCount + ($isNew ? 1 : 0)));
 
         return $this->entryPoints->save(new SupportEntryPoint(
             id: $isNew ? null : $id,
             publicKey: $publicKey,
             title: mb_substr($title, 0, 255),
-            description: '',
+            description: mb_substr($description, 0, 2000),
+            responseType: SupportEntryPoint::normalizeResponseType((string)($data['responseType'] ?? SupportEntryPoint::RESPONSE_ANSWER)),
             priority: max(1, min($rankLimit, (int)($data['priority'] ?? 1))),
             enabled: (bool)($data['enabled'] ?? false),
             sortOrder: max(1, min($rankLimit, (int)($data['sortOrder'] ?? 1))),
@@ -66,10 +61,6 @@ final class ManageSupportEntryPointsUseCase
 
     public function delete(int $publicKey, int $id): bool
     {
-        if (!$this->moduleAccess->getForClient($publicKey)->allows(SupportModule::NAME)) {
-            return false;
-        }
-
         return $this->entryPoints->deleteForClient($publicKey, $id);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace app\Modules\Support\Application\UseCase;
 
-use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportEntryPointRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportUsageRepositoryInterface;
 use app\Modules\Support\Application\Dto\GetSupportWidgetStateRequest;
 use app\Modules\Support\Application\Dto\SupportWidgetStateResponse;
@@ -24,6 +24,7 @@ final class GetSupportWidgetStateUseCase implements GetSupportWidgetStateUseCase
         $this->accessGuard->assertAvailable($request->publicKey, $request->context);
         $settings = $this->settings->getForClient($request->publicKey);
         $limit = SupportPlanLimit::forPlan($settings->plan);
+        $today = new \DateTimeImmutable('today');
         $month = new \DateTimeImmutable('first day of this month 00:00:00');
 
         return new SupportWidgetStateResponse(
@@ -31,6 +32,7 @@ final class GetSupportWidgetStateUseCase implements GetSupportWidgetStateUseCase
             $limit,
             $this->usage->monthlyConversationCount($request->publicKey, $month),
             $this->usage->monthlyMessageCount($request->publicKey, $month),
+            $this->usage->dailyOperatorReplyCount($request->publicKey, $today),
             array_slice($this->entryPoints->listForClient($request->publicKey, true), 0, $limit->maxEntryPoints),
         );
     }

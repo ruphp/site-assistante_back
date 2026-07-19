@@ -17,21 +17,28 @@ use yii\helpers\Html;
  * @var $posts
  * @var $code
  * @var \app\Domain\Client\ClientModuleAccess $moduleAccess
+ * @var \app\Application\Panel\Dto\ClientProjectView[] $projects
+ * @var \app\Application\Panel\Dto\ClientProjectView $activeProject
  */
 
 $this->title = 'Настройки подключения ';
 ?>
 
 <div class="uk-container uk-position-relative">
+    <?= $this->render('_projectTabs', compact('projects', 'activeProject')) ?>
 
-
+    <p>
+        Public key проекта:
+        <code><?= Html::encode((string)$activeProject->publicKey) ?></code>
+    </p>
     <?php
     app\Presentation\Yii\Asset\AppAsset::register($this);
     $form = ActiveForm::begin(['options' => ['id' => 'testForm', 'class' => 'uk-form-stacked']]);
 
     echo $form->field($params, 'domain',
         ['options' => ['id' => 'testForm', 'class' => 'uk-margin']])
-        ->label('URL сайта/сайтов в формате<code>https://domain.ru,https://domain2.ru,https://domain3.ru</code>')->input('string', ['class' => 'uk-input uk-form-width-large']);
+        ->label('URL сайта в формате <code>https://domain.ru</code>. Один проект - один сайт.')
+        ->input('string', ['class' => 'uk-input uk-form-width-large']);
 
     //echo $form->field($params, 'run')->hiddenInput(['value' => 0])->label('');
 
@@ -53,69 +60,17 @@ $this->title = 'Настройки подключения ';
     echo Html::submitButton('Сохранить', ['class' => 'uk-button uk-button-primary']);
     ActiveForm::end();
     ?>
-    <h3>Инструкция по подключению</h3>
-    <p>Скопируйте этот код</p>
-    <div>
-        <pre class="uk-resize еее"><code><?php echo $code; ?></code></pre>
+
+
+    <div class="uk-card uk-card-default uk-card-body uk-margin-top">
+        <h3 class="uk-margin-remove-top">Код подключения</h3>
+        <p class="uk-text-muted uk-margin-small-bottom">
+            Скопируйте код ниже и разместите его на нужных страницах сайта перед закрывающим тегом
+            <code>&lt;/body&gt;</code> или <code>&lt;/head&gt;</code>.
+        </p>
+        <div>
+            <pre class="uk-resize еее"><code><?php echo $code; ?></code></pre>
+        </div>
     </div>
-    и разместите его на сайте, на нужных страницах перед закрывающим тегом
-    <code>&lsaquo;/body&rsaquo;</code> или <code>&lsaquo;/head&rsaquo;</code> .
-
-
-    <p>Как Назначить пользователя:</p>
-
-
-    <ul>
-        <li>для указания идентификатора пользователя задайте его идентификатор в параметре id (тип параметра integer - 1234
-            или BigInt - 6657365633458205532n
-
-            <pre class="uk-resize еее"><code>
-    ...
-    <code>id: 1234</code>,
-    role: [4],
-    name: 'Some Name',
-    email: 'somemail@gmail.com'
-    ...
-</code></pre>
-        </li>
-    </ul>
-
-    <p>
-        Как назначить роли пользователя: </p>
-
-    <ul>
-        <li>для одной роли задайте идентификатор роли в массиве (тип параметра array[integer] ):
-
-            <pre class="uk-resize еее"><code>
-    ...
-    id: 1234,
-    <code>role: [4]</code>,
-    name: 'Some Name',
-    email: 'somemail@gmail.com'
-    ...
-</code></pre>
-        </li>
-        <li>для нескольких ролей устанавливают идентификаторы ролей в массиве (тип параметра array[integer] ):
-
-            <pre class="uk-resize еее"><code>
-    ...
-    id: 1234,
-    <code>role: [4, 5, 6]</code>,
-    name: 'Some Name',
-    email: 'somemail@gmail.com'
-    ...
-</code></pre>
-        </li>
-    </ul>
-    <p>
-        Обновление виджета через команду js:</p>
-
-    <ul>
-        <li>Если на странице есть элементы, которые добавляются динамически.</br>
-            То в коде js, вы можете вызвать функцию виджета для его обновления и он увидит новые элементы
-            <pre class="uk-resize еее"><code><code>window.Smartius.api.update();</code></code></pre>
-        </li>
-    </ul>
-
 
 </div>

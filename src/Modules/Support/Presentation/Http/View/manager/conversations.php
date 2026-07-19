@@ -21,6 +21,25 @@ $waitingColors = [
     'red' => '#e03131',
     'none' => '#adb5bd',
 ];
+
+$visitorLabel = static function (array $conversation): string {
+    $name = trim((string)($conversation['visitor_name'] ?? ''));
+    if ($name !== '') {
+        return $name;
+    }
+
+    $email = trim((string)($conversation['visitor_email'] ?? ''));
+    if ($email !== '') {
+        return $email;
+    }
+
+    $visitorId = trim((string)($conversation['visitor_id'] ?? ''));
+    if (str_starts_with($visitorId, 'email:')) {
+        return substr($visitorId, 6);
+    }
+
+    return $visitorId;
+};
 ?>
 
 <div class="uk-container uk-position-relative">
@@ -37,7 +56,7 @@ $waitingColors = [
         <?= Html::a('Открытые', ['/manager/support/conversations', 'status' => 'open'], [
             'class' => $status === 'open' ? 'uk-button uk-button-primary' : 'uk-button uk-button-default',
         ]) ?>
-        <?= Html::a('Закрытые', ['/manager/support/conversations', 'status' => 'closed'], [
+        <?= Html::a('Архив', ['/manager/support/conversations', 'status' => 'closed'], [
             'class' => $status === 'closed' ? 'uk-button uk-button-primary' : 'uk-button uk-button-default',
         ]) ?>
     </div>
@@ -51,7 +70,9 @@ $waitingColors = [
             <thead>
             <tr>
                 <th>ID</th>
+                <th>Проект</th>
                 <th>Посетитель</th>
+                <th>Кнопка</th>
                 <th>Страница</th>
                 <th>Приоритет</th>
                 <th>Ожидание</th>
@@ -64,10 +85,29 @@ $waitingColors = [
                 <tr>
                     <td><?= Html::encode((string)$conversation['id']) ?></td>
                     <td>
-                        <?= Html::encode((string)($conversation['visitor_email'] ?: $conversation['visitor_id'])) ?>
-                        <?php if ($conversation['visitor_email']): ?>
-                            <div class="uk-text-meta"><?= Html::encode((string)$conversation['visitor_id']) ?></div>
+                        <div><?= Html::encode(trim((string)($conversation['project_name'] ?? '')) ?: 'Основной сайт') ?></div>
+                        <?php if (trim((string)($conversation['project_domain'] ?? '')) !== ''): ?>
+                            <div class="uk-text-meta"><?= Html::encode((string)$conversation['project_domain']) ?></div>
                         <?php endif; ?>
+                    </td>
+                    <td>
+                        <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <?= Html::encode($visitorLabel($conversation)) ?>
+                        </div>
+                        <?php if (trim((string)($conversation['visitor_phone'] ?? '')) !== ''): ?>
+                            <div class="uk-text-meta"><?= Html::encode((string)$conversation['visitor_phone']) ?></div>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?php $entryPointTitle = trim((string)($conversation['entry_point_title'] ?? '')); ?>
+                        <?php if ($entryPointTitle !== ''): ?>
+                            <div><?= Html::encode($entryPointTitle) ?></div>
+                        <?php else: ?>
+                            <span class="uk-text-muted">-</span>
+                        <?php endif; ?>
+                        <div class="uk-text-meta">
+                            <?= Html::encode('Приоритет ' . (string)($conversation['priority'] ?? 0)) ?>
+                        </div>
                     </td>
                     <td>
                         <?php if ($conversation['page_url']): ?>

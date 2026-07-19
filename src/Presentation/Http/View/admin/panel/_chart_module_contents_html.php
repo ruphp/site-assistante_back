@@ -16,14 +16,14 @@ foreach ($users as $user){
 
 
 $html = '<div class="uk-card uk-card-body uk-card-default stat_all">
-            <h3 class="uk-card-title">Количество созданного контента по модулям ИС ЦИПП ПК</h3>
+            <h3 class="uk-card-title">Количество созданного контента по модулям SiteWidget</h3>
             <p>Количество созданных основных элементов у модулей</p>        
             <div uk-grid class="uk-child-width-1-2">
                 <div class="uk-form-controls">';
 
 if(count($users_list )) {
     $html .='<div>';
-    $html .='<label class="control-label">Выбор системы</label>';
+    $html .='<label class="control-label">Выбор клиента</label>';
 
     $params = [
         'class'  => 'form-control uk-select',

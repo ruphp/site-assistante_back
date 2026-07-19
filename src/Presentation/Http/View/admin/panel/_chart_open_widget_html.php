@@ -7,7 +7,7 @@ $start_date = $chart_filters['start_date'] ?? date("d-m-Y", strtotime("-6 days")
 $end_date = $chart_filters['end_date'] ?? date("d-m-Y");
 
 $html = '<div class="uk-card uk-card-body uk-card-default stat_all">
-        <h3 class="uk-card-title">Количество пользователей, использующих ИС ЦИПП ПК</h3>
+        <h3 class="uk-card-title">Количество пользователей, открывших SiteWidget</h3>
         <p>Сколько раз пользователи обращались к главной кнопке или подсказкам</p>        
         
         

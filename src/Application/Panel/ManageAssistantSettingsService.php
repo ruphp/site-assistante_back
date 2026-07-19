@@ -128,7 +128,6 @@ final class ManageAssistantSettingsService
             email: null
         }
     };
-    window.Smartius = window.SiteWidget;
     var script = document.createElement('script');
     script.src = '$domainStatic/lib.js', document.head.appendChild(script);
 &lt;/script&gt;";
