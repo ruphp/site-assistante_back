@@ -10,6 +10,7 @@ use app\Modules\Support\Application\Dto\SupportUsageOwnerReport;
 use app\Modules\Support\Application\Dto\SupportUsageProjectReport;
 use app\Modules\Support\Domain\SupportPlan;
 use app\Modules\Support\Domain\SupportPlanLimit;
+use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportProjectRecord;
 
 final class SupportUsageReportService
 {
@@ -22,10 +23,11 @@ final class SupportUsageReportService
 
     public function clientReport(int $ownerPublicKey): SupportUsageOwnerReport
     {
-        $owner = Users::findOne(['public_key' => $ownerPublicKey]);
+        $owner = Users::findOne(['id' => $ownerPublicKey, 'public_key' => $ownerPublicKey]);
 
         return $this->ownerReport(
             $ownerPublicKey,
+            (int)($owner?->id ?? 0),
             $owner?->name ?? '',
             $owner?->email ?? '',
             $owner?->firm ?? '',
@@ -42,10 +44,17 @@ final class SupportUsageReportService
             if ($publicKey <= 0 || isset($seenPublicKeys[$publicKey])) {
                 continue;
             }
+            if ((int)($user['id'] ?? 0) !== $publicKey) {
+                continue;
+            }
+            if ($this->isChildProjectPublicKey($publicKey)) {
+                continue;
+            }
             $seenPublicKeys[$publicKey] = true;
 
             $reports[] = $this->ownerReport(
                 $publicKey,
+                (int)($user['id'] ?? 0),
                 (string)($user['name'] ?? ''),
                 (string)($user['email'] ?? ''),
                 (string)($user['firm'] ?? ''),
@@ -64,7 +73,13 @@ final class SupportUsageReportService
         }
     }
 
-    private function ownerReport(int $ownerPublicKey, string $ownerName, string $ownerEmail, string $firm): SupportUsageOwnerReport
+    private function ownerReport(
+        int $ownerPublicKey,
+        int $ownerUserId,
+        string $ownerName,
+        string $ownerEmail,
+        string $firm
+    ): SupportUsageOwnerReport
     {
         $today = new \DateTimeImmutable('today');
         $month = new \DateTimeImmutable('first day of this month 00:00:00');
@@ -78,9 +93,6 @@ final class SupportUsageReportService
         $projectReports = [];
 
         foreach ($this->projects->projectsForOwner($ownerPublicKey) as $project) {
-            $projectSettings = $this->settings->getForClient($project->publicKey);
-            $projectPlan = SupportPlan::normalize($projectSettings->plan);
-            $projectLimit = SupportPlanLimit::forPlan($projectPlan);
             $projectOperatorRepliesToday = $this->usage->dailyOperatorReplyCount($project->publicKey, $today);
             $projectConversationsMonth = $this->usage->monthlyConversationCount($project->publicKey, $month);
             $projectMessagesMonth = $this->usage->monthlyMessageCount($project->publicKey, $month);
@@ -94,19 +106,20 @@ final class SupportUsageReportService
                 projectName: $project->name,
                 domain: $project->domain,
                 publicKey: $project->publicKey,
-                plan: $projectPlan,
-                planLabel: SupportPlan::labels()[$projectPlan] ?? $projectPlan,
+                plan: $ownerPlan,
+                planLabel: SupportPlan::labels()[$ownerPlan] ?? $ownerPlan,
                 operatorRepliesToday: $projectOperatorRepliesToday,
-                operatorRepliesPerDayLimit: $projectLimit->maxOperatorRepliesPerDay,
+                operatorRepliesPerDayLimit: $ownerLimit->maxOperatorRepliesPerDay,
                 conversationsMonth: $projectConversationsMonth,
-                conversationsMonthLimit: $projectLimit->maxConversationsPerMonth,
+                conversationsMonthLimit: $ownerLimit->maxConversationsPerMonth,
                 messagesMonth: $projectMessagesMonth,
-                messagesMonthLimit: $projectLimit->maxMessagesPerMonth,
+                messagesMonthLimit: $ownerLimit->maxMessagesPerMonth,
             );
         }
 
         return new SupportUsageOwnerReport(
             ownerPublicKey: $ownerPublicKey,
+            ownerUserId: $ownerUserId,
             ownerName: $ownerName,
             ownerEmail: $ownerEmail,
             firm: $firm,
@@ -135,5 +148,13 @@ final class SupportUsageReportService
                 'auth_assignment.item_name' => 'manager',
             ])
             ->count();
+    }
+
+    private function isChildProjectPublicKey(int $publicKey): bool
+    {
+        return SupportProjectRecord::find()
+            ->where(['public_key' => $publicKey])
+            ->andWhere(['<>', 'owner_public_key', $publicKey])
+            ->exists();
     }
 }

@@ -212,6 +212,7 @@ final class InstructionsController extends ApiController
                 'is_course' => false,
                 'html' => '',
                 'sort_order' => (int)$category->sort_order,
+                'order' => (int)$category->sort_order,
                 'urls' => [],
             ];
         }
@@ -219,6 +220,20 @@ final class InstructionsController extends ApiController
         foreach ($articles as $article) {
             $result[] = $this->articlePayload($article, false);
         }
+
+        usort($result, static function (array $a, array $b): int {
+            $byParent = strcmp((string)($a['parent_id'] ?? ''), (string)($b['parent_id'] ?? ''));
+            if ($byParent !== 0) {
+                return $byParent;
+            }
+
+            $byOrder = (int)($a['sort_order'] ?? $a['order'] ?? 100) <=> (int)($b['sort_order'] ?? $b['order'] ?? 100);
+            if ($byOrder !== 0) {
+                return $byOrder;
+            }
+
+            return strcmp((string)($a['name'] ?? ''), (string)($b['name'] ?? ''));
+        });
 
         return $result;
     }
@@ -275,6 +290,7 @@ final class InstructionsController extends ApiController
             'is_course' => true,
             'html' => $withHtml ? $article->html : '',
             'sort_order' => (int)$article->sort_order,
+            'order' => (int)$article->sort_order,
             'views' => (int)$article->views,
             'like' => (int)$article->likes,
             'dislike' => (int)$article->dislikes,

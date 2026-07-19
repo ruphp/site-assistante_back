@@ -63,7 +63,7 @@ final class YiiSupportMessageRepository implements SupportMessageRepositoryInter
         if ((string)$record->sender_type === SupportMessage::SENDER_OPERATOR && $record->sender_id !== null) {
             $operator = Users::findOne((int)$record->sender_id);
             if ($operator instanceof Users) {
-                $senderName = trim((string)$operator->name) ?: 'Менеджер';
+                $senderName = trim((string)($operator->operator_display_name ?? '')) ?: 'Менеджер';
                 $avatarPath = trim((string)($operator->avatar_path ?? ''));
                 $senderAvatarUrl = $avatarPath === '' ? null : rtrim(Yii::$app->request->hostInfo, '/') . '/' . ltrim($avatarPath, '/');
             }

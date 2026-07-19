@@ -20,6 +20,7 @@ use yii\db\Exception;
  * @property string|null $telegram
  * @property string|null $max_contact
  * @property string|null $avatar_path
+ * @property string|null $operator_display_name
  */
 class Users extends ActiveRecord
 {
@@ -203,7 +204,7 @@ class Users extends ActiveRecord
         return [
             'public_key'         => 'Идентификатор',
             'firm'         => 'Наименование организации/сервиса',
-            'name'         => 'Название проекта',
+            'name'         => 'ФИО / имя владельца',
         ];
 
     }

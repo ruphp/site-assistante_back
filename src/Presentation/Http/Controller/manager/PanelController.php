@@ -70,6 +70,7 @@ class PanelController extends ManagerController
 
         return $this->render('profile', [
             'form' => $form,
+            'accountUser' => Yii::$app->user->identity,
             'avatarUrl' => $this->operators->profileAvatarUrl($userId),
             'telegramCode' => $this->telegramBot->createLinkCode($userId, $ownerPublicKey),
         ]);

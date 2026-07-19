@@ -15,8 +15,7 @@ final class ManagerOwnerContactForm extends Model
     public function rules(): array
     {
         return [
-            ['name', 'required'],
-            ['name', 'string', 'min' => 2, 'max' => 80],
+            ['name', 'string', 'max' => 80],
             [['phone', 'telegram', 'maxContact'], 'string', 'max' => 128],
             [['name', 'phone', 'telegram', 'maxContact'], 'trim'],
             ['avatar', 'file', 'extensions' => ['png', 'jpg', 'jpeg', 'webp'], 'maxSize' => 2 * 1024 * 1024, 'skipOnEmpty' => true],

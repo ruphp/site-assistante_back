@@ -73,7 +73,6 @@ $limitText = static function (int $used, int $limit): string {
                             <h4 class="uk-margin-remove"><?= Html::encode($project->projectName) ?></h4>
                             <div class="uk-text-meta"><?= Html::encode($project->domain) ?></div>
                         </div>
-                        <span class="uk-label"><?= Html::encode($project->planLabel) ?></span>
                     </div>
                     <dl class="uk-description-list uk-description-list-divider uk-margin-small-top">
                         <dt>Ответы сегодня</dt>

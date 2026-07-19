@@ -132,10 +132,10 @@ class PanelController extends AdminController
 
     public function actionClients(): string
     {
-        $users = $this->clientService->listClients();
-        $pages = new Pagination(['totalCount' => count($users), 'pageSize' => 10]);
+        $clients = $this->usageReport->adminReports();
+        $pages = new Pagination(['totalCount' => count($clients), 'pageSize' => 10]);
 
-        return $this->render('clients', compact('users', 'pages'));
+        return $this->render('clients', compact('clients', 'pages'));
     }
 
     public function actionLimits(): string

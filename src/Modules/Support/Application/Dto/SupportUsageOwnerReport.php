@@ -6,6 +6,7 @@ final class SupportUsageOwnerReport
 {
     public function __construct(
         public readonly int $ownerPublicKey,
+        public readonly int $ownerUserId,
         public readonly string $ownerName,
         public readonly string $ownerEmail,
         public readonly string $firm,

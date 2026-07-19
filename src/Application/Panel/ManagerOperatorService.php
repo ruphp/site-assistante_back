@@ -30,6 +30,7 @@ final class ManagerOperatorService
             ->select([
                 'users.id',
                 'users.name',
+                'users.operator_display_name',
                 'users.email',
                 'users.phone',
                 'users.telegram',
@@ -50,7 +51,7 @@ final class ManagerOperatorService
         return array_map(
             fn(array $row): ManagerOperatorView => new ManagerOperatorView(
                 id: (int)$row['id'],
-                name: (string)$row['name'],
+                name: trim((string)($row['operator_display_name'] ?? '')) ?: 'Менеджер',
                 email: (string)$row['email'],
                 phone: (string)($row['phone'] ?? ''),
                 telegram: (string)($row['telegram'] ?? ''),
@@ -86,7 +87,7 @@ final class ManagerOperatorService
         $form = new ManagerOwnerContactForm();
 
         if ($owner instanceof Users) {
-            $form->name = (string)$owner->name;
+            $form->name = (string)($owner->operator_display_name ?? '');
             $form->phone = (string)($owner->phone ?? '');
             $form->telegram = (string)($owner->telegram ?? '');
             $form->maxContact = (string)($owner->max_contact ?? '');
@@ -115,7 +116,7 @@ final class ManagerOperatorService
             return false;
         }
 
-        $owner->name = trim($form->name);
+        $owner->operator_display_name = trim($form->name);
         $owner->phone = trim($form->phone);
         $owner->telegram = trim($form->telegram);
         $owner->max_contact = trim($form->maxContact);
@@ -124,7 +125,7 @@ final class ManagerOperatorService
             $owner->avatar_path = $this->saveAvatar((int)$owner->id, $form->avatar->extension, $form->avatar->tempName);
         }
 
-        if ($owner->save(false, ['name', 'phone', 'telegram', 'max_contact', 'avatar_path'])) {
+        if ($owner->save(false, ['operator_display_name', 'phone', 'telegram', 'max_contact', 'avatar_path'])) {
             return true;
         }
 
@@ -152,6 +153,7 @@ final class ManagerOperatorService
         $password = Users::gen_password(10);
         $operator = new Users();
         $operator->name = trim($form->name);
+        $operator->operator_display_name = trim($form->name);
         $operator->email = mb_strtolower(trim($form->email));
         $operator->firm = $owner->firm;
         $operator->public_key = $ownerPublicKey;
