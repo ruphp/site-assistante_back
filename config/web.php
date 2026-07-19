@@ -402,6 +402,10 @@ $url_rules = [
         'route' => 'api/onboarding/onboarding-log',
     ],
     [
+        'pattern' => '/api/onboarding_reset',
+        'route' => 'api/onboarding/onboarding-reset',
+    ],
+    [
         'pattern' => '/api/onboarding/selector-complete',
         'route' => 'api/onboarding/selector-complete',
     ],
