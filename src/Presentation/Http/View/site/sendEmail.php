@@ -7,15 +7,19 @@ use ruwmapps\yii2_uikit3\ActiveForm;
 /* @var $model app\Presentation\Http\Form\UserSendEmailForm */
 /* @var $form ActiveForm */
 ?>
-<div class="main-sendEmail uk-container uk-position-relative">
+<div class="auth-page uk-container uk-container-xsmall">
+    <div class="uk-flex uk-flex-center">
+        <div class="uk-card uk-card-default uk-card-body auth-card">
+            <h2 class="auth-title">Восстановление доступа</h2>
 
-    <?php  $form = ActiveForm::begin(['options' => [ 'class' => 'uk-form-stacked']]);?>
+            <?php  $form = ActiveForm::begin(['options' => [ 'class' => 'uk-form-stacked']]);?>
 
-    <?= $form->field($model, 'email', ['options' => ['class' => 'uk-margin']])->input('string', ['class' => 'uk-input uk-form-width-large']); ?>
+            <?= $form->field($model, 'email', ['options' => ['class' => 'uk-margin']])->input('string', ['class' => 'uk-input uk-form-width-large']); ?>
 
-    <div class="form-group">
-        <?=Html::submitButton('Отправить', ['class' => 'uk-button uk-button-primary']) ?>
+            <div class="auth-actions">
+                <?=Html::submitButton('Отправить', ['class' => 'uk-button uk-button-primary auth-button']) ?>
+            </div>
+            <?php ActiveForm::end(); ?>
+        </div>
     </div>
-    <?php ActiveForm::end(); ?>
-
 </div><!-- main-sendEmail -->
