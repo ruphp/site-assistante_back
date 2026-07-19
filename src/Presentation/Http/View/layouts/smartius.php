@@ -7,11 +7,14 @@
 use app\Presentation\Yii\Asset\AppAsset;
 use app\Presentation\Yii\Asset\CodemirrorAsset;
 use app\Presentation\Yii\Widget\Alert;
+use app\Modules\Support\Domain\SupportPlan;
 use ruwmapps\yii2_uikit3\Nav;
 use ruwmapps\yii2_uikit3\NavBar;
 use ruwmapps\yii2_uikit3\Offcanvas;
 use ruwmapps\yii2_uikit3\UikitAsset;
 use yii\helpers\Html;
+use yii\helpers\Json;
+use yii\helpers\Url;
 
 UikitAsset::register($this);
 AppAsset::register($this);
@@ -20,6 +23,21 @@ CodemirrorAsset::register($this);
 $email_user = '';
 $name_user = '';
 $id_user = null;
+$isOwner = false;
+$route = Yii::$app->requestedRoute ?? '';
+$controllerRoute = Yii::$app->controller?->route ?? '';
+$requestPath = trim((string)(parse_url(Yii::$app->request->url, PHP_URL_PATH) ?? ''), '/');
+$requestRoutePath = trim((string)Yii::$app->request->pathInfo, '/');
+$isAuthPage = in_array($route, ['site/login', 'site/join', 'site/send-email', 'site/auth'], true);
+$isLandingPage = in_array($route, ['site/index', 'site/index/'], true)
+    || in_array($controllerRoute, ['site/index', 'site/index/'], true)
+    || $requestRoutePath === 'site/index'
+    || $requestPath === ''
+    || $requestPath === 'index.php';
+$isPublicModulePage = in_array($route, ['site/faq-instructions', 'site/onboarding', 'site/surveys'], true)
+    || in_array($controllerRoute, ['site/faq-instructions', 'site/onboarding', 'site/surveys'], true)
+    || in_array($requestRoutePath, ['faq-instructions', 'onboarding', 'surveys'], true)
+    || in_array($requestPath, ['faq-instructions', 'onboarding', 'surveys'], true);
 
 if (Yii::$app->user->isGuest) {
     $role = [1];
@@ -30,21 +48,139 @@ $role = Yii::$app->request->get()['roles'] ?? $role;
 $testchatbots = Yii::$app->request->get()['testchatbots'] ?? 0;
 $str_role = implode(",", $role);
 
-if (Yii::$app->user->isGuest) {
+if ($isLandingPage) {
     $menu = [
-            ['label' => 'Вход', 'url' => ['/login']],
+        [
+            'label' => 'Модули',
+            'url' => '/#modules',
+            'items' => [
+                ['label' => 'Онлайн-поддержка', 'url' => '/#support'],
+                ['label' => 'FAQ и инструкции', 'url' => ['/faq-instructions']],
+                ['label' => 'Онбординг', 'url' => ['/onboarding']],
+                ['label' => 'Опросы и анкеты', 'url' => ['/surveys']],
+            ],
+        ],
+        ['label' => 'Как работает', 'url' => '/#how'],
+        ['label' => 'Интеграции', 'url' => '/#integrations'],
+        ['label' => 'Приложение', 'url' => '/#android-app'],
     ];
+} elseif ($isPublicModulePage) {
+    $menu = [
+        ['label' => 'Главная', 'url' => ['/']],
+        [
+            'label' => 'Модули',
+            'url' => '/#modules',
+            'items' => [
+                ['label' => 'Онлайн-поддержка', 'url' => '/#support'],
+                ['label' => 'FAQ и инструкции', 'url' => ['/faq-instructions']],
+                ['label' => 'Онбординг', 'url' => ['/onboarding']],
+                ['label' => 'Опросы и анкеты', 'url' => ['/surveys']],
+            ],
+        ],
+        ['label' => 'Как работает', 'url' => '#how'],
+        ['label' => 'Для чего', 'url' => '#use-cases'],
+    ];
+} elseif (Yii::$app->user->isGuest) {
+    if ($isAuthPage) {
+        $menu = [
+            ['label' => 'Регистрация', 'url' => ['/join']],
+            ['label' => 'Главная', 'url' => ['/']],
+        ];
+    } else {
+        $menu = [
+            ['label' => 'Главная', 'url' => ['/']],
+        ];
+    }
 } else {
     $email_user = Yii::$app->user->identity->email;
     $name_user = Yii::$app->user->identity->name;
     $id_user = Yii::$app->user->identity->id;
-    $menu = [
-            ['label' => 'Выход', 'url' => ['/logout']],
+    $supportPlan = SupportPlan::normalize((string)(Yii::$app->user->identity->support_plan ?? SupportPlan::FREE));
+    $isOwner = (int)$id_user === (int)Yii::$app->user->identity->getPublicKey();
+    $assignments = Yii::$app->authManager === null ? [] : Yii::$app->authManager->getAssignments(Yii::$app->user->id);
+    $isAdmin = isset($assignments['admin']);
+    $menu = $isAdmin ? [
+        ['label' => 'Клиенты', 'url' => ['/admin/clients']],
+    ] : [
+        ['label' => 'Мои проекты', 'url' => ['/manager']],
+        [
+            'label' => 'Онлайн-поддержка',
+            'url' => ['/manager/support/conversations'],
+            'items' => array_values(array_filter([
+                ['label' => 'Диалоги', 'url' => ['/manager/support/conversations']],
+                ['label' => 'Кнопки быстрых обращений', 'url' => ['/manager/support/entry-points']],
+                $isOwner ? ['label' => 'Менеджеры', 'url' => ['/manager/operators']] : null,
+                ['label' => 'Настройки', 'url' => ['/manager/support']],
+            ])),
+        ],
+        [
+            'label' => 'Инструкции',
+            'url' => ['/manager/instructions'],
+            'items' => [
+                ['label' => 'Все инструкции', 'url' => ['/manager/instructions']],
+                ['label' => 'Разделы', 'url' => ['/manager/instructions/sections']],
+                ['label' => 'Создать инструкцию', 'url' => ['/manager/instructions/create']],
+            ],
+        ],
+        [
+            'label' => 'Онбординг',
+            'url' => ['/manager/onboarding'],
+            'items' => [
+                ['label' => 'Сценарии', 'url' => ['/manager/onboarding']],
+                ['label' => 'Подсказки', 'url' => ['/manager/onboarding/hints']],
+                ['label' => 'Создать сценарий', 'url' => ['/manager/onboarding/create']],
+            ],
+        ],
     ];
+    $menu = array_values(array_filter($menu));
 }
 
 $id_user = Yii::$app->request->get()['id_user'] ?? $id_user;
 $request = Yii::$app->request;
+$siteBaseUrl = 'https://sitewidget.ru';
+$isPublicSeoPage = $isLandingPage || $isPublicModulePage || in_array($requestPath, ['cms-plugins'], true);
+$seoDescription = $this->params['seoDescription'] ?? null;
+$seoCanonical = $this->params['seoCanonical'] ?? ($isLandingPage ? '/' : ('/' . $requestPath));
+$seoCanonicalUrl = strpos((string)$seoCanonical, 'http') === 0
+    ? (string)$seoCanonical
+    : $siteBaseUrl . '/' . ltrim((string)$seoCanonical, '/');
+$seoImageUrl = $siteBaseUrl . ($this->params['seoImage'] ?? '/img/sitewidget-logo.svg');
+$seoRobots = $this->params['seoRobots'] ?? ($isPublicSeoPage ? 'index,follow' : 'noindex,nofollow');
+$seoSchemas = $this->params['seoSchemas'] ?? [];
+
+if ($isPublicSeoPage) {
+    $seoSchemas[] = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Organization',
+        'name' => 'SiteWidget',
+        'url' => $siteBaseUrl,
+        'logo' => $siteBaseUrl . '/img/sitewidget-logo.svg',
+        'email' => 'sitewidget@ya.ru',
+    ];
+    $seoSchemas[] = [
+        '@context' => 'https://schema.org',
+        '@type' => 'WebSite',
+        'name' => 'SiteWidget',
+        'url' => $siteBaseUrl,
+    ];
+}
+
+if (!empty($this->params['seoBreadcrumbs']) && is_array($this->params['seoBreadcrumbs'])) {
+    $seoSchemas[] = [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => array_map(
+            static fn(array $item, int $index): array => [
+                '@type' => 'ListItem',
+                'position' => $index + 1,
+                'name' => (string)($item['name'] ?? ''),
+                'item' => $siteBaseUrl . '/' . ltrim((string)($item['url'] ?? '/'), '/'),
+            ],
+            $this->params['seoBreadcrumbs'],
+            array_keys($this->params['seoBreadcrumbs'])
+        ),
+    ];
+}
 
 $this->beginPage();
 
@@ -58,7 +194,26 @@ $this->beginPage();
         <?= Html::csrfMetaTags() ?>
         <?php $this->registerCsrfMetaTags() ?>
         <title><?= Html::encode($this->title) ?></title>
+        <link rel="canonical" href="<?= Html::encode($seoCanonicalUrl) ?>">
+        <meta name="robots" content="<?= Html::encode($seoRobots) ?>">
+        <meta property="og:locale" content="ru_RU">
+        <meta property="og:site_name" content="SiteWidget">
+        <meta property="og:type" content="<?= Html::encode($this->params['seoOgType'] ?? 'website') ?>">
+        <meta property="og:title" content="<?= Html::encode($this->title) ?>">
+        <?php if ($seoDescription !== null): ?>
+            <meta property="og:description" content="<?= Html::encode($seoDescription) ?>">
+            <meta name="twitter:description" content="<?= Html::encode($seoDescription) ?>">
+        <?php endif; ?>
+        <meta property="og:url" content="<?= Html::encode($seoCanonicalUrl) ?>">
+        <meta property="og:image" content="<?= Html::encode($seoImageUrl) ?>">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="<?= Html::encode($this->title) ?>">
+        <meta name="twitter:image" content="<?= Html::encode($seoImageUrl) ?>">
+        <?php foreach ($seoSchemas as $schema): ?>
+            <script type="application/ld+json"><?= Json::htmlEncode($schema) ?></script>
+        <?php endforeach; ?>
         <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" media="(prefers-color-scheme: dark)">
         <?php $this->head() ?>
         <meta name="yandex-verification" content="7c5f49e6578a5ddc" />
     </head>
@@ -71,46 +226,7 @@ $this->beginPage();
             <div class="sw-header__inner">
                 <a href="/" class="sw-header__brand" aria-label="SiteWidget">
                     <span class="sw-header__mark" aria-hidden="true">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="330 84 126 124" fill="none" class="sw-logo" width="69" height="69">
-        <!-- Группа 1: верхняя дуга -->
-        <g transform="matrix(1, 0, 0, 1, -1, 0)" class="sw-logo__piece">
-            <path d="M399.571 117.961C399.571 102.031 410.412 91.412 423.907 91.412C437.403 91.412 448.244 102.031 448.244 117.961"
-                  fill="none" stroke="#2B245C" stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M399.571 117.961C399.571 114.2 402.447 111.324 406.208 111.324H409.527C411.297 111.324 412.845 112.872 412.845 114.642V127.916C412.845 129.686 411.297 131.235 409.527 131.235H406.208C402.447 131.235 399.571 128.359 399.571 124.598V117.961Z"
-                  fill="none" stroke="#2B245C" stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M448.244 117.961C448.244 114.2 445.367 111.324 441.606 111.324H438.288C436.518 111.324 434.969 112.872 434.969 114.642V127.916C434.969 129.686 436.518 131.235 438.288 131.235H441.606C445.367 131.235 448.244 128.359 448.244 124.598V117.961Z"
-                  fill="none" stroke="#2B245C" stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M434.969 133.447C432.314 136.324 428.553 137.872 423.907 137.872" fill="none" stroke="#2B245C"
-                  stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="423.907" cy="137.872" r="3.54" fill="#2B245C"/>
-        </g>
-        <!-- Группа 2: два столбца с полосками -->
-        <g transform="matrix(1, 0, 0, 1, 1, -0.102999)" class="sw-logo__piece">
-            <path d="M339.131 96.723C339.131 93.807 341.423 91.515 344.339 91.515H359.964C362.256 91.515 364.131 93.39 364.131 95.682V139.432C364.131 137.14 362.256 135.265 359.964 135.265H344.339C341.423 135.265 339.131 132.973 339.131 130.057V96.723Z"
-                  fill="none" stroke="#2B245C" stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M389.131 96.723C389.131 93.807 386.839 91.515 383.923 91.515H368.298C366.006 91.515 364.131 93.39 364.131 95.682V139.432C364.131 137.14 366.006 135.265 368.298 135.265H383.923C386.839 135.265 389.131 132.973 389.131 130.057V96.723Z"
-                  fill="none" stroke="#2B245C" stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M347.464 104.015H356.839" fill="none" stroke="#2B245C" stroke-width="4.8" stroke-linecap="round"
-                  stroke-linejoin="round"/>
-            <path d="M347.464 112.348H356.839" fill="none" stroke="#2B245C" stroke-width="4.8" stroke-linecap="round"
-                  stroke-linejoin="round"/>
-            <path d="M347.464 120.682H354.756" fill="none" stroke="#2B245C" stroke-width="4.8" stroke-linecap="round"
-                  stroke-linejoin="round"/>
-            <path d="M371.423 104.015H380.798" fill="none" stroke="#2B245C" stroke-width="4.8" stroke-linecap="round"
-                  stroke-linejoin="round"/>
-            <path d="M371.423 112.348H380.798" fill="none" stroke="#2B245C" stroke-width="4.8" stroke-linecap="round"
-                  stroke-linejoin="round"/>
-            <path d="M371.423 120.682H378.714" fill="none" stroke="#2B245C" stroke-width="4.8" stroke-linecap="round"
-                  stroke-linejoin="round"/>
-        </g>
-        <!-- Группа 3: чекбокс -->
-        <g transform="matrix(1, 0, 0, 1, 0.987662, -0.81)" class="sw-logo__piece">
-            <path d="M381.822 175.107L381.564 198.81H339.279V156.524L373.804 156.267" fill="none" stroke="#2B245C"
-                  stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M348.676 174.002L359.952 185.278L389.279 154.662" fill="none" stroke="#2B245C" stroke-width="4.8"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-        </g>
-        <!-- Группа 4: пазл -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="399 142 52 60" fill="none" class="sw-logo" width="46" height="46">
         <g class="sw-logo__puzzle">
             <path d="M447.035 164.164C447.035 162.375 445.933 161.663 444.609 161.268C444.609 161.268 435.667 162.153 432.486 162.523C429.977 162.814 428.662 160.898 430.634 157.752C431.953 155.649 432.486 154.869 432.486 153.063C432.486 149.144 429.23 145.968 425.213 145.968C421.195 145.968 417.941 149.144 417.941 153.063C417.941 154.842 418.555 156.059 419.758 157.757C422.031 160.972 420.667 162.708 417.941 162.523C414.954 162.321 405.816 161.268 405.816 161.268C404.224 161.008 403.581 162.338 403.392 164.09C403.392 164.09 402.899 166.117 402.127 176.368C402.066 176.604 402.122 176.867 402.141 176.973C402.559 179.118 404.78 177.787 407.072 176.16C408.547 175.113 410.097 174.35 411.921 174.35C415.938 174.35 419.195 177.524 419.195 181.444C419.195 185.364 415.938 188.539 411.921 188.539C409.988 188.539 408.651 187.938 406.944 186.594C405.233 185.249 402.899 183.772 402.217 185.435C402.095 185.73 402.064 186.323 402.126 186.703C402.835 194.083 403.116 194.434 403.389 195.634C403.667 196.836 404.477 198 405.815 198H443.699C445.859 198 447.035 196.707 447.035 194.749C447.035 193.715 447.035 165.951 447.035 164.164Z"
                   fill="#7C3AED" stroke="#2B245C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -123,19 +239,37 @@ $this->beginPage();
 </span>
                 </a>
                 <nav class="sw-header__nav" aria-label="Основная навигация">
-                    <?php if (Yii::$app->user->isGuest): ?>
-                        <a href="/#modules">Модули</a>
-                        <a href="/#how">Как работает</a>
-                        <a href="/#integrations">Интеграции</a>
-                    <?php else: ?>
-                        <a href="/manager">Панель управления</a>
-                    <?php endif; ?>
+                    <?php foreach ($menu as $item): ?>
+                        <?php if (isset($item['items'])): ?>
+                            <div class="uk-inline">
+                                <a class="sw-header__nav-group" href="<?= Html::encode(Url::to($item['url'])) ?>"><?= Html::encode($item['label']) ?></a>
+                                <div uk-dropdown="mode: hover; pos: bottom-left; offset: 10" class="sw-header__nav-dropdown">
+                                    <?php foreach ($item['items'] as $child): ?>
+                                        <a href="<?= Html::encode(Url::to($child['url'])) ?>"><?= Html::encode($child['label']) ?></a>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <a href="<?= Html::encode(Url::to($item['url'])) ?>"><?= Html::encode($item['label']) ?></a>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
                 </nav>
                 <div class="sw-header__actions">
-                    <?php if (Yii::$app->user->isGuest): ?>
+                    <?php if ($isLandingPage): ?>
+                        <?php if (!Yii::$app->user->isGuest): ?>
+                            <?php
+                            $landingAssignments = Yii::$app->authManager === null ? [] : Yii::$app->authManager->getAssignments(Yii::$app->user->id);
+                            $landingCabinetUrl = isset($landingAssignments['admin']) ? ['/admin/clients'] : ['/manager'];
+                            ?>
+                            <a class="sw-header__login" href="<?= Html::encode(Url::to($landingCabinetUrl)) ?>">Личный кабинет</a>
+                        <?php else: ?>
+                            <a class="sw-header__login" href="/login">Войти</a>
+                        <?php endif; ?>
+                    <?php elseif (Yii::$app->user->isGuest): ?>
                         <a class="sw-header__login" href="/login">Войти</a>
                     <?php else: ?>
-                        <span class="sw-header__user"><?= Html::encode($name_user) ?></span>
+                        <?php $profileUrl = ($isAdmin ?? false) ? '/admin/clients' : '/manager/profile'; ?>
+                        <a class="sw-header__user" href="<?= Html::encode($profileUrl) ?>"><?= Html::encode($name_user) ?></a>
                         <a class="sw-header__logout" href="/logout">Выход</a>
                     <?php endif; ?>
                     <button class="sw-header__burger" type="button" uk-toggle="target: #offcanvas"
@@ -153,18 +287,13 @@ $this->beginPage();
         <section class="osn uk-section uk-section-default uk-margin-remove uk-padding-remove"
                  uk-height-viewport="expand:true">
             <div class="uk-container uk-container-medium">
-                <div class="uk-grid-divider uk-child-width-expand@s" uk-grid>
-                    <?php if (isset($this->blocks['block_left_menu'])): ?>
-                        <?= $this->blocks['block_left_menu'] ?>
-                    <?php endif; ?>
-                    <div class="uk-width-5-6@s">
-                        <?= $content ?>
-                    </div>
+                <div class="uk-width-1-1">
+                    <?= $content ?>
                 </div>
             </div>
         </section>
         <?php if (empty($this->params['hideLayoutFooter'])): ?>
-            <footer class="sw-footer uk-margin-top"">
+            <footer class="sw-footer uk-margin-top">
                 <div class="sw-footer__inner">
                     <div class="sw-footer__col">
                         <span class="sw-footer__brand">SiteWidget</span>
@@ -206,9 +335,26 @@ $this->beginPage();
         </div>
     </div>
 
-    <?= Offcanvas::widget([
-            'items' => $menu,
-    ]) ?>
+    <div id="offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+            <ul class="uk-nav uk-nav-default">
+                <?php foreach ($menu as $item): ?>
+                    <li>
+                        <a href="<?= Html::encode(Url::to($item['url'])) ?>"><?= Html::encode($item['label']) ?></a>
+                        <?php if (!empty($item['items'])): ?>
+                            <ul class="uk-nav-sub">
+                                <?php foreach ($item['items'] as $child): ?>
+                                    <li>
+                                        <a href="<?= Html::encode(Url::to($child['url'])) ?>"><?= Html::encode($child['label']) ?></a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    </div>
 
     <?php $this->endBody() ?>
 
@@ -227,11 +373,10 @@ $this->beginPage();
                     id: null,
                     <?php endif; ?>
                     role: [<?= $str_role ?>],
-                    name: null,
-                    email: null
+                    name: <?= Json::htmlEncode($name_user ?: null) ?>,
+                    email: <?= Json::htmlEncode($email_user ?: null) ?>
                 }
             };
-            window.Smartius = window.SiteWidget;
 
             var script = document.createElement('script');
             script.src = '<?= $_ENV['DOMAINSTATICWIDGET'] . '/lib.js' ?>', document.head.appendChild(script);
