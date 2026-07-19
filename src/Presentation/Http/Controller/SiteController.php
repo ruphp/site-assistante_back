@@ -2,6 +2,7 @@
 
 namespace app\Presentation\Http\Controller;
 
+use app\Application\Panel\ClientProjectService;
 use app\Application\User\Contract\UserAccountServiceInterface;
 use app\Infrastructure\Security\YandexSmartCaptchaVerifier;
 use app\Infrastructure\User\UserIdentity;
@@ -19,6 +20,7 @@ class SiteController extends SmartiusController
         $id,
         $module,
         private readonly UserAccountServiceInterface $userAccountService,
+        private readonly ClientProjectService $projects,
         $config = []
     ) {
         parent::__construct($id, $module, $config);
@@ -37,6 +39,40 @@ class SiteController extends SmartiusController
                 'defaultClientId' => ($_ENV['TYPE_AUTH'] ?? '') === 'RSAA' ? 'rsaa' : null,
             ],
         ];
+    }
+
+    public function actionYandexMobileCallback(): string
+    {
+        $code = (string)Yii::$app->request->get('code', '');
+        $state = (string)Yii::$app->request->get('state', '');
+
+        $query = http_build_query(array_filter([
+            'code' => $code !== '' ? $code : null,
+            'state' => $state !== '' ? $state : null,
+        ], static fn($value) => $value !== null && $value !== ''));
+        $target = 'sitewidget://oauth' . ($query !== '' ? ('?' . $query) : '');
+        $escaped = htmlspecialchars($target, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+        return <<<HTML
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SiteWidget</title>
+  <script>
+    window.location.replace("{$escaped}");
+    setTimeout(function () {
+      window.location.href = "{$escaped}";
+    }, 250);
+  </script>
+</head>
+<body>
+  <p>Возврат в приложение...</p>
+  <p><a href="{$escaped}">Открыть SiteWidget</a></p>
+</body>
+</html>
+HTML;
     }
 
 
@@ -105,7 +141,7 @@ class SiteController extends SmartiusController
             Yii::$app->user->login($userIdentity);
         }
 
-        return $this->redirect('/');
+        return $this->redirect($this->cabinetUrlForUser((int)$userRecord->id));
     }
 
     private function extractOAuthEmail(array $attributes): ?string
@@ -136,25 +172,43 @@ class SiteController extends SmartiusController
         return $this->render('index');
     }
 
+    public function actionInstructions(): Response|string
+    {
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect('/login');
+        }
+
+        return $this->redirect('/manager/instructions');
+    }
+
+    public function actionCmsPlugins(): string
+    {
+        return $this->render('cms-plugins');
+    }
+
+    public function actionFaqInstructions(): string
+    {
+        return $this->render('faq-instructions');
+    }
+
+    public function actionOnboarding(): string
+    {
+        return $this->render('onboarding');
+    }
+
+    public function actionSurveys(): string
+    {
+        return $this->render('surveys');
+    }
+
     public function actionLogin(): Response|string
     {
         if (Yii::$app->request->isPost)
             return $this->actionLoginPost();
         $userLoginForm = new UserLoginForm();
 
-        // Разлогиниваем, если пользователь уже вошёл
         if (!Yii::$app->user->isGuest) {
-            Yii::$app->user->logout();
-        }
-
-        if (!Yii::$app->user->isGuest) {
-            if (!is_null(Yii::$app->authManager->getAssignments(Yii::$app->user->id)['admin'] ?? null)) {
-                return $this->redirect('/admin');
-            }
-            elseif (!is_null(Yii::$app->authManager->getAssignments(Yii::$app->user->id)['manager'] ?? null)) {
-                return $this->redirect('/manager');
-            }
-            Yii::$app->user->logout();
+            return $this->redirect($this->cabinetUrlForUser((int)Yii::$app->user->id));
         }
 /*        if ($_ENV['TYPE_DEPLOYED'] == 'MIRS') {
             $urlencode = urlencode($_ENV['RSAA_REDIRECT_URI']);
@@ -350,6 +404,11 @@ class SiteController extends SmartiusController
             $userRecord->public_key = $userRecord->id;
             $userRecord->save();
         }
+
+        $this->projects->ensureOwnerProject(
+            (int)$userRecord->public_key,
+            (string)$userRecord->firm,
+        );
     }
 
     public function actionLogout(): Response
@@ -371,9 +430,19 @@ class SiteController extends SmartiusController
         if ($userLoginForm->load(Yii::$app->request->post()) && $userLoginForm->validate()) {
             $userLoginForm->login();
             Yii::$app->session->setFlash('success', 'Успешно', false);
-            return $this->redirect('/');
+            return $this->redirect($this->cabinetUrlForUser((int)Yii::$app->user->id));
         }
         return $this->render('login', compact('userLoginForm'));
+    }
+
+    private function cabinetUrlForUser(int $userId): string
+    {
+        $auth = Yii::$app->authManager;
+        if ($auth !== null && $auth->getAssignment('admin', $userId) !== null) {
+            return '/admin/clients';
+        }
+
+        return '/manager';
     }
 
 }

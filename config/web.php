@@ -186,6 +186,10 @@ $url_rules = [
         'route' => 'manager/panel/operator-owner-contacts',
     ],
     [
+        'pattern' => '/manager/operator/projects',
+        'route' => 'manager/panel/operator-projects',
+    ],
+    [
         'pattern' => '/manager/operator/reset-password',
         'route' => 'manager/panel/operator-reset-password',
     ],
