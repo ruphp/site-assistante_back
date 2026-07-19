@@ -184,6 +184,34 @@ $url_rules=[
             'route'   => 'api/support/messages',
         ],
         [
+            'pattern' => '/api/instructions',
+            'route'   => 'api/instructions/instructions',
+        ],
+        [
+            'pattern' => '/api/instruction',
+            'route'   => 'api/instructions/instruction',
+        ],
+        [
+            'pattern' => '/api/instructions/search',
+            'route'   => 'api/instructions/search',
+        ],
+        [
+            'pattern' => '/api/instructions/linktag',
+            'route'   => 'api/instructions/linktag',
+        ],
+        [
+            'pattern' => '/api/instruction_favorites',
+            'route'   => 'api/instructions/favorites',
+        ],
+        [
+            'pattern' => '/api/instruction_estimate',
+            'route'   => 'api/instructions/instruction-estimate',
+        ],
+        [
+            'pattern' => '/api/log_instruction_interest',
+            'route'   => 'api/instructions/log-interest',
+        ],
+        [
             'pattern' => '/api/report/usage',
             'route'   => 'api/report/usage',
         ],

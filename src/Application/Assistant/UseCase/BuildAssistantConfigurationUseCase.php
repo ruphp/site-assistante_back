@@ -8,6 +8,7 @@ use app\Application\Assistant\Contract\AssistantContextRepositoryInterface;
 use app\Application\Assistant\Dto\BuildAssistantConfigurationRequest;
 use app\Application\Assistant\Dto\AssistantConfigurationResponse;
 use app\Application\Client\Contract\ClientModuleAccessRepositoryInterface;
+use Yii;
 
 final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigurationUseCaseInterface
 {
@@ -34,6 +35,7 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
         $this->accessGuard->assertAllowed($context, $request->requestContext);
         $client = $context->client;
         $modules = $this->allowedEnabledModules($client->publicKey, $client->enabledModules());
+        $modules = $this->withContentModules($modules, $request);
 
         $response = new AssistantConfigurationResponse(
             error: [],
@@ -60,5 +62,73 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
     private function allowedEnabledModules(int $publicKey, array $enabledModules): array
     {
         return $this->moduleAccessRepository->getForClient($publicKey)->filterAllowed($enabledModules);
+    }
+
+    private function withContentModules(array $modules, BuildAssistantConfigurationRequest $request): array
+    {
+        if ($this->hasInstructionsForPage($request)) {
+            $modules[] = 'instructions';
+        }
+
+        if ($this->hasOnboardingForPage($request)) {
+            $modules[] = 'onboarding';
+        }
+
+        return array_values(array_unique($modules));
+    }
+
+    private function hasInstructionsForPage(BuildAssistantConfigurationRequest $request): bool
+    {
+        if (!$this->tableExists('sw_instruction_articles')) {
+            return false;
+        }
+
+        $rows = Yii::$app->db->createCommand(
+            'SELECT a.id
+               FROM sw_instruction_articles a
+              WHERE a.public_key = :public_key
+                AND a.is_active = TRUE
+                AND COALESCE(a.admin_blocked, FALSE) = FALSE
+              LIMIT 1',
+            [':public_key' => $request->publicKey],
+        )->queryColumn();
+
+        return $rows !== [];
+    }
+
+    private function hasOnboardingForPage(BuildAssistantConfigurationRequest $request): bool
+    {
+        if (!$this->tableExists('sw_onboardings') || !$this->tableExists('sw_onboarding_sections')) {
+            return false;
+        }
+
+        $pathname = rtrim($request->requestContext?->pathname ?? '/', '/') ?: '/';
+        $pageWithQuery = $pathname . ($request->requestContext?->getparams ?? '');
+
+        $rows = Yii::$app->db->createCommand(
+            'SELECT s.url, s.include_children, s.include_query
+               FROM sw_onboardings o
+               JOIN sw_onboarding_sections s ON s.onboarding_id = o.id
+              WHERE o.public_key = :public_key
+                AND o.is_active = TRUE
+                AND s.is_active = TRUE',
+            [':public_key' => $request->publicKey],
+        )->queryAll();
+
+        foreach ($rows as $row) {
+            $target = rtrim(trim((string)($row['url'] ?? '')), '/') ?: '/';
+            $current = !empty($row['include_query']) ? $pageWithQuery : $pathname;
+
+            if ($target === '/' || (!empty($row['include_children']) ? str_starts_with($current, $target) : $current === $target)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function tableExists(string $table): bool
+    {
+        return Yii::$app->db->schema->getTableSchema($table, true) !== null;
     }
 }
