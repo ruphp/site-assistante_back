@@ -375,13 +375,13 @@ class SiteController extends SmartiusController
         return $this->redirect('/');
     }
 
-    public function actionLoginPost(): string
+    public function actionLoginPost(): Response|string
     {
         $userLoginForm = new UserLoginForm();
         if ($userLoginForm->load(Yii::$app->request->post()) && $userLoginForm->validate()) {
             $userLoginForm->login();
             Yii::$app->session->setFlash('success', 'Успешно', false);
-            $this->redirect('/');
+            return $this->redirect('/');
         }
         return $this->render('login', compact('userLoginForm'));
     }

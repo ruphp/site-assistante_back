@@ -195,7 +195,7 @@ class Users extends ActiveRecord
     }
     public function attributeLabels()
     {
-        if($_ENV['TYPE_AUTH'] == 'RSAA' ){
+        if (($_ENV['TYPE_AUTH'] ?? '') === 'RSAA') {
             return [
                 'public_key'         => 'Порядковый номер ИС',
                 'firm'         => 'Наименование ИС',

@@ -26,7 +26,7 @@ $this->title = 'Изменение данных клиента';
             <?= $form->field($user, 'firm') ?>
             <?= $form->field($user, 'name') ?>
             <?php
-            if ($_ENV['TYPE_AUTH'] == 'RSAA') {
+            if (($_ENV['TYPE_AUTH'] ?? '') === 'RSAA') {
                 echo $form->field($user, 'email')->hiddenInput()->label('');
             } else {
                 echo $form->field($user, 'email')->label('Адрес электронной почты');
@@ -35,7 +35,7 @@ $this->title = 'Изменение данных клиента';
             <?= $form->field($user, 'email')->hiddenInput()->label('') ?>
 
             <?php
-            if ($_ENV['TYPE_DEPLOYED'] == 'MIRS') {
+            if (($_ENV['TYPE_DEPLOYED'] ?? '') === 'MIRS') {
                 echo $form->field($user, 'gmt')->hiddenInput()->label('');
             } else {
                 echo $form->field($user, 'gmt')->label('Сдвиг времени сервиса GMT');
@@ -44,7 +44,7 @@ $this->title = 'Изменение данных клиента';
 
             <?= $form->field($user, 'status')->checkbox(['label' => 'Доступность контента']); ?>
             <?php
-            if ($_ENV['TYPE_AUTH'] == 'RSAA') {
+            if (($_ENV['TYPE_AUTH'] ?? '') === 'RSAA') {
                 $form->field($user, 'change_password')->checkbox(['label' => '', 'class' => ' uk-hidden']);
             } else {
                 echo $form->field($user, 'change_password')->checkbox(['label' => 'Cменить пароль']);
