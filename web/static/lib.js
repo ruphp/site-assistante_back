@@ -38737,7 +38737,7 @@ var __makeTemplateObject = void 0 && (void 0).__makeTemplateObject || function (
   return cooked;
 };
 var show = (0, _styledComponents.keyframes)(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n  from {\n    opacity: 0;\n  }\n\n  to {\n    opacity: 1;\n}"], ["\n  from {\n    opacity: 0;\n  }\n\n  to {\n    opacity: 1;\n}"])));
-var StyledOnboardingWrapper = exports.StyledOnboardingWrapper = _styledComponents.default.div(templateObject_2 || (templateObject_2 = __makeTemplateObject(["\n  animation: ", " 0.2s;\n  & > div {\n    position: fixed;\n    background: #ffffff;\n\n    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.8);\n    width: min(300px, calc(100vw - 32px));\n    min-height: 130px;\n    padding: 15px;\n    border-radius: 16px;\n    z-index: 1100;\n    user-select: none;\n    padding-top: 0;\n  }\n"], ["\n  animation: ", " 0.2s;\n  & > div {\n    position: fixed;\n    background: #ffffff;\n\n    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.8);\n    width: min(300px, calc(100vw - 32px));\n    min-height: 130px;\n    padding: 15px;\n    border-radius: 16px;\n    z-index: 1100;\n    user-select: none;\n    padding-top: 0;\n  }\n"])), show);
+var StyledOnboardingWrapper = exports.StyledOnboardingWrapper = _styledComponents.default.div(templateObject_2 || (templateObject_2 = __makeTemplateObject(["\n  animation: ", " 0.2s;\n  & > div {\n    position: absolute;\n    background: #ffffff;\n\n    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.8);\n    width: min(300px, calc(100vw - 32px));\n    min-height: 130px;\n    padding: 15px;\n    border-radius: 16px;\n    z-index: 1100;\n    user-select: none;\n    padding-top: 0;\n  }\n"], ["\n  animation: ", " 0.2s;\n  & > div {\n    position: absolute;\n    background: #ffffff;\n\n    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.8);\n    width: min(300px, calc(100vw - 32px));\n    min-height: 130px;\n    padding: 15px;\n    border-radius: 16px;\n    z-index: 1100;\n    user-select: none;\n    padding-top: 0;\n  }\n"])), show);
 var StyledBlurWrapper = exports.StyledBlurWrapper = _styledComponents.default.div(templateObject_3 || (templateObject_3 = __makeTemplateObject(["\n  width: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 1000;\n  & > div {\n    position: absolute;\n    background: rgba(0, 0, 0, 0.3);\n  }\n"], ["\n  width: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 1000;\n  & > div {\n    position: absolute;\n    background: rgba(0, 0, 0, 0.3);\n  }\n"])));
 var StyledBlurTop = exports.StyledBlurTop = _styledComponents.default.div.attrs(function (_a) {
   var width = _a.width,
@@ -38827,6 +38827,7 @@ var __read = void 0 && (void 0).__read || function (o, n) {
 var TOOLTIP_VIEWPORT_MARGIN = 16;
 var TOOLTIP_ROOT_SCROLL_DELAY = 360;
 var TOOLTIP_FALLBACK_WIDTH = 300;
+var TOOLTIP_FALLBACK_HEIGHT = 180;
 var OnboardingRoot = exports.OnboardingRoot = _react.default.memo(function (_a) {
   var data = _a.data,
     type = _a.type,
@@ -38838,7 +38839,6 @@ var OnboardingRoot = exports.OnboardingRoot = _react.default.memo(function (_a) 
     getTooltipPosition = _a.getTooltipPosition,
     timeout = _a.timeout,
     hideOnboarding = _a.hideOnboarding,
-    isInViewport = _a.isInViewport,
     setBlur = _a.setBlur,
     updateBlurPosition = _a.updateBlurPosition,
     count_viewed = _a.count_viewed,
@@ -38963,49 +38963,33 @@ var OnboardingRoot = exports.OnboardingRoot = _react.default.memo(function (_a) 
       clearTimeout(timer);
     };
   }, []);
-  var updateSidePos = function updateSidePos(root) {
+  var tooltipSize = function tooltipSize() {
     var _a;
-    var isVisible = isInViewport(root, ((_a = ref.current) === null || _a === void 0 ? void 0 : _a.getBoundingClientRect().height) || 0);
-    if (!isVisible) return;
-    if (isVisible[position] && isVisible[_constants.BOTTOM_POS]) {
-      setPos(position);
-      return;
-    }
-    var falsyCount = Object.values(isVisible).filter(function (v) {
-      return !v;
-    }).length;
-    switch (falsyCount) {
-      case 0:
-      case 1:
-        {
-          var falsyKey = Object.keys(isVisible).find(function (key) {
-            return !isVisible[key];
-          });
-          setPos(falsyKey ? _constants.getPosByOneFalsyKey[falsyKey] : posRef.current);
-          break;
-        }
-      case 2:
-        {
-          var falsyKeys = Object.keys(isVisible).filter(function (key) {
-            return !isVisible[key];
-          }).sort().join('');
-          setPos(_constants.getPosByTwoFalsyKeys[falsyKeys]);
-          break;
-        }
-      case 3:
-      case 4:
-        {
-          var key = Object.keys(isVisible).find(function (key) {
-            return isVisible[key];
-          }) || posRef.current;
-          setPos(+key);
-          break;
-        }
-      default:
-        {
-          break;
-        }
-    }
+    var rect = (_a = ref.current) === null || _a === void 0 ? void 0 : _a.getBoundingClientRect();
+    return {
+      width: (rect === null || rect === void 0 ? void 0 : rect.width) || TOOLTIP_FALLBACK_WIDTH,
+      height: (rect === null || rect === void 0 ? void 0 : rect.height) || TOOLTIP_FALLBACK_HEIGHT
+    };
+  };
+  var fitsViewport = function fitsViewport(_a) {
+    var left = _a.left,
+      top = _a.top;
+    var size = tooltipSize();
+    var viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+    var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    return left >= TOOLTIP_VIEWPORT_MARGIN && top >= TOOLTIP_VIEWPORT_MARGIN && left + size.width <= viewportWidth - TOOLTIP_VIEWPORT_MARGIN && top + size.height <= viewportHeight - TOOLTIP_VIEWPORT_MARGIN;
+  };
+  var updateSidePos = function updateSidePos(root) {
+    var rootRect = root.getBoundingClientRect();
+    var height = tooltipSize().height;
+    var preferredPosition = Number(position);
+    var fallbackOrder = [preferredPosition, _constants.BOTTOM_POS, _constants.TOP_POS, _constants.RIGHT_POS, _constants.LEFT_POS].filter(function (value, index, list) {
+      return list.indexOf(value) === index;
+    });
+    var nextPosition = fallbackOrder.find(function (side) {
+      return fitsViewport(getTooltipPosition[side](rootRect, height));
+    });
+    setPos(nextPosition !== null && nextPosition !== void 0 ? nextPosition : preferredPosition);
   };
   _react.default.useEffect(function () {
     if (!root) return;
@@ -39024,19 +39008,20 @@ var OnboardingRoot = exports.OnboardingRoot = _react.default.memo(function (_a) 
     }
   }, [isShow, pos, titleHeight, step]);
   var clampTooltipPosition = function clampTooltipPosition(_a) {
-    var _b;
     var left = _a.left,
       top = _a.top;
-    var rect = (_b = ref.current) === null || _b === void 0 ? void 0 : _b.getBoundingClientRect();
-    var width = (rect === null || rect === void 0 ? void 0 : rect.width) || TOOLTIP_FALLBACK_WIDTH;
-    var height = (rect === null || rect === void 0 ? void 0 : rect.height) || 0;
+    var _b = tooltipSize(),
+      width = _b.width,
+      height = _b.height;
     var viewportWidth = window.innerWidth || document.documentElement.clientWidth;
     var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
     var maxLeft = Math.max(TOOLTIP_VIEWPORT_MARGIN, viewportWidth - width - TOOLTIP_VIEWPORT_MARGIN);
     var maxTop = Math.max(TOOLTIP_VIEWPORT_MARGIN, viewportHeight - height - TOOLTIP_VIEWPORT_MARGIN);
+    var clampedLeft = Math.min(Math.max(left, TOOLTIP_VIEWPORT_MARGIN), maxLeft);
+    var clampedTop = Math.min(Math.max(top, TOOLTIP_VIEWPORT_MARGIN), maxTop);
     return {
-      left: Math.min(Math.max(left, TOOLTIP_VIEWPORT_MARGIN), maxLeft),
-      top: Math.min(Math.max(top, TOOLTIP_VIEWPORT_MARGIN), maxTop)
+      left: clampedLeft + window.scrollX,
+      top: clampedTop + window.scrollY
     };
   };
   var updateTooltipPosition = function updateTooltipPosition(root) {
@@ -39118,7 +39103,6 @@ var OnboardingRootWrapper = function OnboardingRootWrapper(_a) {
     onboardingType = _a.onboardingType;
   var _b = (0, _onboarding.useOnboarding)(),
     getTooltipPosition = _b.getTooltipPosition,
-    isInViewport = _b.isInViewport,
     setBlur = _b.setBlur,
     updateBlurPosition = _b.updateBlurPosition,
     closeOnboarding = _b.closeOnboarding,
@@ -39161,7 +39145,6 @@ var OnboardingRootWrapper = function OnboardingRootWrapper(_a) {
     timeout: timeout,
     setTooltipNum: setTooltipNum,
     hideOnboarding: hideOnboarding,
-    isInViewport: isInViewport,
     callByTooltip: callByTooltip,
     type: type,
     is_blur: is_blur,
@@ -58902,9 +58885,7 @@ var __read = void 0 && (void 0).__read || function (o, n) {
 };
 var BLUR_ELEMENT_SPACING = 10;
 var TOOLTIP_WIDTH = 300;
-var TOOLTIP_CENTER = 136;
-var TOOLTIP_SPACING = 100;
-var TOOLTIP_SPACING_GORIZONTAL = 35;
+var TOOLTIP_GAP = 18;
 var SELECTOR_WAIT_TIMEOUT = 1500;
 var SELECTOR_WAIT_INTERVAL = 100;
 var OnboardingPos = _onboarding2.OnboardingPositionType;
@@ -58980,12 +58961,14 @@ var _default = exports.default = function _default() {
               data = _a.sent();
               return [4 /*yield*/, Promise.all(data.map(function (onboarding) {
                 return __awaiter(void 0, void 0, void 0, function () {
-                  var selector;
+                  var section, startStep, selector;
                   var _a, _b;
                   return __generator(this, function (_c) {
                     switch (_c.label) {
                       case 0:
-                        selector = (_b = (_a = onboarding.data[0]) === null || _a === void 0 ? void 0 : _a.content[0]) === null || _b === void 0 ? void 0 : _b.selector;
+                        section = onboarding.data[0];
+                        startStep = Math.min(Math.max((section === null || section === void 0 ? void 0 : section.start_step) || 0, 0), Math.max(((section === null || section === void 0 ? void 0 : section.content.length) || 1) - 1, 0));
+                        selector = ((_a = section === null || section === void 0 ? void 0 : section.content[startStep]) === null || _a === void 0 ? void 0 : _a.selector) || ((_b = section === null || section === void 0 ? void 0 : section.content[0]) === null || _b === void 0 ? void 0 : _b.selector);
                         return [4 /*yield*/, waitForSelector(selector)];
                       case 1:
                         return [2 /*return*/, _c.sent() ? onboarding : null];
@@ -59026,30 +59009,30 @@ var _default = exports.default = function _default() {
   }, []);
   var getTooltipPosition = (_a = {}, _a[OnboardingPos.top] = function (rect, height) {
     return {
-      left: rect.x + Math.floor(rect.width / 2) - TOOLTIP_CENTER,
-      top: rect.y - height - TOOLTIP_SPACING_GORIZONTAL
+      left: rect.x + Math.floor(rect.width / 2) - Math.floor(TOOLTIP_WIDTH / 2),
+      top: rect.y - height - TOOLTIP_GAP
     };
-  }, _a[OnboardingPos.right] = function (rect) {
+  }, _a[OnboardingPos.right] = function (rect, height) {
     return {
-      left: rect.x + rect.width + TOOLTIP_SPACING_GORIZONTAL,
-      top: rect.y + Math.floor(rect.height / 2) - TOOLTIP_SPACING
+      left: rect.x + rect.width + TOOLTIP_GAP,
+      top: rect.y + Math.floor(rect.height / 2) - Math.floor(height / 2)
     };
   }, _a[OnboardingPos.bottom] = function (rect) {
     return {
-      left: rect.x + Math.floor(rect.width / 2) - TOOLTIP_CENTER,
-      top: rect.y + rect.height + TOOLTIP_SPACING_GORIZONTAL
+      left: rect.x + Math.floor(rect.width / 2) - Math.floor(TOOLTIP_WIDTH / 2),
+      top: rect.y + rect.height + TOOLTIP_GAP
     };
-  }, _a[OnboardingPos.left] = function (rect) {
+  }, _a[OnboardingPos.left] = function (rect, height) {
     return {
-      left: rect.x - TOOLTIP_WIDTH,
-      top: rect.y + Math.floor(rect.height / 2) - TOOLTIP_SPACING
+      left: rect.x - TOOLTIP_WIDTH - TOOLTIP_GAP,
+      top: rect.y + Math.floor(rect.height / 2) - Math.floor(height / 2)
     };
   }, _a);
   var isInViewport = function isInViewport(root, height) {
     var _a;
     if (!root) return;
     var rect = root.getBoundingClientRect();
-    return _a = {}, _a[OnboardingPos.top] = rect.top + window.scrollY - height - TOOLTIP_SPACING >= 0, _a[OnboardingPos.right] = rect.right + TOOLTIP_WIDTH <= document.documentElement.clientWidth, _a[OnboardingPos.bottom] = rect.bottom + height + window.scrollY + TOOLTIP_SPACING <= document.documentElement.scrollHeight, _a[OnboardingPos.left] = rect.left - TOOLTIP_WIDTH >= 0, _a;
+    return _a = {}, _a[OnboardingPos.top] = rect.top - height - TOOLTIP_GAP >= 0, _a[OnboardingPos.right] = rect.right + TOOLTIP_WIDTH + TOOLTIP_GAP <= document.documentElement.clientWidth, _a[OnboardingPos.bottom] = rect.bottom + height + TOOLTIP_GAP <= document.documentElement.clientHeight, _a[OnboardingPos.left] = rect.left - TOOLTIP_WIDTH - TOOLTIP_GAP >= 0, _a;
   };
   var updateBlurPosition = function updateBlurPosition(root) {
     if (!root) return;
@@ -59387,7 +59370,10 @@ var AccordionItem = function AccordionItem(_a) {
     isActive = _b[0],
     setIsActive = _b[1];
   var totalSteps = count_viewed + count_unviewed;
-  var resumeStep = count_unviewed > 0 ? Math.min(Math.max(start_step !== null && start_step !== void 0 ? start_step : count_viewed, 0), Math.max(totalSteps - 1, 0)) : 0;
+  var startPathname = new URL(start_url || '/', window.location.origin).pathname;
+  var configuredStartStep = start_step !== null && start_step !== void 0 ? start_step : count_viewed;
+  var effectiveStartStep = startPathname === window.location.pathname && configuredStartStep === 0 && count_viewed > 0 ? count_viewed : configuredStartStep;
+  var resumeStep = count_unviewed > 0 ? Math.min(Math.max(effectiveStartStep, 0), Math.max(totalSteps - 1, 0)) : 0;
   var goOnboardingId = function goOnboardingId() {
     var targetUrl = new URL(start_url || '/', window.location.origin);
     (0, _resume.applyOnboardingResumeToUrl)(targetUrl, id, resumeStep);
