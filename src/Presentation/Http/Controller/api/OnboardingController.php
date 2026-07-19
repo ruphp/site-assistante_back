@@ -69,7 +69,14 @@ final class OnboardingController extends ApiController
                 'type' => (int)$onboarding->type,
                 'auto_start' => (bool)$onboarding->auto_start,
                 'repeat_count' => 0,
-                'data' => array_map(fn(OnboardingSectionRecord $section): array => $this->sectionPayload($section, $this->nextSectionUrl($allSections, $section)), $sections),
+                'data' => array_map(
+                    fn(OnboardingSectionRecord $section): array => $this->sectionPayload(
+                        $section,
+                        $this->nextSectionUrl($allSections, $section),
+                        $this->startStepForSection($allSections, $section, $countViewed)
+                    ),
+                    $sections
+                ),
                 'is_blur' => (bool)$onboarding->is_blur ? 1 : 0,
                 'count_unviewed' => max(0, $stepsCount - $countViewed),
                 'count_viewed' => $countViewed,
@@ -210,7 +217,7 @@ final class OnboardingController extends ApiController
         return false;
     }
 
-    private function sectionPayload(OnboardingSectionRecord $section, string $nextUrl = ''): array
+    private function sectionPayload(OnboardingSectionRecord $section, string $nextUrl = '', int $startStep = 0): array
     {
         $steps = OnboardingStepRecord::find()
             ->where(['section_id' => $section->id, 'is_active' => true])
@@ -226,6 +233,7 @@ final class OnboardingController extends ApiController
             'onboarding_id' => (int)$section->onboarding_id,
             'content' => array_map(fn(OnboardingStepRecord $step): array => $this->stepPayload($step), $steps),
             'next_url' => $nextUrl,
+            'start_step' => max(0, min($startStep, count($steps) - 1)),
         ];
     }
 
@@ -348,6 +356,25 @@ final class OnboardingController extends ApiController
         }
 
         return $sections[0] instanceof OnboardingSectionRecord ? (string)$sections[0]->url : '';
+    }
+
+    /**
+     * @param OnboardingSectionRecord[] $sections
+     */
+    private function startStepForSection(array $sections, OnboardingSectionRecord $current, int $countViewed): int
+    {
+        $seen = 0;
+        foreach ($sections as $section) {
+            $stepsInSection = count($this->activeSteps($section));
+
+            if ((int)$section->id === (int)$current->id) {
+                return max(0, $countViewed - $seen);
+            }
+
+            $seen += $stepsInSection;
+        }
+
+        return 0;
     }
 
     private function sectionHasActiveSteps(OnboardingSectionRecord $section): bool
