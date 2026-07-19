@@ -62,7 +62,7 @@ class UserJoinForm extends Model // создаем список параметр
 
     public function attributeLabels()
     {
-        if($_ENV['TYPE_AUTH'] == 'RSAA' ){
+        if (($_ENV['TYPE_AUTH'] ?? '') === 'RSAA') {
             return [
                 'firm'         => 'Наименование ИС',
                 'name'         => 'Наименование ИС латиницей (имя клиента в РСАА)',

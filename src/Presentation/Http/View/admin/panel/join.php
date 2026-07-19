@@ -23,7 +23,7 @@ $this->title = 'Создание нового клиента';
 
             <?php
 
-            if($_ENV['TYPE_AUTH'] == 'RSAA' ) {
+            if (($_ENV['TYPE_AUTH'] ?? '') === 'RSAA') {
                 echo $form->field($userJoinForm, 'email')->hiddenInput(['value'=> strtolower(substr(md5(time()),0,10))."@local.local"])->label('');
                 echo $form->field($userJoinForm, 'password')->hiddenInput(['value'=> 12345])->label('');
                 echo $form->field($userJoinForm, 'password2')->hiddenInput(['value'=> 12345])->label('');
