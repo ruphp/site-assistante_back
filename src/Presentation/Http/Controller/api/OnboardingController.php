@@ -159,6 +159,24 @@ final class OnboardingController extends ApiController
         return ['ok' => true];
     }
 
+    public function actionOnboardingReset(int $publicKey): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $onboardingId = (int)Yii::$app->request->get('id', 0);
+        if ($onboardingId <= 0) {
+            return ['ok' => false];
+        }
+
+        $progress = $this->progress($publicKey, $onboardingId);
+        $progress->count_viewed = 0;
+        $progress->count_unviewed = $this->stepsCountById($onboardingId);
+        $progress->is_finished = false;
+        $progress->updated_at = date('Y-m-d H:i:s');
+        $progress->save(false);
+
+        return ['ok' => true];
+    }
+
     public function actionSelectorComplete(int $publicKey): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
