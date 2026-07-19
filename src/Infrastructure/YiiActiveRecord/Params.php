@@ -107,7 +107,7 @@ class Params extends ActiveRecord
 
             $code =
                 "&lt;script&gt;
-    window.Smartius = {
+    window.SiteWidget = {
         apiUrl: '" . $domain . "/api',
         staticUrl: '" .$domainstatic. "',
         customUrl: '" .$domaincustom. "',
@@ -120,6 +120,7 @@ class Params extends ActiveRecord
             email: null
         }
     };
+    window.Smartius = window.SiteWidget;
     var script = document.createElement('script');
     script.src = '$domainstatic/lib.js', document.head.appendChild(script);
 &lt;/script&gt;";
