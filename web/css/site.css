@@ -270,18 +270,18 @@ ul.ticket-messages-list {
 #tp-form .uk-form-danger, #tpup-form .uk-form-danger {
     color: inherit!important;
 }
-._smguide_adminpoint {
+.sitewidget_adminpoint {
     width: 60px!important;
     position: relative!important;
     top: -6px!important;
     left: 15px!important;
 }
-._smguide_adminpoint svg {
+.sitewidget_adminpoint svg {
     #width: 10px;
     #height: 10px;
 }
 
-.adminka._smguide_pulse._dwq77{
+.adminka.sitewidget_pulse._dwq77{
     width: 18px;
     position: relative;
     height: 18px;
@@ -289,7 +289,7 @@ ul.ticket-messages-list {
     padding: 0;
 }
 
-._smguide_adminpoint .adminpoint_a {
+.sitewidget_adminpoint .adminpoint_a {
     width: 18px;
     display: block;
     height: 18px;
@@ -300,7 +300,7 @@ ul.ticket-messages-list {
     font-size: 0;
 }
 
-._smguide_adminpoint .adminpoint_a svg {
+.sitewidget_adminpoint .adminpoint_a svg {
     #margin-top: 4px;
     display: inline;
 }

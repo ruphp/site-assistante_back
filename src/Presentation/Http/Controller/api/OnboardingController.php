@@ -246,10 +246,7 @@ final class OnboardingController extends ApiController
 
     private function requestedStartStep(): ?int
     {
-        $raw = Yii::$app->request->get(
-            'sitewidget_step',
-            Yii::$app->request->get('smguide_step', Yii::$app->request->get('step', null))
-        );
+        $raw = Yii::$app->request->get('sitewidget_step', Yii::$app->request->get('step', null));
         if ($raw === null || $raw === '') {
             return null;
         }

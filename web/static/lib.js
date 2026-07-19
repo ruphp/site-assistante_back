@@ -38276,15 +38276,13 @@ var applyOnboardingResumeToUrl = exports.applyOnboardingResumeToUrl = function a
   var normalizedStep = Math.max(0, step);
   url.searchParams.set('sitewidget_onboarding', String(id));
   url.searchParams.set('sitewidget_step', String(normalizedStep));
-  url.searchParams.delete('smguide_idonbd');
-  url.searchParams.delete('smguide_step');
   url.hash = "".concat(HASH_PREFIX).concat(id, ":").concat(normalizedStep);
   saveOnboardingResume(id, normalizedStep, url.pathname);
 };
 var readOnboardingResume = exports.readOnboardingResume = function readOnboardingResume() {
   var searchParams = new URLSearchParams(window.location.search);
-  var queryId = searchParams.get('sitewidget_onboarding') || searchParams.get('smguide_idonbd');
-  var queryStep = searchParams.get('sitewidget_step') || searchParams.get('smguide_step') || searchParams.get('step');
+  var queryId = searchParams.get('sitewidget_onboarding');
+  var queryStep = searchParams.get('sitewidget_step') || searchParams.get('step');
   var hash = window.location.hash;
   var hashValue = hash.startsWith("#".concat(HASH_PREFIX)) ? hash.substring(HASH_PREFIX.length + 1) : hash.startsWith("#".concat(LEGACY_HASH_PREFIX)) ? hash.substring(LEGACY_HASH_PREFIX.length + 1) : '';
   var _a = __read(hashValue.split(':'), 2),
@@ -58640,8 +58638,8 @@ var getOnboardingData = exports.getOnboardingData = function getOnboardingData()
       switch (_e.label) {
         case 0:
           searchParams = new URLSearchParams(window.location.search);
-          sitewidgetOnboarding = searchParams.get('sitewidget_onboarding') || searchParams.get('smguide_idonbd');
-          sitewidgetCode = searchParams.get('sitewidget_code') || searchParams.get('smguide_code');
+          sitewidgetOnboarding = searchParams.get('sitewidget_onboarding');
+          sitewidgetCode = searchParams.get('sitewidget_code');
           resume = (0, _resume.readOnboardingResume)();
           id = (0, _lodash.isNull)(sitewidgetOnboarding) ? resume.id : sitewidgetOnboarding;
           code = (0, _lodash.isNull)(sitewidgetCode) ? 0 : sitewidgetCode;

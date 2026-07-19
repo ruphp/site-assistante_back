@@ -63,7 +63,7 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
             typeTickets: 0,
             textContacts: $client->params['tab_tp_contacts'] ? $client->params['tp_contacts'] : '',
             zeroLogDelay: $client->params['timeout'],
-            urlSmguideTp: $client->params['server_stp'],
+            urlSiteWidgetTp: $client->params['server_stp'],
             modules: array_values($modules),
             autoOpenSnoozeMinutes: $supportSettings->autoOpenSnoozeMinutes,
             branding: $this->brandingForSettings($supportSettings),

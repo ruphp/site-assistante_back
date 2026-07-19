@@ -352,7 +352,7 @@ function sendZayavka(elem) {
     var form_data = new FormData(li[0]);
     $.ajax({
         method: 'POST',
-        url: '//' + SmGuideWidgetDomain + '/mess',
+        url: '//' + SiteWidgetDomain + '/mess',
         dataType: 'html',
         data: form_data,
         cache: false,

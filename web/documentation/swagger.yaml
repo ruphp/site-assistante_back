@@ -7,7 +7,7 @@ info:
   version: '1.2'
 servers:
   -
-    url: 'https://smguide.local'
+    url: 'https://sitewidget.local'
     description: 'API server'
 paths:
   /api/configuration:
@@ -60,7 +60,7 @@ paths:
           content:
             application/json:
               schema: {  }
-              example: '{"position":"left","run":1,"domain":["school.permkrai.ru","edu-epos.permkrai.ru"],"type_tickets":2,"text_contacts":"","zero_log_delay":2000,"url_smguide_tp":""}'
+              example: '{"position":"left","run":1,"domain":["school.permkrai.ru","edu-epos.permkrai.ru"],"type_tickets":2,"text_contacts":"","zero_log_delay":2000,"url_sitewidget_tp":""}'
         '401':
           description: 'Не найден клиент'
   /api/courses:
