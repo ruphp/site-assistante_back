@@ -133,16 +133,6 @@ class SiteController extends SmartiusController
     }
     public function actionIndex(): Response|string
     {
-        if (!Yii::$app->user->isGuest) {
-            if (!is_null(Yii::$app->authManager->getAssignments(Yii::$app->user->id)['admin'] ?? null)) {
-                return $this->redirect('/admin');
-            }
-            elseif (!is_null(Yii::$app->authManager->getAssignments(Yii::$app->user->id)['manager'] ?? null)) {
-                return $this->redirect('/manager');
-            }
-            Yii::$app->user->logout();
-        }
-
         return $this->render('index');
     }
 
