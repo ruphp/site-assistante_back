@@ -15,8 +15,6 @@ $this->registerMetaTag([
     'name' => 'keywords',
     'content' => 'SiteWidget личный кабинет пользователя, авторизация в SiteWidget',
 ]);
-$urlencode = urlencode($_ENV['RSAA_REDIRECT_URI']);
-$href = "{$_ENV['RSAA_AUTH_URL']}?client_id={$_ENV['RSAA_CLIENT']}&scope=openid&response_type=code&redirect_uri=$urlencode";
 ?>
 <div class="uk-container uk-container-xsmall">
     <div>
@@ -24,7 +22,9 @@ $href = "{$_ENV['RSAA_AUTH_URL']}?client_id={$_ENV['RSAA_CLIENT']}&scope=openid&
             <h2 class="bd-title">Вход</h2>
 
             <?php
-            if ($_ENV['TYPE_DEPLOYED'] == 'MIRS') {
+            if (($_ENV['TYPE_AUTH'] ?? '') === 'RSAA' && ($_ENV['TYPE_DEPLOYED'] ?? '') === 'MIRS') {
+                $urlencode = urlencode($_ENV['RSAA_REDIRECT_URI'] ?? '');
+                $href = "{$_ENV['RSAA_AUTH_URL']}?client_id={$_ENV['RSAA_CLIENT']}&scope=openid&response_type=code&redirect_uri=$urlencode";
                 ?>
                 <a href="<?php echo $href ?>" class="uk-button uk-button-default">Авторизоваться через РСАА</a>
                 <?php

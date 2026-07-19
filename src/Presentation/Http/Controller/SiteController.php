@@ -34,7 +34,7 @@ class SiteController extends SmartiusController
                 'class'           => 'yii\authclient\AuthAction',
                 'successCallback' => [$this, 'onAuthSuccess'],
                 'cancelCallback' => [$this, 'onAuthError'],
-                'defaultClientId' => 'rsaa',
+                'defaultClientId' => ($_ENV['TYPE_AUTH'] ?? '') === 'RSAA' ? 'rsaa' : null,
             ],
         ];
     }
@@ -64,7 +64,7 @@ class SiteController extends SmartiusController
                 return $this->redirect('/');
             }
         }
-        Yii::$app->getSession()->setFlash('warning', 'Пользователь не имеет доступа к системе.  Запросите доступ к системе ЦИПП (cipp), выбрав нужную роль. <a target="_blank" href="'.$_ENV['RSAA_LK_HOST'].'">Личный кабинет РСАА</a>');
+        Yii::$app->getSession()->setFlash('warning', 'Пользователь не имеет доступа к системе.');
         return $this->redirect('/logout');
     }
 
@@ -367,8 +367,8 @@ class SiteController extends SmartiusController
 
         if (!Yii::$app->user->isGuest) {
             Yii::$app->user->logout();
-            if ($_ENV['TYPE_AUTH'] == 'RSAA') {
-                return $this->redirect($_ENV['RSAA_LOGOUT_URL'] . '?redirect_uri='.$_ENV['RSAA_LOGOUT_REDIRECT_URL']);
+            if (($_ENV['TYPE_AUTH'] ?? '') === 'RSAA' && !empty($_ENV['RSAA_LOGOUT_URL']) && !empty($_ENV['RSAA_LOGOUT_REDIRECT_URL'])) {
+                return $this->redirect($_ENV['RSAA_LOGOUT_URL'] . '?redirect_uri=' . $_ENV['RSAA_LOGOUT_REDIRECT_URL']);
 
             }
         }
