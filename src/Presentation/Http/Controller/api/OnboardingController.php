@@ -32,6 +32,7 @@ final class OnboardingController extends ApiController
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $id = (int)Yii::$app->request->get('id', 0);
+        $requestedStartStep = $id > 0 ? $this->requestedStartStep() : null;
         $query = OnboardingRecord::find()
             ->where(['public_key' => $publicKey, 'is_active' => true])
             ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC]);
@@ -61,6 +62,7 @@ final class OnboardingController extends ApiController
 
             $stepsCount = $this->stepsCount($onboarding);
             $countViewed = min($stepsCount, max(0, (int)$progress->count_viewed));
+            $resumeCountViewed = $countViewed >= $stepsCount ? 0 : $countViewed;
             $result[] = [
                 'id' => (int)$onboarding->id,
                 'public_key' => (int)$onboarding->public_key,
@@ -73,7 +75,7 @@ final class OnboardingController extends ApiController
                     fn(OnboardingSectionRecord $section): array => $this->sectionPayload(
                         $section,
                         $this->nextSectionUrl($allSections, $section),
-                        $this->startStepForSection($allSections, $section, $countViewed)
+                        $requestedStartStep ?? $this->startStepForSection($allSections, $section, $resumeCountViewed)
                     ),
                     $sections
                 ),
@@ -105,9 +107,14 @@ final class OnboardingController extends ApiController
 
             $progress = $this->progress($publicKey, (int)$onboarding->id);
             $countViewed = min($stepsCount, max(0, (int)$progress->count_viewed));
+            $resumeCountViewed = $countViewed >= $stepsCount ? 0 : $countViewed;
+            $startSection = $this->sectionForProgress($sections, $resumeCountViewed);
             $result[] = [
                 'id' => (int)$onboarding->id,
-                'start_url' => $this->startUrlForProgress($sections, $countViewed),
+                'start_url' => $startSection instanceof OnboardingSectionRecord ? (string)$startSection->url : '',
+                'start_step' => $startSection instanceof OnboardingSectionRecord
+                    ? $this->startStepForSection($sections, $startSection, $resumeCountViewed)
+                    : 0,
                 'title' => (string)$onboarding->title,
                 'auto_start' => (bool)$onboarding->auto_start,
                 'count_viewed' => $countViewed,
@@ -237,6 +244,16 @@ final class OnboardingController extends ApiController
         ];
     }
 
+    private function requestedStartStep(): ?int
+    {
+        $raw = Yii::$app->request->get('smguide_step', Yii::$app->request->get('step', null));
+        if ($raw === null || $raw === '') {
+            return null;
+        }
+
+        return max(0, (int)$raw);
+    }
+
     private function stepPayload(OnboardingStepRecord $step): array
     {
         $hint = $step->hint_id ? OnboardingHintRecord::findOne($step->hint_id) : null;
@@ -341,6 +358,16 @@ final class OnboardingController extends ApiController
      */
     private function startUrlForProgress(array $sections, int $countViewed): string
     {
+        $section = $this->sectionForProgress($sections, $countViewed);
+
+        return $section instanceof OnboardingSectionRecord ? (string)$section->url : '';
+    }
+
+    /**
+     * @param OnboardingSectionRecord[] $sections
+     */
+    private function sectionForProgress(array $sections, int $countViewed): ?OnboardingSectionRecord
+    {
         $seen = 0;
         foreach ($sections as $section) {
             $stepsInSection = count($this->activeSteps($section));
@@ -349,13 +376,13 @@ final class OnboardingController extends ApiController
             }
 
             if ($countViewed < $seen + $stepsInSection) {
-                return (string)$section->url;
+                return $section;
             }
 
             $seen += $stepsInSection;
         }
 
-        return $sections[0] instanceof OnboardingSectionRecord ? (string)$sections[0]->url : '';
+        return $sections[0] instanceof OnboardingSectionRecord ? $sections[0] : null;
     }
 
     /**
