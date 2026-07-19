@@ -16,19 +16,19 @@ final class m260719_000001_seed_sitewidget_demo_onboardings extends Migration
 
         $onePageId = $this->ensureOnboarding(self::ONE_PAGE_TITLE, 10);
         $onePageSectionId = $this->ensureSection($onePageId, 'Главная страница', '/', 10);
-        $this->ensureStep($onePageSectionId, 'Кнопка входа ведет владельца сайта в личный кабинет SiteWidget.', 'a[href="/login"], a[href*="/login"]', 1, 10);
+        $this->ensureStep($onePageSectionId, 'Кнопка входа ведет владельца сайта в личный кабинет SiteWidget.', '.sw-header__login, .sw-header__actions a, a[href="/login"], a[href*="/login"], a[href="/manager"], a[href*="/manager"]', 1, 10);
         $this->ensureStep($onePageSectionId, 'Здесь собраны модули: онлайн-поддержка, инструкции, онбординг и анкеты.', '#modules', 2, 20);
         $this->ensureStep($onePageSectionId, 'В этом блоке показано, как менеджер получает обращения и отвечает посетителям.', '#app, #support, [href*="support"]', 2, 30);
         $this->ensureStep($onePageSectionId, 'Тарифы помогают выбрать лимиты ответов, проекты и набор модулей.', '#pricing, [href*="pricing"]', 2, 40);
 
         $multiPageId = $this->ensureOnboarding(self::MULTI_PAGE_TITLE, 20);
         $homeSectionId = $this->ensureSection($multiPageId, 'Старт на главной', '/', 10);
-        $this->ensureStep($homeSectionId, 'Начните с кнопки регистрации или входа через Яндекс.', 'a[href="/join"], a[href*="/join"], a[href="/login"], a[href*="/login"]', 1, 10);
+        $this->ensureStep($homeSectionId, 'Начните с кнопки регистрации или входа через Яндекс.', 'a[href="/join"], a[href*="/join"], .sw-header__login, .sw-header__actions a, a[href="/login"], a[href*="/login"]', 1, 10);
         $this->ensureStep($homeSectionId, 'После выбора тарифа переходите к созданию проекта и подключению виджета.', '#pricing', 2, 20);
 
         $joinSectionId = $this->ensureSection($multiPageId, 'Регистрация', '/join', 20);
-        $this->ensureStep($joinSectionId, 'На странице регистрации можно создать аккаунт по email или войти через Яндекс.', 'form, a[href*="yandex"], button', 2, 10);
-        $this->ensureStep($joinSectionId, 'После регистрации откроется личный кабинет со списком проектов.', 'button[type="submit"], input[type="submit"]', 2, 20);
+        $this->ensureStep($joinSectionId, 'На странице регистрации можно создать аккаунт по email или войти через Яндекс.', '#user-join-form, a[href*="yandex"]', 2, 10);
+        $this->ensureStep($joinSectionId, 'После регистрации откроется личный кабинет со списком проектов.', '#userjoinform-email, button[type="submit"], input[type="submit"]', 2, 20);
     }
 
     public function safeDown(): void

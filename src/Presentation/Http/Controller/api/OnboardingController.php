@@ -89,10 +89,7 @@ final class OnboardingController extends ApiController
                 continue;
             }
 
-            $firstSection = OnboardingSectionRecord::find()
-                ->where(['onboarding_id' => $onboarding->id, 'is_active' => true])
-                ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC])
-                ->one();
+            $sections = $this->activeSectionsWithSteps($onboarding);
 
             $stepsCount = $this->stepsCount($onboarding);
             if ($stepsCount <= 0) {
@@ -103,7 +100,7 @@ final class OnboardingController extends ApiController
             $countViewed = min($stepsCount, max(0, (int)$progress->count_viewed));
             $result[] = [
                 'id' => (int)$onboarding->id,
-                'start_url' => $firstSection instanceof OnboardingSectionRecord ? (string)$firstSection->url : '',
+                'start_url' => $this->startUrlForProgress($sections, $countViewed),
                 'title' => (string)$onboarding->title,
                 'auto_start' => (bool)$onboarding->auto_start,
                 'count_viewed' => $countViewed,
@@ -331,19 +328,45 @@ final class OnboardingController extends ApiController
         return '';
     }
 
-    private function sectionHasActiveSteps(OnboardingSectionRecord $section): bool
+    /**
+     * @param OnboardingSectionRecord[] $sections
+     */
+    private function startUrlForProgress(array $sections, int $countViewed): string
     {
-        $steps = OnboardingStepRecord::find()
-            ->where(['section_id' => $section->id, 'is_active' => true])
-            ->all();
-
-        foreach ($steps as $step) {
-            if ($step instanceof OnboardingStepRecord && $this->stepSelector($step) !== '') {
-                return true;
+        $seen = 0;
+        foreach ($sections as $section) {
+            $stepsInSection = count($this->activeSteps($section));
+            if ($stepsInSection <= 0) {
+                continue;
             }
+
+            if ($countViewed < $seen + $stepsInSection) {
+                return (string)$section->url;
+            }
+
+            $seen += $stepsInSection;
         }
 
-        return false;
+        return $sections[0] instanceof OnboardingSectionRecord ? (string)$sections[0]->url : '';
+    }
+
+    private function sectionHasActiveSteps(OnboardingSectionRecord $section): bool
+    {
+        return $this->activeSteps($section) !== [];
+    }
+
+    /**
+     * @return OnboardingStepRecord[]
+     */
+    private function activeSteps(OnboardingSectionRecord $section): array
+    {
+        return array_values(array_filter(
+            OnboardingStepRecord::find()
+                ->where(['section_id' => $section->id, 'is_active' => true])
+                ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC])
+                ->all(),
+            fn(OnboardingStepRecord $step): bool => $this->stepSelector($step) !== '',
+        ));
     }
 
     private function stepsCount(OnboardingRecord $onboarding): int
