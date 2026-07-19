@@ -206,16 +206,7 @@ $url_rules=[
 ];
 
 
-$authClients = [
-    'rsaa' => [
-        'class'        => 'app\Infrastructure\Auth\RsaaAuthClient',
-        'clientId'     => $_ENV['RSAA_CLIENT'],
-        'clientSecret' => $_ENV['RSAA_SECRET'],
-        'authUrl'      => $_ENV['RSAA_AUTH_URL'],
-        'tokenUrl'     => $_ENV['RSAA_TOKEN_URL'],
-        'validateAuthState' => false
-    ],
-];
+$authClients = [];
 
 if (!empty($_ENV['YANDEX_OAUTH_CLIENT_ID'] ?? '') && !empty($_ENV['YANDEX_OAUTH_CLIENT_SECRET'] ?? '')) {
     $authClients['yandex'] = [
@@ -386,7 +377,7 @@ if (is_dir($modulesPath)) {
 }
 
 
-if (YII_ENV_DEV) {
+if (YII_ENV_DEV && class_exists(\yii\debug\Module::class)) {
     // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = [
