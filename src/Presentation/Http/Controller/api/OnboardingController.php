@@ -33,11 +33,13 @@ final class OnboardingController extends ApiController
         Yii::$app->response->format = Response::FORMAT_JSON;
         $id = (int)Yii::$app->request->get('id', 0);
         $query = OnboardingRecord::find()
-            ->where(['public_key' => $publicKey, 'is_active' => true, 'auto_start' => true])
+            ->where(['public_key' => $publicKey, 'is_active' => true])
             ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC]);
 
         if ($id > 0) {
             $query->andWhere(['id' => $id]);
+        } else {
+            $query->andWhere(['auto_start' => true]);
         }
 
         $result = [];
@@ -46,7 +48,8 @@ final class OnboardingController extends ApiController
                 continue;
             }
 
-            $sections = $this->visibleSections($onboarding);
+            $allSections = $this->activeSectionsWithSteps($onboarding);
+            $sections = $this->visibleSections($allSections);
             if ($sections === []) {
                 continue;
             }
@@ -66,7 +69,7 @@ final class OnboardingController extends ApiController
                 'type' => (int)$onboarding->type,
                 'auto_start' => (bool)$onboarding->auto_start,
                 'repeat_count' => 0,
-                'data' => array_map(fn(OnboardingSectionRecord $section): array => $this->sectionPayload($section), $sections),
+                'data' => array_map(fn(OnboardingSectionRecord $section): array => $this->sectionPayload($section, $this->nextSectionUrl($allSections, $section)), $sections),
                 'is_blur' => (bool)$onboarding->is_blur ? 1 : 0,
                 'count_unviewed' => max(0, $stepsCount - $countViewed),
                 'count_viewed' => $countViewed,
@@ -210,7 +213,7 @@ final class OnboardingController extends ApiController
         return false;
     }
 
-    private function sectionPayload(OnboardingSectionRecord $section): array
+    private function sectionPayload(OnboardingSectionRecord $section, string $nextUrl = ''): array
     {
         $steps = OnboardingStepRecord::find()
             ->where(['section_id' => $section->id, 'is_active' => true])
@@ -225,7 +228,7 @@ final class OnboardingController extends ApiController
             'id' => (int)$section->id,
             'onboarding_id' => (int)$section->onboarding_id,
             'content' => array_map(fn(OnboardingStepRecord $step): array => $this->stepPayload($step), $steps),
-            'next_url' => (string)$section->url,
+            'next_url' => $nextUrl,
         ];
     }
 
@@ -285,7 +288,7 @@ final class OnboardingController extends ApiController
     /**
      * @return OnboardingSectionRecord[]
      */
-    private function visibleSections(OnboardingRecord $onboarding): array
+    private function activeSectionsWithSteps(OnboardingRecord $onboarding): array
     {
         return array_values(array_filter(
             OnboardingSectionRecord::find()
@@ -293,9 +296,39 @@ final class OnboardingController extends ApiController
                 ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC])
                 ->all(),
             fn(OnboardingSectionRecord $section): bool =>
-                $this->sectionHasActiveSteps($section)
-                && ($section->url === '' || $this->urlMatches((string)$section->url, (bool)$section->include_children, (bool)$section->include_query)),
+                $this->sectionHasActiveSteps($section),
         ));
+    }
+
+    /**
+     * @param OnboardingSectionRecord[] $sections
+     * @return OnboardingSectionRecord[]
+     */
+    private function visibleSections(array $sections): array
+    {
+        return array_values(array_filter(
+            $sections,
+            fn(OnboardingSectionRecord $section): bool =>
+                $section->url === '' || $this->urlMatches((string)$section->url, (bool)$section->include_children, (bool)$section->include_query),
+        ));
+    }
+
+    /**
+     * @param OnboardingSectionRecord[] $sections
+     */
+    private function nextSectionUrl(array $sections, OnboardingSectionRecord $current): string
+    {
+        foreach ($sections as $index => $section) {
+            if ((int)$section->id !== (int)$current->id) {
+                continue;
+            }
+
+            $next = $sections[$index + 1] ?? null;
+
+            return $next instanceof OnboardingSectionRecord ? (string)$next->url : '';
+        }
+
+        return '';
     }
 
     private function sectionHasActiveSteps(OnboardingSectionRecord $section): bool
