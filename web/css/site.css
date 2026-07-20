@@ -549,6 +549,15 @@ ul.ticket-messages-list {
     box-shadow: 0 16px 32px rgba(43, 36, 92, .28);
 }
 
+/* Keep header submenus closed until UIkit activates the dropdown. */
+.sw-header__nav-dropdown:not(.uk-open) {
+    display: none;
+}
+
+.sw-header__nav-dropdown.uk-open {
+    display: block;
+}
+
 .sw-header__nav-dropdown a {
     display: block;
     padding: 10px 16px;
