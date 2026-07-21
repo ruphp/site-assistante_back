@@ -8,6 +8,7 @@ final class AssistantRequestContext
         public readonly string $pathname = '',
         public readonly string $getparams = '',
         public readonly mixed $userId = null,
+        public readonly mixed $visitorId = null,
         public readonly array $userRoles = [],
         public readonly ?string $stringRoles = null,
         public readonly string $remoteAddr = '0.0.0.0',

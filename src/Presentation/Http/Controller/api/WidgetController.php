@@ -75,6 +75,7 @@ class WidgetController extends ApiController
             pathname: (string)$request->get('pathname', ''),
             getparams: (string)$request->get('getparams', ''),
             userId: $request->get('userId'),
+            visitorId: $request->get('visitorId'),
             userRoles: (array)$request->get('userRole', []),
             stringRoles: $request->get('string_roles'),
             remoteAddr: $request->userIP ?? '0.0.0.0',

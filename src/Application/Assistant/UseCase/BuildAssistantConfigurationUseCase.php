@@ -17,6 +17,11 @@ use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingHintRecord;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingHintUrlRecord;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingRecord;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingSectionRecord;
+use app\Modules\Surveys\Domain\SurveyPlanLimit;
+use app\Modules\Surveys\Infrastructure\YiiActiveRecord\SurveyFormRecord;
+use app\Modules\Surveys\Infrastructure\YiiActiveRecord\SurveyQuestionRecord;
+use app\Modules\Surveys\Infrastructure\YiiActiveRecord\SurveyResponseRecord;
+use app\Modules\Surveys\Infrastructure\YiiActiveRecord\SurveyUrlRecord;
 use app\Modules\Support\Domain\SupportSettings;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Domain\SupportPlan;
@@ -90,6 +95,7 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
         if (in_array($plan, [SupportPlan::START, SupportPlan::PRO], true)) {
             $modules[] = 'onboarding';
             $modules[] = 'hints';
+            $modules[] = 'polls';
         }
 
         return array_values(array_unique($modules));
@@ -100,8 +106,9 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
         $plan = SupportPlan::normalize($settings->plan);
         $instructionLimit = InstructionPlanLimit::forPlan($plan);
         $onboardingLimit = OnboardingPlanLimit::forPlan($plan);
+        $surveyLimit = SurveyPlanLimit::forPlan($plan);
 
-        return array_values(array_filter($modules, function (string $module) use ($plan, $instructionLimit, $onboardingLimit, $request): bool {
+        return array_values(array_filter($modules, function (string $module) use ($plan, $instructionLimit, $onboardingLimit, $surveyLimit, $request): bool {
             if ($module === InstructionsModule::NAME) {
                 return $instructionLimit->enabled && $this->hasInstructionsForPage($request, $instructionLimit->urlBindingsEnabled);
             }
@@ -114,8 +121,97 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
                 return $onboardingLimit->enabled && $this->hasHintsForPage($request, $onboardingLimit->urlBindingsEnabled);
             }
 
+            if ($module === 'polls') {
+                return $surveyLimit->enabled && $this->hasSurveysForPage($request, $surveyLimit->urlBindingsEnabled);
+            }
+
             return true;
         }));
+    }
+
+    private function hasSurveysForPage(BuildAssistantConfigurationRequest $request, bool $urlBindingsEnabled): bool
+    {
+        if ($this->hasDelayedSurveyForVisitor($request)) {
+            return true;
+        }
+
+        $today = date('Y-m-d');
+        $surveyIds = SurveyFormRecord::find()
+            ->where(['public_key' => $request->publicKey, 'is_active' => true])
+            ->andWhere(['or', ['date_start' => null], ['<=', 'date_start', $today]])
+            ->andWhere(['or', ['date_finish' => null], ['>=', 'date_finish', $today]])
+            ->select('id')
+            ->column();
+        if ($surveyIds === []) {
+            return false;
+        }
+        $surveyIds = SurveyQuestionRecord::find()
+            ->where(['survey_id' => $surveyIds])
+            ->select('survey_id')
+            ->distinct()
+            ->column();
+        if ($surveyIds === []) {
+            return false;
+        }
+        if (!$urlBindingsEnabled) {
+            return true;
+        }
+
+        $boundSurveyIds = SurveyUrlRecord::find()
+            ->where(['survey_id' => $surveyIds])
+            ->select('survey_id')
+            ->distinct()
+            ->column();
+        if (count($boundSurveyIds) < count($surveyIds)) {
+            return true;
+        }
+
+        foreach (SurveyUrlRecord::find()->where(['survey_id' => $surveyIds])->all() as $url) {
+            if ($this->urlMatchesRequest(
+                $request,
+                (string)$url->url,
+                $urlBindingsEnabled && (bool)$url->include_children,
+                $urlBindingsEnabled && (bool)$url->include_query,
+            )) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasDelayedSurveyForVisitor(BuildAssistantConfigurationRequest $request): bool
+    {
+        $visitorKey = $this->visitorKey($request);
+
+        $surveyIds = SurveyResponseRecord::find()
+            ->where([
+                'public_key' => $request->publicKey,
+                'visitor_key' => $visitorKey,
+                'is_delayed' => true,
+                'completed_at' => null,
+            ])
+            ->select('survey_id')
+            ->column();
+        if ($surveyIds === []) {
+            return false;
+        }
+
+        return SurveyFormRecord::find()
+            ->where(['id' => $surveyIds, 'public_key' => $request->publicKey, 'is_active' => true])
+            ->exists();
+    }
+
+    private function visitorKey(BuildAssistantConfigurationRequest $request): string
+    {
+        $userId = (string)($request->requestContext?->userId ?? '');
+        if ($userId !== '' && $userId !== '0') {
+            return 'user:' . $userId;
+        }
+
+        $visitorId = (string)($request->requestContext?->visitorId ?? $request->requestContext?->remoteAddr ?? '');
+
+        return 'anon:' . sha1($visitorId);
     }
 
     private function hasInstructionsForPage(BuildAssistantConfigurationRequest $request, bool $urlBindingsEnabled): bool

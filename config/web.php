@@ -178,6 +178,22 @@ $url_rules = [
         'route' => 'manager/onboarding/selector-status',
     ],
     [
+        'pattern' => '/manager/surveys',
+        'route' => 'manager/surveys/index',
+    ],
+    [
+        'pattern' => '/manager/surveys/create',
+        'route' => 'manager/surveys/create',
+    ],
+    [
+        'pattern' => '/manager/surveys/update',
+        'route' => 'manager/surveys/update',
+    ],
+    [
+        'pattern' => '/manager/surveys/delete',
+        'route' => 'manager/surveys/delete',
+    ],
+    [
         'pattern' => '/manager/profile',
         'route' => 'manager/panel/profile',
     ],
@@ -408,6 +424,22 @@ $url_rules = [
     [
         'pattern' => '/api/onboarding/selector-complete',
         'route' => 'api/onboarding/selector-complete',
+    ],
+    [
+        'pattern' => '/api/listpolls',
+        'route' => 'api/surveys/list-polls',
+    ],
+    [
+        'pattern' => '/api/delayedpolls',
+        'route' => 'api/surveys/delayed-polls',
+    ],
+    [
+        'pattern' => '/api/poll',
+        'route' => 'api/surveys/poll',
+    ],
+    [
+        'pattern' => '/api/endpoll',
+        'route' => 'api/surveys/end-poll',
     ],
     [
         'pattern' => '/api/support/state',

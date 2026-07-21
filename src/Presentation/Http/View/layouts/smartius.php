@@ -131,6 +131,14 @@ if ($isLandingPage) {
                 ['label' => 'Создать сценарий', 'url' => ['/manager/onboarding/create']],
             ],
         ],
+        $supportPlan === SupportPlan::FREE ? null : [
+            'label' => 'Анкетирование',
+            'url' => ['/manager/surveys'],
+            'items' => [
+                ['label' => 'Анкеты', 'url' => ['/manager/surveys']],
+                ['label' => 'Создать анкету', 'url' => ['/manager/surveys/create']],
+            ],
+        ],
     ];
     $menu = array_values(array_filter($menu));
 }
