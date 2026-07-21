@@ -6,7 +6,6 @@ use yii\helpers\Html;
 
 /**
  * @var OnboardingRecord[] $onboardings
- * @var array $structure
  * @var int $hintsCount
  * @var ClientProjectView[] $projects
  * @var ClientProjectView $activeProject
@@ -41,7 +40,6 @@ $this->title = 'Онбординг';
                     <span class="uk-label <?= $onboarding->is_active ? '' : 'uk-label-warning' ?>"><?= $onboarding->is_active ? 'включен' : 'выключен' ?></span>
                 </div>
                 <div class="uk-text-meta">Пауза перед запуском: <?= Html::encode((string)$onboarding->timeout) ?> мс · порядок <?= Html::encode((string)$onboarding->sort_order) ?></div>
-                <?= $this->render('_structure', compact('onboarding', 'structure', 'activeProject')) ?>
                 <div class="sw-instruction-actions uk-margin-small-top">
                     <?= Html::a('Редактировать', ['/manager/onboarding/update', 'id' => $onboarding->id, 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-primary uk-button-small']) ?>
                     <?= Html::a('Разделы', ['/manager/onboarding/sections', 'onboardingId' => $onboarding->id, 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-default uk-button-small']) ?>

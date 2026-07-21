@@ -44,14 +44,8 @@ final class OnboardingController extends ManagerController
             return $this->render('locked', [] + $projects->tabsData($ownerPublicKey, $projectId));
         }
 
-        $onboardings = OnboardingRecord::find()
-            ->where(['public_key' => $publicKey])
-            ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_DESC])
-            ->all();
-
         return $this->render('index', [
-            'onboardings' => $onboardings,
-            'structure' => $this->structureData($onboardings),
+            'onboardings' => OnboardingRecord::find()->where(['public_key' => $publicKey])->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_DESC])->all(),
             'hintsCount' => OnboardingHintRecord::find()->where(['public_key' => $publicKey])->count(),
         ] + $projects->tabsData($ownerPublicKey, $projectId));
     }
