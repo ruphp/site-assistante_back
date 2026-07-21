@@ -15,6 +15,8 @@ final class AssistantConfigurationResponse
         public readonly mixed $zeroLogDelay,
         public readonly mixed $urlSiteWidgetTp,
         public readonly array $modules,
+        public readonly array $moduleAccess = [],
+        public readonly array $plan = [],
         public readonly int $autoOpenSnoozeMinutes = 0,
         public readonly array $branding = [],
     ) {
@@ -36,6 +38,8 @@ final class AssistantConfigurationResponse
             $this->zeroLogDelay,
             $this->urlSiteWidgetTp,
             $this->modules,
+            $this->moduleAccess,
+            $this->plan,
             $this->autoOpenSnoozeMinutes,
             $this->branding,
         );
@@ -54,6 +58,8 @@ final class AssistantConfigurationResponse
             'zero_log_delay' => $this->zeroLogDelay,
             'url_sitewidget_tp' => $this->urlSiteWidgetTp,
             'modules' => $this->modules,
+            'module_access' => $this->moduleAccess,
+            'plan' => $this->plan,
             'auto_open_snooze_minutes' => $this->autoOpenSnoozeMinutes,
             'branding' => $this->branding,
         ];

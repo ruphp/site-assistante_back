@@ -57,7 +57,8 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
         $plan = SupportPlan::normalize($supportSettings->plan);
         $modules = $this->allowedEnabledModules($client->publicKey, $client->enabledModules());
         $modules = $this->withTariffModules($modules, $plan);
-        $modules = $this->filterModulesForPlanAndPage($modules, $supportSettings, $request);
+        $moduleAccess = $this->moduleAccess($modules, $supportSettings, $request);
+        $modules = $this->availableModules($modules, $moduleAccess);
 
         $response = new AssistantConfigurationResponse(
             error: [],
@@ -70,6 +71,8 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
             zeroLogDelay: $client->params['timeout'],
             urlSiteWidgetTp: $client->params['server_stp'],
             modules: array_values($modules),
+            moduleAccess: $moduleAccess,
+            plan: $this->planPayload($plan),
             autoOpenSnoozeMinutes: $supportSettings->autoOpenSnoozeMinutes,
             branding: $this->brandingForSettings($supportSettings),
         );
@@ -101,32 +104,88 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
         return array_values(array_unique($modules));
     }
 
-    private function filterModulesForPlanAndPage(array $modules, SupportSettings $settings, BuildAssistantConfigurationRequest $request): array
+    private function moduleAccess(array $modules, SupportSettings $settings, BuildAssistantConfigurationRequest $request): array
     {
         $plan = SupportPlan::normalize($settings->plan);
         $instructionLimit = InstructionPlanLimit::forPlan($plan);
         $onboardingLimit = OnboardingPlanLimit::forPlan($plan);
         $surveyLimit = SurveyPlanLimit::forPlan($plan);
 
-        return array_values(array_filter($modules, function (string $module) use ($plan, $instructionLimit, $onboardingLimit, $surveyLimit, $request): bool {
+        $access = [];
+        foreach (['support', InstructionsModule::NAME, 'onboarding', 'hints', 'polls'] as $module) {
+            $configured = in_array($module, $modules, true);
+            $available = $configured;
+            $reason = $configured ? null : 'disabled';
+
             if ($module === InstructionsModule::NAME) {
-                return $instructionLimit->enabled && $this->hasInstructionsForPage($request, $instructionLimit->urlBindingsEnabled);
+                $available = $configured && $instructionLimit->enabled;
+                $reason = $this->moduleReason($configured, $instructionLimit->enabled, $available);
+                if ($available && !$this->hasInstructionsForPage($request, $instructionLimit->urlBindingsEnabled)) {
+                    $available = false;
+                    $reason = 'empty_for_page';
+                }
+            } elseif ($module === 'onboarding') {
+                $available = $configured && $onboardingLimit->enabled;
+                $reason = $this->moduleReason($configured, $onboardingLimit->enabled, $available);
+                if ($available && !$this->hasOnboardingsForPage($request, $onboardingLimit->urlBindingsEnabled)) {
+                    $available = false;
+                    $reason = 'empty_for_page';
+                }
+            } elseif ($module === 'hints') {
+                $available = $configured && $onboardingLimit->enabled;
+                $reason = $this->moduleReason($configured, $onboardingLimit->enabled, $available);
+                if ($available && !$this->hasHintsForPage($request, $onboardingLimit->urlBindingsEnabled)) {
+                    $available = false;
+                    $reason = 'empty_for_page';
+                }
+            } elseif ($module === 'polls') {
+                $available = $configured && $surveyLimit->enabled;
+                $reason = $this->moduleReason($configured, $surveyLimit->enabled, $available);
+                if ($available && !$this->hasSurveysForPage($request, $surveyLimit->urlBindingsEnabled)) {
+                    $available = false;
+                    $reason = 'empty_for_page';
+                }
             }
 
-            if ($module === 'onboarding') {
-                return $onboardingLimit->enabled && $this->hasOnboardingsForPage($request, $onboardingLimit->urlBindingsEnabled);
-            }
+            $access[$module] = [
+                'enabled' => $configured,
+                'available' => $available,
+                'reason' => $available ? null : $reason,
+            ];
+        }
 
-            if ($module === 'hints') {
-                return $onboardingLimit->enabled && $this->hasHintsForPage($request, $onboardingLimit->urlBindingsEnabled);
-            }
+        return $access;
+    }
 
-            if ($module === 'polls') {
-                return $surveyLimit->enabled && $this->hasSurveysForPage($request, $surveyLimit->urlBindingsEnabled);
-            }
+    private function availableModules(array $modules, array $moduleAccess): array
+    {
+        return array_values(array_filter(
+            $modules,
+            static fn(string $module): bool => (bool)($moduleAccess[$module]['available'] ?? true)
+        ));
+    }
 
-            return true;
-        }));
+    private function moduleReason(bool $configured, bool $planEnabled, bool $available): ?string
+    {
+        if ($available) {
+            return null;
+        }
+        if (!$configured) {
+            return 'disabled';
+        }
+        if (!$planEnabled) {
+            return 'plan_unavailable';
+        }
+
+        return 'unavailable';
+    }
+
+    private function planPayload(string $plan): array
+    {
+        return [
+            'effective' => $plan,
+            'source' => 'plan',
+        ];
     }
 
     private function hasSurveysForPage(BuildAssistantConfigurationRequest $request, bool $urlBindingsEnabled): bool
