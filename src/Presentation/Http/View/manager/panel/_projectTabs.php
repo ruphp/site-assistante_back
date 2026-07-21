@@ -8,9 +8,10 @@ use yii\helpers\Html;
 /**
  * @var ClientProjectView[] $projects
  * @var ClientProjectView $activeProject
+ * @var string|null $projectTabsPath
  */
 
-$path = '/' . trim(Yii::$app->request->pathInfo, '/');
+$path = $projectTabsPath ?? ('/' . trim(Yii::$app->request->pathInfo, '/'));
 if ($path === '/') {
     $path = '/manager';
 }

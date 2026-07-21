@@ -24,7 +24,11 @@ $positions = [0 => 'Сверху', 1 => 'Справа', 2 => 'Снизу', 3 => 
 ?>
 
 <div class="uk-container uk-margin">
-    <?= $this->render('@app/src/Presentation/Http/View/manager/panel/_projectTabs', compact('projects', 'activeProject')) ?>
+    <?= $this->render('@app/src/Presentation/Http/View/manager/panel/_projectTabs', [
+        'projects' => $projects,
+        'activeProject' => $activeProject,
+        'projectTabsPath' => '/manager/onboarding',
+    ]) ?>
     <?= $this->render('_nav', compact('activeProject')) ?>
 
     <h3>Шаги: <?= Html::encode($onboarding->title) ?> · <?= Html::encode($section->title) ?></h3>

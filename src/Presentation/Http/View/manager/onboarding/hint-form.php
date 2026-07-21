@@ -31,7 +31,11 @@ $urlsText = implode("\n", array_map(static fn(OnboardingHintUrlRecord $url): str
 ?>
 
 <div class="uk-container uk-margin">
-    <?= $this->render('@app/src/Presentation/Http/View/manager/panel/_projectTabs', compact('projects', 'activeProject')) ?>
+    <?= $this->render('@app/src/Presentation/Http/View/manager/panel/_projectTabs', [
+        'projects' => $projects,
+        'activeProject' => $activeProject,
+        'projectTabsPath' => '/manager/onboarding/hints',
+    ]) ?>
     <?= $this->render('_nav', compact('activeProject')) ?>
 
     <h3><?= Html::encode($this->title) ?></h3>

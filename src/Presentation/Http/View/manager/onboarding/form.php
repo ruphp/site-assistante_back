@@ -19,7 +19,11 @@ $this->title = $onboarding->isNewRecord ? 'Создать сценарий' : '�
 ?>
 
 <div class="uk-container uk-margin">
-    <?= $this->render('@app/src/Presentation/Http/View/manager/panel/_projectTabs', compact('projects', 'activeProject')) ?>
+    <?= $this->render('@app/src/Presentation/Http/View/manager/panel/_projectTabs', [
+        'projects' => $projects,
+        'activeProject' => $activeProject,
+        'projectTabsPath' => '/manager/onboarding',
+    ]) ?>
     <?= $this->render('_nav', compact('activeProject')) ?>
 
     <h3><?= Html::encode($this->title) ?></h3>
