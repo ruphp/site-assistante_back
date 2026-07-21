@@ -27,7 +27,7 @@ final class InstructionsController extends ManagerController
 
         [$projects, $ownerPublicKey, $projectId, $publicKey] = $this->projectContext();
         $articles = $this->articles($publicKey);
-        $limit = InstructionPlanLimit::forPlan($this->supportPlan($publicKey));
+        $limit = InstructionPlanLimit::forPlan($this->supportPlan($ownerPublicKey));
 
         return $this->render('index', [
             'articles' => $articles,
@@ -143,7 +143,7 @@ final class InstructionsController extends ManagerController
         }
 
         if (Yii::$app->request->isPost) {
-            $this->saveArticle($publicKey, $article);
+            $this->saveArticle($publicKey, $article, $ownerPublicKey);
 
             return $this->redirect($this->projectUrl('/manager/instructions', $projectId));
         }
@@ -154,7 +154,7 @@ final class InstructionsController extends ManagerController
             'roles' => Roles::find()->where(['public_key' => $publicKey])->orderBy(['name' => SORT_ASC])->all(),
             'selectedRoleIds' => $article->isNewRecord ? [] : InstructionArticleRoleRecord::find()->where(['article_id' => $article->id])->select('role_id')->column(),
             'articleUrls' => $article->isNewRecord ? [] : InstructionArticleUrlRecord::find()->where(['article_id' => $article->id])->orderBy(['id' => SORT_ASC])->all(),
-            'urlBindingsEnabled' => InstructionPlanLimit::forPlan($this->supportPlan($publicKey))->urlBindingsEnabled,
+            'urlBindingsEnabled' => InstructionPlanLimit::forPlan($this->supportPlan($ownerPublicKey))->urlBindingsEnabled,
         ] + $projects->tabsData($ownerPublicKey, $projectId));
     }
 
@@ -182,7 +182,7 @@ final class InstructionsController extends ManagerController
         Yii::$app->session->setFlash($saved ? 'success' : 'error', $saved ? 'Раздел сохранен' : 'Не удалось сохранить раздел');
     }
 
-    private function saveArticle(int $publicKey, InstructionArticleRecord $article): void
+    private function saveArticle(int $publicKey, InstructionArticleRecord $article, int $ownerPublicKey): void
     {
         $data = Yii::$app->request->post('InstructionArticle');
         if (!is_array($data)) {
@@ -202,7 +202,7 @@ final class InstructionsController extends ManagerController
         $article->sort_order = (int)($data['sort_order'] ?? 100);
         $article->is_active = (bool)($data['is_active'] ?? false);
 
-        if (!$this->storageAllowed($publicKey, $article)) {
+        if (!$this->storageAllowed($publicKey, $article, $ownerPublicKey)) {
             Yii::$app->session->setFlash('error', 'Лимит места для инструкций исчерпан');
 
             return;
@@ -268,9 +268,9 @@ final class InstructionsController extends ManagerController
         return $settings instanceof InstructionSettingsRecord && (bool)$settings->creation_locked;
     }
 
-    private function storageAllowed(int $publicKey, InstructionArticleRecord $article): bool
+    private function storageAllowed(int $publicKey, InstructionArticleRecord $article, int $ownerPublicKey): bool
     {
-        $limit = InstructionPlanLimit::forPlan($this->supportPlan($publicKey));
+        $limit = InstructionPlanLimit::forPlan($this->supportPlan($ownerPublicKey));
         if (!$limit->enabled) {
             return false;
         }
