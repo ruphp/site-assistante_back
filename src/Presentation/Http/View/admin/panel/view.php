@@ -12,6 +12,16 @@ $this->title = 'Клиент: ' . ($report->firm !== '' ? $report->firm : $repor
 $limitText = static function (int $used, int $limit): string {
     return $limit > 0 ? $used . ' / ' . $limit : (string)$used;
 };
+$bytesText = static function (int $bytes): string {
+    if ($bytes >= 1024 * 1024 * 1024) {
+        return round($bytes / 1024 / 1024 / 1024, 1) . ' ГБ';
+    }
+    if ($bytes >= 1024 * 1024) {
+        return round($bytes / 1024 / 1024, 1) . ' МБ';
+    }
+
+    return round($bytes / 1024, 1) . ' КБ';
+};
 ?>
 
 <div class="uk-container uk-margin">
@@ -81,6 +91,12 @@ $limitText = static function (int $used, int $limit): string {
                         <dd><?= Html::encode($limitText($project->conversationsMonth, $project->conversationsMonthLimit)) ?></dd>
                         <dt>Сообщения за месяц</dt>
                         <dd><?= Html::encode($limitText($project->messagesMonth, $project->messagesMonthLimit)) ?></dd>
+                        <dt>Место инструкций</dt>
+                        <dd>
+                            <?= Html::encode($bytesText($project->instructionStorageBytes)) ?>
+                            из
+                            <?= Html::encode($bytesText($project->instructionStorageLimitBytes)) ?>
+                        </dd>
                     </dl>
                     <?= Html::a('Смотреть диалоги', '/admin/clients/dialogs?publicKey=' . $project->publicKey, [
                         'class' => 'uk-button uk-button-default uk-button-small',

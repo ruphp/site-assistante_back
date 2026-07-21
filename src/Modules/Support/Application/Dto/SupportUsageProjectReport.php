@@ -17,6 +17,8 @@ final class SupportUsageProjectReport
         public readonly int $conversationsMonthLimit,
         public readonly int $messagesMonth,
         public readonly int $messagesMonthLimit,
+        public readonly int $instructionStorageBytes,
+        public readonly int $instructionStorageLimitBytes,
     ) {
     }
 }

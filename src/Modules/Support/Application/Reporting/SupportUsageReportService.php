@@ -4,6 +4,8 @@ namespace app\Modules\Support\Application\Reporting;
 
 use app\Application\Panel\ClientProjectService;
 use app\Infrastructure\YiiActiveRecord\Users;
+use app\Modules\Instructions\Domain\InstructionPlanLimit;
+use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleRecord;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportUsageRepositoryInterface;
 use app\Modules\Support\Application\Dto\SupportUsageOwnerReport;
@@ -86,6 +88,7 @@ final class SupportUsageReportService
         $ownerSettings = $this->settings->getForClient($ownerPublicKey);
         $ownerPlan = SupportPlan::normalize($ownerSettings->plan);
         $ownerLimit = SupportPlanLimit::forPlan($ownerPlan);
+        $instructionLimit = InstructionPlanLimit::forPlan($ownerPlan);
 
         $operatorRepliesToday = 0;
         $conversationsMonth = 0;
@@ -114,6 +117,8 @@ final class SupportUsageReportService
                 conversationsMonthLimit: $ownerLimit->maxConversationsPerMonth,
                 messagesMonth: $projectMessagesMonth,
                 messagesMonthLimit: $ownerLimit->maxMessagesPerMonth,
+                instructionStorageBytes: $this->instructionStorageBytes($project->publicKey),
+                instructionStorageLimitBytes: $instructionLimit->storageBytes,
             );
         }
 
@@ -148,6 +153,13 @@ final class SupportUsageReportService
                 'auth_assignment.item_name' => 'manager',
             ])
             ->count();
+    }
+
+    private function instructionStorageBytes(int $publicKey): int
+    {
+        return (int)InstructionArticleRecord::find()
+            ->where(['public_key' => $publicKey])
+            ->sum('content_bytes');
     }
 
     private function isChildProjectPublicKey(int $publicKey): bool

@@ -175,7 +175,7 @@ class PanelController extends AdminController
             Yii::$app->session->setFlash('success', $article->admin_blocked ? 'Инструкция заблокирована' : 'Инструкция разблокирована');
         }
 
-        return $this->redirect('/admin/instructions');
+        return $this->redirect('/admin/instructions?publicKey=' . (int)$article->public_key);
     }
 
     public function actionInstructionView(int $id): string|Response
@@ -211,7 +211,7 @@ class PanelController extends AdminController
         $settings->save(false);
         Yii::$app->session->setFlash('success', $settings->creation_locked ? 'Создание инструкций заблокировано' : 'Создание инструкций разрешено');
 
-        return $this->redirect('/admin/instructions');
+        return $this->redirect('/admin/instructions?publicKey=' . $publicKey);
     }
 
     public function actionResetDailyReplies(int $publicKey): Response

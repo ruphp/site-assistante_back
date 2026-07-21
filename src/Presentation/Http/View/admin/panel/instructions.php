@@ -14,10 +14,12 @@ use yii\helpers\Html;
 
 $this->title = 'Инструкции клиентов';
 $filterPublicKey = (int)$publicKey;
-$publicKeys = array_values(array_unique(array_merge(
-    array_map('intval', $clientPublicKeys),
-    array_map(static fn(InstructionArticleRecord $article): int => (int)$article->public_key, $articles),
-)));
+$publicKeys = $filterPublicKey > 0
+    ? []
+    : array_values(array_unique(array_merge(
+        array_map('intval', $clientPublicKeys),
+        array_map(static fn(InstructionArticleRecord $article): int => (int)$article->public_key, $articles),
+    )));
 sort($publicKeys);
 ?>
 
@@ -34,25 +36,35 @@ sort($publicKeys);
         <?php endif; ?>
     </div>
 
-    <div class="sw-instruction-list uk-margin">
-        <?php foreach ($publicKeys as $clientPublicKey): ?>
-            <?php $locked = isset($settings[$clientPublicKey]) && $settings[$clientPublicKey]->creation_locked; ?>
-            <div class="sw-instruction-card">
-                <div class="sw-instruction-card__top">
-                    <h4>Public key <?= Html::encode((string)$clientPublicKey) ?></h4>
-                    <div class="uk-text-nowrap">
-                        <?= Html::a('Смотреть', ['/admin/instructions', 'publicKey' => $clientPublicKey], [
-                            'class' => 'uk-button uk-button-default uk-button-small',
-                        ]) ?>
-                        <?= Html::a($locked ? 'Разрешить создание' : 'Запретить создание', ['/admin/instructions/creation', 'publicKey' => $clientPublicKey], [
-                            'class' => 'uk-button uk-button-default uk-button-small',
-                            'data' => ['method' => 'post'],
-                        ]) ?>
+    <?php if ($filterPublicKey === 0): ?>
+        <div class="sw-instruction-list uk-margin">
+            <?php foreach ($publicKeys as $clientPublicKey): ?>
+                <?php $locked = isset($settings[$clientPublicKey]) && $settings[$clientPublicKey]->creation_locked; ?>
+                <div class="sw-instruction-card">
+                    <div class="sw-instruction-card__top">
+                        <h4>Public key <?= Html::encode((string)$clientPublicKey) ?></h4>
+                        <div class="uk-text-nowrap">
+                            <?= Html::a('Смотреть', ['/admin/instructions', 'publicKey' => $clientPublicKey], [
+                                'class' => 'uk-button uk-button-default uk-button-small',
+                            ]) ?>
+                            <?= Html::a($locked ? 'Разрешить создание' : 'Запретить создание', ['/admin/instructions/creation', 'publicKey' => $clientPublicKey], [
+                                'class' => 'uk-button uk-button-default uk-button-small',
+                                'data' => ['method' => 'post'],
+                            ]) ?>
+                        </div>
                     </div>
                 </div>
-            </div>
-        <?php endforeach; ?>
-    </div>
+            <?php endforeach; ?>
+        </div>
+    <?php elseif ($filterPublicKey > 0): ?>
+        <?php $locked = isset($settings[$filterPublicKey]) && $settings[$filterPublicKey]->creation_locked; ?>
+        <div class="uk-margin">
+            <?= Html::a($locked ? 'Разрешить создание' : 'Запретить создание', ['/admin/instructions/creation', 'publicKey' => $filterPublicKey], [
+                'class' => 'uk-button uk-button-default uk-button-small',
+                'data' => ['method' => 'post'],
+            ]) ?>
+        </div>
+    <?php endif; ?>
 
     <div class="sw-instruction-grid">
         <?php foreach ($articles as $article): ?>
