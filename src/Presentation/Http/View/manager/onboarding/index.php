@@ -26,13 +26,13 @@ $this->title = 'Онбординг';
         <?= Html::a('Создать сценарий', ['/manager/onboarding/create', 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-primary']) ?>
     </div>
 
-    <div class="sw-instruction-summary uk-grid-small uk-child-width-1-3@m" uk-grid>
-        <div><div class="sw-instruction-stat"><b><?= Html::encode((string)count($onboardings)) ?></b><span>сценариев</span></div></div>
-        <div><div class="sw-instruction-stat"><b><?= Html::encode((string)$hintsCount) ?></b><span>подсказок</span></div></div>
-        <div><div class="sw-instruction-stat"><b><?= Html::encode((string)$activeProject->publicKey) ?></b><span>public key</span></div></div>
+    <div class="sw-onboarding-summary uk-grid-small uk-child-width-1-3@m" uk-grid>
+        <div><div class="sw-onboarding-stat"><b><?= Html::encode((string)count($onboardings)) ?></b><span>сценариев</span></div></div>
+        <div><div class="sw-onboarding-stat"><b><?= Html::encode((string)$hintsCount) ?></b><span>подсказок</span></div></div>
+        <div><div class="sw-onboarding-stat"><b><?= Html::encode((string)$activeProject->publicKey) ?></b><span>public key</span></div></div>
     </div>
 
-    <div class="sw-instruction-grid">
+    <div class="sw-instruction-grid sw-onboarding-list">
         <?php foreach ($onboardings as $onboarding): ?>
             <article class="sw-instruction-card">
                 <div class="sw-instruction-card__top">
