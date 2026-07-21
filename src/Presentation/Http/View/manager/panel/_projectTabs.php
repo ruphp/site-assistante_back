@@ -1,13 +1,13 @@
 <?php
 
 use app\Application\Panel\Dto\ClientProjectView;
-use app\Modules\Support\Domain\SupportPlan;
 use app\Modules\Support\Domain\SupportPlanLimit;
 use yii\helpers\Html;
 
 /**
  * @var ClientProjectView[] $projects
  * @var ClientProjectView $activeProject
+ * @var SupportPlanLimit $projectLimit
  * @var string|null $projectTabsPath
  */
 
@@ -15,8 +15,6 @@ $path = $projectTabsPath ?? ('/' . trim(Yii::$app->request->pathInfo, '/'));
 if ($path === '/') {
     $path = '/manager';
 }
-$supportPlan = SupportPlan::normalize((string)(Yii::$app->user->identity->support_plan ?? SupportPlan::FREE));
-$projectLimit = SupportPlanLimit::forPlan($supportPlan);
 $canCreateProjects = count($projects) < $projectLimit->maxProjects;
 ?>
 
@@ -80,7 +78,7 @@ $canCreateProjects = count($projects) < $projectLimit->maxProjects;
             <p>На текущем тарифе доступно проектов: <?= Html::encode((string)$projectLimit->maxProjects) ?>. Чтобы подключить несколько сайтов или тематик, перейдите на Pro-тариф.</p>
             <div class="uk-text-right">
                 <button class="uk-button uk-button-default uk-modal-close" type="button">Закрыть</button>
-                <?= Html::a('Написать в виджет', '/', ['class' => 'uk-button uk-button-primary']) ?>
+                <button class="uk-button uk-button-primary uk-modal-close" type="button" data-sitewidget-open-support>Написать в виджет</button>
             </div>
         </div>
     </div>

@@ -11,8 +11,6 @@ use app\Application\Panel\ManageAssistantSettingsService;
 use app\Application\Panel\Metrics\PanelMetricsService;
 use app\Modules\Support\Application\Bot\TelegramManagerBotService;
 use app\Modules\Support\Application\Reporting\SupportUsageReportService;
-use app\Modules\Support\Domain\SupportPlan;
-use app\Modules\Support\Domain\SupportPlanLimit;
 use app\Presentation\Http\Controller\ManagerController;
 use app\Presentation\Http\Form\ManagerOperatorForm;
 use app\Presentation\Http\Form\ManagerOwnerContactForm;
@@ -85,8 +83,7 @@ class PanelController extends ManagerController
             return $this->redirect('/manager/support/conversations');
         }
         $ownerPublicKey = Yii::$app->user->identity->getPublicKey();
-        $supportPlan = SupportPlan::normalize((string)(Yii::$app->user->identity->support_plan ?? SupportPlan::FREE));
-        $projectLimit = SupportPlanLimit::forPlan($supportPlan);
+        $projectLimit = $this->projects->projectLimitForOwner($ownerPublicKey);
         if (count($this->projects->projectsForOwner($ownerPublicKey)) >= $projectLimit->maxProjects) {
             Yii::$app->session->setFlash('warning', 'Лимит проектов на текущем тарифе исчерпан. Дополнительные проекты доступны на Pro-тарифе.');
 

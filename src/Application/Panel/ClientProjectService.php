@@ -6,6 +6,7 @@ use app\Application\Panel\Dto\ClientProjectView;
 use app\Infrastructure\YiiActiveRecord\Params;
 use app\Infrastructure\YiiActiveRecord\Users;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
+use app\Modules\Support\Domain\SupportPlanLimit;
 use app\Modules\Support\Domain\SupportSettings;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportProjectRecord;
 use Yii;
@@ -103,8 +104,13 @@ final class ClientProjectService
         return $record->save();
     }
 
+    public function projectLimitForOwner(int $ownerPublicKey): SupportPlanLimit
+    {
+        return SupportPlanLimit::forPlan($this->supportSettings->getForClient($ownerPublicKey)->plan);
+    }
+
     /**
-     * @return array{projects: ClientProjectView[], activeProject: ClientProjectView}
+     * @return array{projects: ClientProjectView[], activeProject: ClientProjectView, projectLimit: SupportPlanLimit}
      */
     public function tabsData(int $ownerPublicKey, ?int $projectId = null): array
     {
@@ -114,6 +120,7 @@ final class ClientProjectService
         return [
             'projects' => $projects,
             'activeProject' => $activeProject,
+            'projectLimit' => $this->projectLimitForOwner($ownerPublicKey),
         ];
     }
 

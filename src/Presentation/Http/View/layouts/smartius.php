@@ -188,6 +188,30 @@ if (!empty($this->params['seoBreadcrumbs']) && is_array($this->params['seoBreadc
     ];
 }
 
+$this->registerJs(<<<'JS'
+document.addEventListener('click', function (event) {
+    var target = event.target;
+    if (!target || typeof target.closest !== 'function') {
+        return;
+    }
+
+    var trigger = target.closest('[data-sitewidget-open-support]');
+    if (!trigger) {
+        return;
+    }
+
+    event.preventDefault();
+    if (window.SiteWidget && window.SiteWidget.api && typeof window.SiteWidget.api.openSupport === 'function') {
+        window.SiteWidget.api.openSupport();
+        return;
+    }
+
+    if (window.SiteWidget && window.SiteWidget.api && typeof window.SiteWidget.api.open === 'function') {
+        window.SiteWidget.api.open();
+    }
+});
+JS);
+
 $this->beginPage();
 
 ?>

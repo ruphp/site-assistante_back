@@ -108,24 +108,6 @@ $this->registerMetaTag([
         'name' => 'keywords',
         'content' => 'обратная связь на сайт, форма обратной связи, виджет обратной связи, онлайн-поддержка на сайт, чат поддержки на сайт, кнопки обратной связи, SiteWidget',
 ]);
-$this->registerJs(<<<'JS'
-document.addEventListener('click', function (event) {
-    var trigger = event.target.closest('[data-sitewidget-open-support]');
-    if (!trigger) {
-        return;
-    }
-
-    event.preventDefault();
-    if (window.SiteWidget && window.SiteWidget.api && typeof window.SiteWidget.api.openSupport === 'function') {
-        window.SiteWidget.api.openSupport();
-        return;
-    }
-
-    if (window.SiteWidget && window.SiteWidget.api && typeof window.SiteWidget.api.open === 'function') {
-        window.SiteWidget.api.open();
-    }
-});
-JS);
 ?>
 
 <main class="site-landing">

@@ -211,7 +211,7 @@ $currentUserId = (int)Yii::$app->user->id;
                 <p>Чтобы добавить ещё менеджеров онлайн-поддержки, перейдите на платный тариф.</p>
                 <div class="uk-text-right">
                     <button class="uk-button uk-button-default uk-modal-close" type="button">Закрыть</button>
-                    <?= Html::a('Написать в виджет', '/', ['class' => 'uk-button uk-button-primary']) ?>
+                    <button class="uk-button uk-button-primary uk-modal-close" type="button" data-sitewidget-open-support>Написать в виджет</button>
                 </div>
             </div>
         </div>
