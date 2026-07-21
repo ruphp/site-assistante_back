@@ -1,6 +1,7 @@
 <?php
 
 use app\Application\Panel\Dto\ClientProjectView;
+use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Domain\SupportPlanLimit;
 use yii\helpers\Html;
 
@@ -15,6 +16,12 @@ $path = $projectTabsPath ?? ('/' . trim(Yii::$app->request->pathInfo, '/'));
 if ($path === '/') {
     $path = '/manager';
 }
+$projectLimit ??= SupportPlanLimit::forPlan(
+    Yii::$container
+        ->get(SupportSettingsRepositoryInterface::class)
+        ->getForClient($activeProject->ownerPublicKey)
+        ->plan
+);
 $canCreateProjects = count($projects) < $projectLimit->maxProjects;
 ?>
 
