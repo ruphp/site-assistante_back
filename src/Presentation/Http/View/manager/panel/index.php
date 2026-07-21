@@ -24,7 +24,9 @@ $canCreateProjects = count($projects) < $projectLimit->maxProjects;
             <div>
                 <div class="uk-card uk-card-default uk-card-body">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
-                        <h4 class="uk-margin-remove"><?= Html::encode($project->name) ?></h4>
+                        <h4 class="uk-margin-remove">
+                            <?= Html::a(Html::encode($project->name), '/manager/params?projectId=' . $project->id) ?>
+                        </h4>
                     </div>
                     <?php if ($project->domain !== ''): ?>
                         <div class="uk-text-meta uk-margin-small-top"><?= Html::encode($project->domain) ?></div>
@@ -35,22 +37,7 @@ $canCreateProjects = count($projects) < $projectLimit->maxProjects;
                     </div>
                     <div class="uk-margin-top uk-grid-small" uk-grid>
                         <div>
-                            <?= Html::a('Параметры', '/manager/params?projectId=' . $project->id, ['class' => 'uk-button uk-button-primary uk-button-small']) ?>
-                        </div>
-                        <div>
-                            <?= Html::a('Оформление', '/manager/designe?projectId=' . $project->id, ['class' => 'uk-button uk-button-default uk-button-small']) ?>
-                        </div>
-                        <div>
-                            <?= Html::a('Поддержка', '/manager/support?projectId=' . $project->id, ['class' => 'uk-button uk-button-default uk-button-small']) ?>
-                        </div>
-                        <div>
-                            <?= Html::a('Инструкции', '/manager/instructions?projectId=' . $project->id, ['class' => 'uk-button uk-button-default uk-button-small']) ?>
-                        </div>
-                        <div>
-                            <?= Html::a('Онбординг', '/manager/onboarding?projectId=' . $project->id, ['class' => 'uk-button uk-button-default uk-button-small']) ?>
-                        </div>
-                        <div>
-                            <?= Html::a('Анкеты', '/manager/surveys?projectId=' . $project->id, ['class' => 'uk-button uk-button-default uk-button-small']) ?>
+                            <?= Html::a('Открыть проект', '/manager/params?projectId=' . $project->id, ['class' => 'uk-button uk-button-primary uk-button-small']) ?>
                         </div>
                     </div>
                 </div>
