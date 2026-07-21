@@ -44,8 +44,14 @@ final class OnboardingController extends ManagerController
             return $this->render('locked', [] + $projects->tabsData($ownerPublicKey, $projectId));
         }
 
+        $onboardings = OnboardingRecord::find()
+            ->where(['public_key' => $publicKey])
+            ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_DESC])
+            ->all();
+
         return $this->render('index', [
-            'onboardings' => OnboardingRecord::find()->where(['public_key' => $publicKey])->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_DESC])->all(),
+            'onboardings' => $onboardings,
+            'structure' => $this->structureData($onboardings),
             'hintsCount' => OnboardingHintRecord::find()->where(['public_key' => $publicKey])->count(),
         ] + $projects->tabsData($ownerPublicKey, $projectId));
     }
@@ -278,9 +284,48 @@ final class OnboardingController extends ManagerController
 
         return $this->render('form', [
             'onboarding' => $onboarding,
+            'structure' => $onboarding->isNewRecord ? [] : $this->structureData([$onboarding]),
             'roles' => Roles::find()->where(['public_key' => $publicKey])->orderBy(['name' => SORT_ASC])->all(),
             'selectedRoleIds' => $onboarding->isNewRecord ? [] : OnboardingRoleRecord::find()->where(['onboarding_id' => $onboarding->id])->select('role_id')->column(),
         ] + $projects->tabsData($ownerPublicKey, $projectId));
+    }
+
+    /**
+     * @param OnboardingRecord[] $onboardings
+     */
+    private function structureData(array $onboardings): array
+    {
+        $onboardingIds = array_values(array_filter(array_map(static fn(OnboardingRecord $record): int => (int)$record->id, $onboardings)));
+        if ($onboardingIds === []) {
+            return [];
+        }
+
+        $sections = OnboardingSectionRecord::find()
+            ->where(['onboarding_id' => $onboardingIds])
+            ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC])
+            ->all();
+        $sectionIds = array_values(array_filter(array_map(static fn(OnboardingSectionRecord $record): int => (int)$record->id, $sections)));
+        $steps = $sectionIds === []
+            ? []
+            : OnboardingStepRecord::find()
+                ->where(['section_id' => $sectionIds])
+                ->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC])
+                ->all();
+
+        $sectionsByOnboarding = [];
+        foreach ($sections as $section) {
+            $sectionsByOnboarding[(int)$section->onboarding_id][] = $section;
+        }
+
+        $stepsBySection = [];
+        foreach ($steps as $step) {
+            $stepsBySection[(int)$step->section_id][] = $step;
+        }
+
+        return [
+            'sectionsByOnboarding' => $sectionsByOnboarding,
+            'stepsBySection' => $stepsBySection,
+        ];
     }
 
     private function editHint(?int $id): Response|string

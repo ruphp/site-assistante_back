@@ -8,6 +8,7 @@ use yii\helpers\Html;
 
 /**
  * @var OnboardingRecord $onboarding
+ * @var array $structure
  * @var Roles[] $roles
  * @var int[] $selectedRoleIds
  * @var ClientProjectView[] $projects
@@ -58,4 +59,10 @@ $this->title = $onboarding->isNewRecord ? 'Создать сценарий' : '�
             <?= Html::a('Отмена', ['/manager/onboarding', 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-default']) ?>
         </div>
     <?= Html::endForm() ?>
+
+    <?php if (!$onboarding->isNewRecord): ?>
+        <section class="sw-instruction-card uk-margin-top">
+            <?= $this->render('_structure', compact('onboarding', 'structure', 'activeProject')) ?>
+        </section>
+    <?php endif; ?>
 </div>

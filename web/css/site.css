@@ -2177,6 +2177,77 @@ ul.ticket-messages-list {
     justify-content: flex-end;
 }
 
+.sw-onboarding-structure {
+    border-top: 1px solid var(--sw-line);
+    display: grid;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 14px;
+}
+
+.sw-onboarding-structure__head,
+.sw-onboarding-section__title,
+.sw-onboarding-step {
+    align-items: flex-start;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.sw-onboarding-structure__empty {
+    background: var(--sw-surface);
+    border: 1px dashed var(--sw-lavender);
+    color: var(--sw-muted);
+    padding: 12px;
+}
+
+.sw-onboarding-section {
+    background: #FAFAFF;
+    border: 1px solid var(--sw-lavender);
+    padding: 12px;
+}
+
+.sw-onboarding-section__title > div:first-child {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.sw-onboarding-section__order,
+.sw-onboarding-step__order {
+    background: var(--sw-base);
+    color: #fff;
+    display: inline-flex;
+    font-size: 12px;
+    justify-content: center;
+    min-width: 34px;
+    padding: 2px 6px;
+}
+
+.sw-onboarding-step-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.sw-onboarding-step {
+    background: #fff;
+    border: 1px solid var(--sw-line);
+    padding: 10px;
+}
+
+.sw-onboarding-step--empty {
+    color: var(--sw-muted);
+}
+
+.sw-onboarding-step__main {
+    align-items: flex-start;
+    display: flex;
+    gap: 10px;
+    min-width: 0;
+}
+
 .sw-instruction-comments {
     display: grid;
     gap: 10px;
@@ -2200,7 +2271,10 @@ ul.ticket-messages-list {
     }
 
     .sw-instruction-card__footer,
-    .sw-instruction-actions {
+    .sw-instruction-actions,
+    .sw-onboarding-structure__head,
+    .sw-onboarding-section__title,
+    .sw-onboarding-step {
         align-items: stretch;
         flex-direction: column;
     }
