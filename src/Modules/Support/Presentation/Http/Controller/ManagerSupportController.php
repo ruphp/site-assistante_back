@@ -8,6 +8,7 @@ use app\Modules\Support\Application\Service\SupportOperatorProjectAccessService;
 use app\Modules\Support\Application\UseCase\ManageSupportEntryPointsUseCase;
 use app\Modules\Support\Application\UseCase\ManageSupportSettingsUseCase;
 use app\Modules\Support\Application\UseCase\OperatorSupportUseCase;
+use app\Modules\Support\Infrastructure\YiiSupportConversationRepository;
 use app\Presentation\Http\Controller\ManagerController;
 use Yii;
 use yii\web\Response;
@@ -23,6 +24,7 @@ final class ManagerSupportController extends ManagerController
         private readonly SupportRealtimeTokenIssuerInterface $realtimeTokenIssuer,
         private readonly ClientProjectService $projects,
         private readonly SupportOperatorProjectAccessService $projectAccess,
+        private readonly YiiSupportConversationRepository $supportConversations,
         $config = [],
     ) {
         parent::__construct($id, $module, $config);
@@ -57,6 +59,7 @@ final class ManagerSupportController extends ManagerController
     public function actionConversations(): Response|string
     {
         $status = Yii::$app->request->get('status', 'open');
+        $this->closeExpiredSupportConversations();
 
         return $this->render('@app/src/Modules/Support/Presentation/Http/View/manager/conversations', [
             'conversations' => $this->operatorSupport
@@ -229,5 +232,14 @@ final class ManagerSupportController extends ManagerController
             (int)Yii::$app->user->identity->getPublicKey(),
             (int)Yii::$app->user->identity->getId(),
         );
+    }
+
+    private function closeExpiredSupportConversations(): void
+    {
+        $seenTimeoutMinutes = (int)($_ENV['SUPPORT_AUTO_CLOSE_AFTER_OPERATOR_SEEN_MINUTES'] ?? 30);
+        $replyTimeoutMinutes = (int)($_ENV['SUPPORT_AUTO_CLOSE_AFTER_OPERATOR_REPLY_MINUTES'] ?? $seenTimeoutMinutes);
+
+        $this->supportConversations->closeExpiredAfterOperatorSeen(max(60, $seenTimeoutMinutes * 60));
+        $this->supportConversations->closeExpiredAfterOperatorReply(max(60, $replyTimeoutMinutes * 60));
     }
 }

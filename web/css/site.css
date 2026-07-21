@@ -2070,6 +2070,40 @@ ul.ticket-messages-list {
     margin-top: 18px;
 }
 
+.sw-support-conversation-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.sw-support-conversation-row {
+    align-items: center;
+    background: #fff;
+    border: 1px solid var(--sw-line);
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 10px minmax(150px, .85fr) minmax(180px, 1fr) minmax(120px, auto) auto;
+    padding: 9px 12px;
+}
+
+.sw-support-conversation-row--hot {
+    border-left: 4px solid var(--sw-primary);
+}
+
+.sw-support-conversation-row__visitor,
+.sw-support-conversation-row__topic,
+.sw-support-conversation-row__time {
+    min-width: 0;
+}
+
+.sw-support-wait-dot {
+    border-radius: 50%;
+    display: inline-block;
+    flex: 0 0 auto;
+    height: 10px;
+    width: 10px;
+}
+
 .sw-instruction-form {
     background: #fff;
     border: 1px solid var(--sw-line);
@@ -2294,6 +2328,22 @@ ul.ticket-messages-list {
     .sw-onboarding-step {
         align-items: stretch;
         flex-direction: column;
+    }
+
+    .sw-support-conversation-row {
+        align-items: start;
+        grid-template-columns: 10px minmax(0, 1fr) auto;
+    }
+
+    .sw-support-conversation-row__visitor,
+    .sw-support-conversation-row__topic,
+    .sw-support-conversation-row__time {
+        grid-column: 2 / 3;
+    }
+
+    .sw-support-conversation-row > .uk-button {
+        grid-column: 3 / 4;
+        grid-row: 1 / 4;
     }
 
     .sw-instruction-sort {

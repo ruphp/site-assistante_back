@@ -1,1 +1,2 @@
 */10 * * * *  php /app/yii cron/prepare-log-configuration >>/var/log/cron.log 2>&1
+*/5 * * * *  php /app/yii cron/close-expired-support-conversations >>/var/log/cron.log 2>&1

@@ -3,6 +3,7 @@
 namespace app\Presentation\Console\Controller;
 
 use app\Application\Cron\PrepareLogConfigurationService;
+use app\Modules\Support\Infrastructure\YiiSupportConversationRepository;
 use yii\console\Controller;
 use yii\console\ExitCode;
 
@@ -12,6 +13,7 @@ class CronController extends Controller
         $id,
         $module,
         private readonly PrepareLogConfigurationService $prepareLogConfiguration,
+        private readonly YiiSupportConversationRepository $supportConversations,
         $config = []
     ) {
         parent::__construct($id, $module, $config);
@@ -30,6 +32,23 @@ class CronController extends Controller
     public function actionTestCron(): int
     {
         echo "actionTestCron";
+
+        return ExitCode::OK;
+    }
+
+    public function actionCloseExpiredSupportConversations(): int
+    {
+        $seenTimeoutMinutes = (int)($_ENV['SUPPORT_AUTO_CLOSE_AFTER_OPERATOR_SEEN_MINUTES'] ?? 30);
+        $replyTimeoutMinutes = (int)($_ENV['SUPPORT_AUTO_CLOSE_AFTER_OPERATOR_REPLY_MINUTES'] ?? $seenTimeoutMinutes);
+
+        $closedAfterSeen = $this->supportConversations->closeExpiredAfterOperatorSeen(max(60, $seenTimeoutMinutes * 60));
+        $closedAfterReply = $this->supportConversations->closeExpiredAfterOperatorReply(max(60, $replyTimeoutMinutes * 60));
+
+        echo sprintf(
+            "Closed support conversations: after_seen=%d, after_reply=%d\n",
+            $closedAfterSeen,
+            $closedAfterReply
+        );
 
         return ExitCode::OK;
     }

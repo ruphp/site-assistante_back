@@ -22,6 +22,20 @@ $waitingColors = [
     'none' => '#adb5bd',
 ];
 
+$formatDateTime = static function (mixed $value): string {
+    $raw = trim((string)$value);
+    if ($raw === '') {
+        return '-';
+    }
+
+    $timestamp = strtotime($raw);
+    if ($timestamp === false) {
+        return $raw;
+    }
+
+    return date('d.m.Y H:i', $timestamp);
+};
+
 $visitorLabel = static function (array $conversation): string {
     $name = trim((string)($conversation['visitor_name'] ?? ''));
     if ($name !== '') {
@@ -66,82 +80,53 @@ $visitorLabel = static function (array $conversation): string {
             <p>Диалогов пока нет.</p>
         </div>
     <?php else: ?>
-        <table class="uk-table uk-table-divider uk-table-hover">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Проект</th>
-                <th>Посетитель</th>
-                <th>Кнопка</th>
-                <th>Страница</th>
-                <th>Приоритет</th>
-                <th>Ожидание</th>
-                <th>Статус</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
+        <div class="sw-support-conversation-list">
             <?php foreach ($conversations as $conversation): ?>
-                <tr>
-                    <td><?= Html::encode((string)$conversation['id']) ?></td>
-                    <td>
-                        <div><?= Html::encode(trim((string)($conversation['project_name'] ?? '')) ?: 'Основной сайт') ?></div>
-                        <?php if (trim((string)($conversation['project_domain'] ?? '')) !== ''): ?>
-                            <div class="uk-text-meta"><?= Html::encode((string)$conversation['project_domain']) ?></div>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            <?= Html::encode($visitorLabel($conversation)) ?>
+                <?php
+                $level = (string)($conversation['waiting_level'] ?? 'none');
+                $entryPointTitle = trim((string)($conversation['entry_point_title'] ?? ''));
+                $waitsForOperator = (bool)($conversation['waits_for_operator'] ?? false);
+                ?>
+                <article class="sw-support-conversation-row <?= $waitsForOperator ? 'sw-support-conversation-row--hot' : '' ?>">
+                    <span
+                        class="sw-support-wait-dot"
+                        title="<?= Html::encode($waitingLabels[$level] ?? $waitingLabels['none']) ?>"
+                        style="background:<?= Html::encode($waitingColors[$level] ?? $waitingColors['none']) ?>;"
+                    ></span>
+
+                    <div class="sw-support-conversation-row__visitor">
+                        <strong><?= Html::encode($visitorLabel($conversation)) ?></strong>
+                        <div class="uk-text-meta">
+                            <?= Html::encode(trim((string)($conversation['project_name'] ?? '')) ?: 'Основной сайт') ?>
+                            <?php if (trim((string)($conversation['project_domain'] ?? '')) !== ''): ?>
+                                · <?= Html::encode((string)$conversation['project_domain']) ?>
+                            <?php endif; ?>
                         </div>
+                    </div>
+
+                    <div class="sw-support-conversation-row__topic">
+                        <?= Html::encode($entryPointTitle !== '' ? $entryPointTitle : 'Обычное обращение') ?>
                         <?php if (trim((string)($conversation['visitor_phone'] ?? '')) !== ''): ?>
                             <div class="uk-text-meta"><?= Html::encode((string)$conversation['visitor_phone']) ?></div>
                         <?php endif; ?>
-                    </td>
-                    <td>
-                        <?php $entryPointTitle = trim((string)($conversation['entry_point_title'] ?? '')); ?>
-                        <?php if ($entryPointTitle !== ''): ?>
-                            <div><?= Html::encode($entryPointTitle) ?></div>
-                        <?php else: ?>
-                            <span class="uk-text-muted">-</span>
+                    </div>
+
+                    <div class="sw-support-conversation-row__time">
+                        <div><?= Html::encode($formatDateTime($conversation['last_message_at'] ?? null)) ?></div>
+                        <?php if ($waitsForOperator): ?>
+                            <div class="uk-text-meta">
+                                <?= Html::encode((string)max(0, (int)floor(((int)$conversation['waiting_seconds']) / 60))) ?> мин.
+                                <?= Html::encode((string)((int)$conversation['waiting_seconds'] % 60)) ?> сек.
+                            </div>
                         <?php endif; ?>
-                        <div class="uk-text-meta">
-                            <?= Html::encode('Приоритет ' . (string)($conversation['priority'] ?? 0)) ?>
-                        </div>
-                    </td>
-                    <td>
-                        <?php if ($conversation['page_url']): ?>
-                            <a href="<?= Html::encode((string)$conversation['page_url']) ?>" target="_blank" rel="noopener noreferrer">
-                                <?= Html::encode((string)parse_url((string)$conversation['page_url'], PHP_URL_PATH) ?: $conversation['page_url']) ?>
-                            </a>
-                        <?php else: ?>
-                            <span class="uk-text-muted">-</span>
-                        <?php endif; ?>
-                    </td>
-                    <td><?= Html::encode((string)($conversation['priority'] ?? 0)) ?></td>
-                    <td>
-                        <?php $level = (string)($conversation['waiting_level'] ?? 'none'); ?>
-                        <span
-                            title="<?= Html::encode($waitingLabels[$level] ?? $waitingLabels['none']) ?>"
-                            style="display:inline-block;width:10px;height:10px;border-radius:50%;background:<?= Html::encode($waitingColors[$level] ?? $waitingColors['none']) ?>;margin-right:6px;"
-                        ></span>
-                        <?php if ($conversation['waits_for_operator']): ?>
-                            <?= Html::encode((string)max(0, (int)floor(((int)$conversation['waiting_seconds']) / 60))) ?> мин.
-                            <?= Html::encode((string)((int)$conversation['waiting_seconds'] % 60)) ?> сек.
-                        <?php else: ?>
-                            <span class="uk-text-muted">-</span>
-                        <?php endif; ?>
-                    </td>
-                    <td><?= Html::encode((string)$conversation['status']) ?></td>
-                    <td>
-                        <a href="<?= Url::to(['/manager/support/conversation', 'id' => $conversation['id']]) ?>">
-                            Открыть
-                        </a>
-                    </td>
-                </tr>
+                    </div>
+
+                    <a class="uk-button uk-button-default uk-button-small" href="<?= Url::to(['/manager/support/conversation', 'id' => $conversation['id']]) ?>">
+                        Открыть
+                    </a>
+                </article>
             <?php endforeach; ?>
-            </tbody>
-        </table>
+        </div>
     <?php endif; ?>
 </div>
 
