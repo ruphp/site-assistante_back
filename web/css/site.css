@@ -2034,45 +2034,35 @@ ul.ticket-messages-list {
     gap: 8px;
 }
 
+.sw-module-summary {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    margin: 16px 0 18px;
+}
+
+.sw-module-stat,
 .sw-instruction-stat {
-    background: #fff;
-    border: 1px solid var(--sw-line);
-    box-shadow: 0 10px 24px rgba(43, 36, 92, .08);
-    min-height: 92px;
-    padding: 18px;
-}
-
-.sw-instruction-stat b {
-    color: var(--sw-base);
-    display: block;
-    font-size: 24px;
-    line-height: 1.1;
-}
-
-.sw-instruction-stat span {
-    color: var(--sw-muted);
-}
-
-.sw-onboarding-summary {
-    margin-top: 12px;
-}
-
-.sw-onboarding-stat {
     align-items: baseline;
     background: #fff;
     border: 1px solid var(--sw-line);
+    box-shadow: 0 10px 24px rgba(43, 36, 92, .08);
     display: flex;
     gap: 8px;
+    min-height: 0;
     padding: 12px 16px;
 }
 
-.sw-onboarding-stat b {
+.sw-module-stat b,
+.sw-instruction-stat b {
     color: var(--sw-base);
+    display: block;
     font-size: 22px;
     line-height: 1;
 }
 
-.sw-onboarding-stat span {
+.sw-module-stat span,
+.sw-instruction-stat span {
     color: var(--sw-muted);
 }
 

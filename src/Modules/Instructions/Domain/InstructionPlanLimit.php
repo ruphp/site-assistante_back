@@ -6,6 +6,8 @@ use app\Modules\Support\Domain\SupportPlan;
 
 final class InstructionPlanLimit
 {
+    private const PROJECT_STORAGE_BYTES = 1024 * 1024 * 1024;
+
     public function __construct(
         public readonly bool $enabled,
         public readonly int $storageBytes,
@@ -16,8 +18,8 @@ final class InstructionPlanLimit
     public static function forPlan(string $plan): self
     {
         return match (SupportPlan::normalize($plan)) {
-            SupportPlan::START => new self(true, 5 * 1024 * 1024, false),
-            SupportPlan::PRO => new self(true, 50 * 1024 * 1024, true),
+            SupportPlan::START => new self(true, self::PROJECT_STORAGE_BYTES, false),
+            SupportPlan::PRO => new self(true, self::PROJECT_STORAGE_BYTES, true),
             default => new self(false, 0, false),
         };
     }

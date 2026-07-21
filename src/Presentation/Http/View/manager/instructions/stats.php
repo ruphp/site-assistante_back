@@ -3,6 +3,7 @@
 use app\Application\Panel\Dto\ClientProjectView;
 use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleFeedbackRecord;
 use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleRecord;
+use app\Presentation\Http\View\Helper\RussianPlural;
 use yii\helpers\Html;
 
 /**
@@ -20,11 +21,11 @@ $this->title = 'Статистика инструкции';
     <?= $this->render('_nav', compact('activeProject')) ?>
 
     <h3><?= Html::encode($article->title) ?></h3>
-    <div class="sw-instruction-summary uk-grid-small uk-child-width-1-4@m" uk-grid>
-        <div><div class="sw-instruction-stat"><b><?= Html::encode((string)$article->views) ?></b><span>просмотров</span></div></div>
-        <div><div class="sw-instruction-stat"><b><?= Html::encode((string)$article->likes) ?></b><span>лайков</span></div></div>
-        <div><div class="sw-instruction-stat"><b><?= Html::encode((string)$article->dislikes) ?></b><span>дизлайков</span></div></div>
-        <div><div class="sw-instruction-stat"><b><?= Html::encode((string)count($comments)) ?></b><span>отзывов</span></div></div>
+    <div class="sw-module-summary sw-instruction-summary">
+        <div class="sw-module-stat sw-instruction-stat"><b><?= Html::encode((string)$article->views) ?></b><span><?= Html::encode(RussianPlural::word((int)$article->views, 'просмотр', 'просмотра', 'просмотров')) ?></span></div>
+        <div class="sw-module-stat sw-instruction-stat"><b><?= Html::encode((string)$article->likes) ?></b><span><?= Html::encode(RussianPlural::word((int)$article->likes, 'лайк', 'лайка', 'лайков')) ?></span></div>
+        <div class="sw-module-stat sw-instruction-stat"><b><?= Html::encode((string)$article->dislikes) ?></b><span><?= Html::encode(RussianPlural::word((int)$article->dislikes, 'дизлайк', 'дизлайка', 'дизлайков')) ?></span></div>
+        <div class="sw-module-stat sw-instruction-stat"><b><?= Html::encode((string)count($comments)) ?></b><span><?= Html::encode(RussianPlural::word(count($comments), 'отзыв', 'отзыва', 'отзывов')) ?></span></div>
     </div>
 
     <section class="sw-instruction-card uk-margin-top">

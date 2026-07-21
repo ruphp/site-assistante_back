@@ -2,6 +2,7 @@
 
 use app\Application\Panel\Dto\ClientProjectView;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingRecord;
+use app\Presentation\Http\View\Helper\RussianPlural;
 use yii\helpers\Html;
 
 /**
@@ -26,10 +27,9 @@ $this->title = 'Онбординг';
         <?= Html::a('Создать сценарий', ['/manager/onboarding/create', 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-primary']) ?>
     </div>
 
-    <div class="sw-onboarding-summary uk-grid-small uk-child-width-1-3@m" uk-grid>
-        <div><div class="sw-onboarding-stat"><b><?= Html::encode((string)count($onboardings)) ?></b><span>сценариев</span></div></div>
-        <div><div class="sw-onboarding-stat"><b><?= Html::encode((string)$hintsCount) ?></b><span>подсказок</span></div></div>
-        <div><div class="sw-onboarding-stat"><b><?= Html::encode((string)$activeProject->publicKey) ?></b><span>public key</span></div></div>
+    <div class="sw-module-summary sw-onboarding-summary">
+        <div class="sw-module-stat sw-onboarding-stat"><b><?= Html::encode((string)count($onboardings)) ?></b><span><?= Html::encode(RussianPlural::word(count($onboardings), 'сценарий', 'сценария', 'сценариев')) ?></span></div>
+        <div class="sw-module-stat sw-onboarding-stat"><b><?= Html::encode((string)$hintsCount) ?></b><span><?= Html::encode(RussianPlural::word($hintsCount, 'подсказка', 'подсказки', 'подсказок')) ?></span></div>
     </div>
 
     <div class="sw-instruction-grid sw-onboarding-list">

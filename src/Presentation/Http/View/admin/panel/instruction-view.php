@@ -3,6 +3,7 @@
 use app\Infrastructure\YiiActiveRecord\Users;
 use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleFeedbackRecord;
 use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleRecord;
+use app\Presentation\Http\View\Helper\RussianPlural;
 use yii\helpers\Html;
 use yii\helpers\HtmlPurifier;
 
@@ -40,11 +41,11 @@ $clientTitle = $client instanceof Users
             </span>
         </div>
 
-        <div class="sw-instruction-summary uk-grid-small uk-child-width-1-4@m uk-margin-top" uk-grid>
-            <div><div class="sw-instruction-stat"><b><?= Html::encode((string)$article->views) ?></b><span>просмотров</span></div></div>
-            <div><div class="sw-instruction-stat"><b><?= Html::encode((string)$article->likes) ?></b><span>лайков</span></div></div>
-            <div><div class="sw-instruction-stat"><b><?= Html::encode((string)$article->dislikes) ?></b><span>дизлайков</span></div></div>
-            <div><div class="sw-instruction-stat"><b><?= round((int)$article->content_bytes / 1024, 1) ?> КБ</b><span>в базе</span></div></div>
+        <div class="sw-module-summary sw-instruction-summary uk-margin-top">
+            <div class="sw-module-stat sw-instruction-stat"><b><?= Html::encode((string)$article->views) ?></b><span><?= Html::encode(RussianPlural::word((int)$article->views, 'просмотр', 'просмотра', 'просмотров')) ?></span></div>
+            <div class="sw-module-stat sw-instruction-stat"><b><?= Html::encode((string)$article->likes) ?></b><span><?= Html::encode(RussianPlural::word((int)$article->likes, 'лайк', 'лайка', 'лайков')) ?></span></div>
+            <div class="sw-module-stat sw-instruction-stat"><b><?= Html::encode((string)$article->dislikes) ?></b><span><?= Html::encode(RussianPlural::word((int)$article->dislikes, 'дизлайк', 'дизлайка', 'дизлайков')) ?></span></div>
+            <div class="sw-module-stat sw-instruction-stat"><b><?= round((int)$article->content_bytes / 1024, 1) ?> КБ</b><span>в базе</span></div>
         </div>
 
         <div class="uk-margin-top">

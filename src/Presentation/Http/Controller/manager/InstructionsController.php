@@ -27,6 +27,7 @@ final class InstructionsController extends ManagerController
 
         [$projects, $ownerPublicKey, $projectId, $publicKey] = $this->projectContext();
         $articles = $this->articles($publicKey);
+        $limit = InstructionPlanLimit::forPlan($this->supportPlan($publicKey));
 
         return $this->render('index', [
             'articles' => $articles,
@@ -35,6 +36,7 @@ final class InstructionsController extends ManagerController
             'totalLikes' => array_sum(array_map(static fn(InstructionArticleRecord $article): int => (int)$article->likes, $articles)),
             'totalComments' => $this->commentsCount($articles),
             'storageBytes' => array_sum(array_map(static fn(InstructionArticleRecord $article): int => (int)$article->content_bytes, $articles)),
+            'storageLimitBytes' => $limit->storageBytes,
         ] + $projects->tabsData($ownerPublicKey, $projectId));
     }
 

@@ -4,6 +4,7 @@ use app\Application\Panel\Dto\ManagerOperatorView;
 use app\Application\Panel\Dto\ClientProjectView;
 use app\Presentation\Http\Form\ManagerOperatorForm;
 use app\Presentation\Http\Form\ManagerOwnerContactForm;
+use app\Presentation\Http\View\Helper\RussianPlural;
 use yii\helpers\Html;
 
 /**
@@ -27,7 +28,7 @@ $currentUserId = (int)Yii::$app->user->id;
 
     <div class="uk-alert-primary" uk-alert>
         <p>
-            Лимит тарифа: <?= Html::encode((string)$operatorLimit) ?> менеджер(ов).
+            Лимит тарифа: <?= Html::encode((string)$operatorLimit) ?> <?= Html::encode(RussianPlural::word($operatorLimit, 'менеджер', 'менеджера', 'менеджеров')) ?>.
             Первый менеджер - владелец аккаунта.
             Telegram подключается по персональной ссылке менеджера.
         </p>

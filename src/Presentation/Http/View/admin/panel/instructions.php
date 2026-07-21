@@ -2,6 +2,7 @@
 
 use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleRecord;
 use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionSettingsRecord;
+use app\Presentation\Http\View\Helper\RussianPlural;
 use yii\helpers\Html;
 
 /**
@@ -61,7 +62,7 @@ sort($publicKeys);
                     <span class="uk-label <?= $article->admin_blocked ? 'uk-label-danger' : '' ?>"><?= $article->admin_blocked ? 'заблокирована' : 'активна' ?></span>
                 </div>
                 <div class="uk-text-meta">
-                    Public key: <?= Html::encode((string)$article->public_key) ?> · Просмотров: <?= Html::encode((string)$article->views) ?> · <?= round((int)$article->content_bytes / 1024, 1) ?> КБ
+                    Public key: <?= Html::encode((string)$article->public_key) ?> · <?= Html::encode(RussianPlural::word((int)$article->views, 'Просмотр', 'Просмотра', 'Просмотров')) ?>: <?= Html::encode((string)$article->views) ?> · <?= round((int)$article->content_bytes / 1024, 1) ?> КБ
                 </div>
                 <div class="uk-margin-small-top">
                     <?= Html::a('Просмотр', ['/admin/instructions/view', 'id' => $article->id], [
