@@ -95,10 +95,15 @@ final class OnboardingController extends ManagerController
             return $this->redirect($this->projectUrl('/manager/onboarding/sections', $projectId, ['onboardingId' => $onboarding->id]));
         }
 
+        $editSection = $this->editableSection($onboarding);
+
         return $this->render('sections', [
             'onboarding' => $onboarding,
             'sections' => OnboardingSectionRecord::find()->where(['onboarding_id' => $onboarding->id])->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC])->all(),
-            'editSection' => $this->editableSection($onboarding),
+            'editSection' => $editSection,
+            'sectionSteps' => $editSection->isNewRecord
+                ? []
+                : OnboardingStepRecord::find()->where(['section_id' => $editSection->id])->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC])->all(),
             'urlBindingsEnabled' => $this->limit($publicKey)->urlBindingsEnabled,
         ] + $projects->tabsData($ownerPublicKey, $projectId));
     }

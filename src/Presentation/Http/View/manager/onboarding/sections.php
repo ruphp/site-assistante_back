@@ -3,12 +3,14 @@
 use app\Application\Panel\Dto\ClientProjectView;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingRecord;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingSectionRecord;
+use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingStepRecord;
 use yii\helpers\Html;
 
 /**
  * @var OnboardingRecord $onboarding
  * @var OnboardingSectionRecord[] $sections
  * @var OnboardingSectionRecord $editSection
+ * @var OnboardingStepRecord[] $sectionSteps
  * @var bool $urlBindingsEnabled
  * @var ClientProjectView[] $projects
  * @var ClientProjectView $activeProject
@@ -28,22 +30,24 @@ $this->title = 'Разделы сценария';
     <h3>Разделы сценария: <?= Html::encode($onboarding->title) ?></h3>
     <div class="uk-text-meta uk-margin-small-bottom">Раздел привязан к странице. Если следующий раздел на другом URL, кнопка сценария переведет пользователя дальше.</div>
 
-    <div class="sw-instruction-grid">
-        <?php foreach ($sections as $section): ?>
-            <article class="sw-instruction-card">
-                <div class="sw-instruction-card__top">
-                    <h4><?= Html::encode($section->title) ?></h4>
-                    <span class="uk-label <?= $section->is_active ? '' : 'uk-label-warning' ?>"><?= $section->is_active ? 'включен' : 'выключен' ?></span>
-                </div>
-                <div class="uk-text-meta"><?= Html::encode($section->url ?: 'без URL') ?> · порядок <?= Html::encode((string)$section->sort_order) ?></div>
-                <div class="sw-instruction-actions uk-margin-small-top">
-                    <?= Html::a('Шаги', ['/manager/onboarding/steps', 'sectionId' => $section->id, 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-primary uk-button-small']) ?>
-                    <?= Html::a('Редактировать', ['/manager/onboarding/sections', 'onboardingId' => $onboarding->id, 'editId' => $section->id, 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-default uk-button-small']) ?>
-                    <?= Html::a('Удалить', ['/manager/onboarding/section-delete', 'id' => $section->id, 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-default uk-button-small', 'data' => ['method' => 'post', 'confirm' => 'Удалить раздел и его шаги?']]) ?>
-                </div>
-            </article>
-        <?php endforeach; ?>
-    </div>
+    <?php if ($editSection->isNewRecord): ?>
+        <div class="sw-instruction-grid">
+            <?php foreach ($sections as $section): ?>
+                <article class="sw-instruction-card">
+                    <div class="sw-instruction-card__top">
+                        <h4><?= Html::encode($section->title) ?></h4>
+                        <span class="uk-label <?= $section->is_active ? '' : 'uk-label-warning' ?>"><?= $section->is_active ? 'включен' : 'выключен' ?></span>
+                    </div>
+                    <div class="uk-text-meta"><?= Html::encode($section->url ?: 'без URL') ?> · порядок <?= Html::encode((string)$section->sort_order) ?></div>
+                    <div class="sw-instruction-actions uk-margin-small-top">
+                        <?= Html::a('Открыть раздел', ['/manager/onboarding/sections', 'onboardingId' => $onboarding->id, 'editId' => $section->id, 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-primary uk-button-small']) ?>
+                        <?= Html::a('Шаги', ['/manager/onboarding/steps', 'sectionId' => $section->id, 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-default uk-button-small']) ?>
+                        <?= Html::a('Удалить', ['/manager/onboarding/section-delete', 'id' => $section->id, 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-default uk-button-small', 'data' => ['method' => 'post', 'confirm' => 'Удалить раздел и его шаги?']]) ?>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 
     <h4 class="uk-margin-large-top"><?= $editSection->isNewRecord ? 'Новый раздел' : 'Редактировать раздел' ?></h4>
     <?= Html::beginForm('', 'post', ['class' => 'uk-form-stacked sw-form-panel']) ?>
@@ -79,4 +83,39 @@ $this->title = 'Разделы сценария';
             <?php endif; ?>
         </div>
     <?= Html::endForm() ?>
+
+    <?php if (!$editSection->isNewRecord): ?>
+        <section class="sw-instruction-card uk-margin-top">
+            <div class="sw-instruction-card__top">
+                <div>
+                    <h4>Шаги раздела</h4>
+                    <div class="uk-text-meta">Показываются только шаги раздела «<?= Html::encode($editSection->title) ?>».</div>
+                </div>
+                <?= Html::a('Добавить шаг', ['/manager/onboarding/steps', 'sectionId' => $editSection->id, 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-primary uk-button-small']) ?>
+            </div>
+
+            <div class="sw-onboarding-step-list">
+                <?php if ($sectionSteps === []): ?>
+                    <div class="sw-onboarding-step sw-onboarding-step--empty">Шагов пока нет.</div>
+                <?php endif; ?>
+                <?php foreach ($sectionSteps as $step): ?>
+                    <article class="sw-onboarding-step">
+                        <div class="sw-onboarding-step__main">
+                            <span class="sw-onboarding-step__order"><?= Html::encode((string)$step->sort_order) ?></span>
+                            <div>
+                                <b>Шаг <?= Html::encode((string)$step->sort_order) ?></b>
+                                <div><?= Html::encode(mb_substr(trim(strip_tags((string)$step->text)), 0, 120) ?: 'без текста') ?></div>
+                                <div class="uk-text-meta"><?= Html::encode($step->selector ?: 'селектор не указан') ?></div>
+                            </div>
+                        </div>
+                        <div class="sw-instruction-actions">
+                            <span class="uk-label <?= $step->is_active ? '' : 'uk-label-warning' ?>"><?= $step->is_active ? 'включен' : 'выключен' ?></span>
+                            <?= Html::a('Править', ['/manager/onboarding/steps', 'sectionId' => $editSection->id, 'editId' => $step->id, 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-default uk-button-small']) ?>
+                            <?= Html::a('Удалить', ['/manager/onboarding/step-delete', 'id' => $step->id, 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-default uk-button-small', 'data' => ['method' => 'post', 'confirm' => 'Удалить шаг?']]) ?>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+        </section>
+    <?php endif; ?>
 </div>
