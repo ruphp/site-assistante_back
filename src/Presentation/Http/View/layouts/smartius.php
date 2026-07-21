@@ -47,7 +47,7 @@ $role = Yii::$app->request->get()['roles'] ?? $role;
 $testchatbots = Yii::$app->request->get()['testchatbots'] ?? 0;
 $str_role = implode(",", $role);
 
-if (Yii::$app->user->isGuest && $isLandingPage) {
+if ($isLandingPage) {
     $menu = [
         [
             'label' => 'Модули',
@@ -63,7 +63,7 @@ if (Yii::$app->user->isGuest && $isLandingPage) {
         ['label' => 'Интеграции', 'url' => '/#integrations'],
         ['label' => 'Приложение', 'url' => '/#android-app'],
     ];
-} elseif (Yii::$app->user->isGuest && $isPublicModulePage) {
+} elseif ($isPublicModulePage) {
     $menu = [
         ['label' => 'Главная', 'url' => ['/']],
         [
@@ -276,13 +276,13 @@ $this->beginPage();
                     <?php endforeach; ?>
                 </nav>
                 <div class="sw-header__actions">
-                    <?php if ($isLandingPage): ?>
+                    <?php if ($isLandingPage || $isPublicModulePage): ?>
                         <?php if (!Yii::$app->user->isGuest): ?>
                             <?php
                             $landingAssignments = Yii::$app->authManager === null ? [] : Yii::$app->authManager->getAssignments(Yii::$app->user->id);
                             $landingCabinetUrl = isset($landingAssignments['admin']) ? ['/admin/clients'] : ['/manager'];
                             ?>
-                            <a class="sw-header__login" href="<?= Html::encode(Url::to($landingCabinetUrl)) ?>">Личный кабинет</a>
+                            <a class="sw-header__login" href="<?= Html::encode(Url::to($landingCabinetUrl)) ?>">Управление проектами</a>
                         <?php else: ?>
                             <a class="sw-header__login" href="/login">Войти</a>
                         <?php endif; ?>
