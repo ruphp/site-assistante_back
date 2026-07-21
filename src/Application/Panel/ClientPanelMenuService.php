@@ -38,9 +38,7 @@ final class ClientPanelMenuService
             $menu['manager/operators'] = 'Менеджеры';
         }
 
-        if ($this->surveysEnabledForClient($publicKey)) {
-            $menu['manager/surveys'] = 'Анкетирование';
-        }
+        $menu['manager/surveys'] = 'Анкетирование';
 
         return $menu;
     }
@@ -53,11 +51,6 @@ final class ClientPanelMenuService
     public function operatorsEnabledForClient(int $publicKey): bool
     {
         return SupportPlan::normalize($this->supportSettings->getForClient($publicKey)->plan) !== SupportPlan::FREE;
-    }
-
-    public function surveysEnabledForClient(int $publicKey): bool
-    {
-        return in_array(SupportPlan::normalize($this->supportSettings->getForClient($publicKey)->plan), [SupportPlan::START, SupportPlan::PRO], true);
     }
 
     public function moduleMenusForClient(int $publicKey): array

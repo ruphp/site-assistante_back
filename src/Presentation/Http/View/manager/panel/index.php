@@ -43,6 +43,15 @@ $canCreateProjects = count($projects) < $projectLimit->maxProjects;
                         <div>
                             <?= Html::a('Поддержка', '/manager/support?projectId=' . $project->id, ['class' => 'uk-button uk-button-default uk-button-small']) ?>
                         </div>
+                        <div>
+                            <?= Html::a('Инструкции', '/manager/instructions?projectId=' . $project->id, ['class' => 'uk-button uk-button-default uk-button-small']) ?>
+                        </div>
+                        <div>
+                            <?= Html::a('Онбординг', '/manager/onboarding?projectId=' . $project->id, ['class' => 'uk-button uk-button-default uk-button-small']) ?>
+                        </div>
+                        <div>
+                            <?= Html::a('Анкеты', '/manager/surveys?projectId=' . $project->id, ['class' => 'uk-button uk-button-default uk-button-small']) ?>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -7,7 +7,6 @@
 use app\Presentation\Yii\Asset\AppAsset;
 use app\Presentation\Yii\Asset\CodemirrorAsset;
 use app\Presentation\Yii\Widget\Alert;
-use app\Modules\Support\Domain\SupportPlan;
 use ruwmapps\yii2_uikit3\Nav;
 use ruwmapps\yii2_uikit3\NavBar;
 use ruwmapps\yii2_uikit3\Offcanvas;
@@ -48,7 +47,7 @@ $role = Yii::$app->request->get()['roles'] ?? $role;
 $testchatbots = Yii::$app->request->get()['testchatbots'] ?? 0;
 $str_role = implode(",", $role);
 
-if ($isLandingPage) {
+if (Yii::$app->user->isGuest && $isLandingPage) {
     $menu = [
         [
             'label' => 'Модули',
@@ -64,7 +63,7 @@ if ($isLandingPage) {
         ['label' => 'Интеграции', 'url' => '/#integrations'],
         ['label' => 'Приложение', 'url' => '/#android-app'],
     ];
-} elseif ($isPublicModulePage) {
+} elseif (Yii::$app->user->isGuest && $isPublicModulePage) {
     $menu = [
         ['label' => 'Главная', 'url' => ['/']],
         [
@@ -95,7 +94,6 @@ if ($isLandingPage) {
     $email_user = Yii::$app->user->identity->email;
     $name_user = Yii::$app->user->identity->name;
     $id_user = Yii::$app->user->identity->id;
-    $supportPlan = SupportPlan::normalize((string)(Yii::$app->user->identity->support_plan ?? SupportPlan::FREE));
     $isOwner = (int)$id_user === (int)Yii::$app->user->identity->getPublicKey();
     $assignments = Yii::$app->authManager === null ? [] : Yii::$app->authManager->getAssignments(Yii::$app->user->id);
     $isAdmin = isset($assignments['admin']);
@@ -103,42 +101,6 @@ if ($isLandingPage) {
         ['label' => 'Клиенты', 'url' => ['/admin/clients']],
     ] : [
         ['label' => 'Мои проекты', 'url' => ['/manager']],
-        [
-            'label' => 'Онлайн-поддержка',
-            'url' => ['/manager/support/conversations'],
-            'items' => array_values(array_filter([
-                ['label' => 'Диалоги', 'url' => ['/manager/support/conversations']],
-                ['label' => 'Кнопки быстрых обращений', 'url' => ['/manager/support/entry-points']],
-                $isOwner ? ['label' => 'Менеджеры', 'url' => ['/manager/operators']] : null,
-                ['label' => 'Настройки', 'url' => ['/manager/support']],
-            ])),
-        ],
-        [
-            'label' => 'Инструкции',
-            'url' => ['/manager/instructions'],
-            'items' => [
-                ['label' => 'Все инструкции', 'url' => ['/manager/instructions']],
-                ['label' => 'Разделы', 'url' => ['/manager/instructions/sections']],
-                ['label' => 'Создать инструкцию', 'url' => ['/manager/instructions/create']],
-            ],
-        ],
-        [
-            'label' => 'Онбординг',
-            'url' => ['/manager/onboarding'],
-            'items' => [
-                ['label' => 'Сценарии', 'url' => ['/manager/onboarding']],
-                ['label' => 'Подсказки', 'url' => ['/manager/onboarding/hints']],
-                ['label' => 'Создать сценарий', 'url' => ['/manager/onboarding/create']],
-            ],
-        ],
-        $supportPlan === SupportPlan::FREE ? null : [
-            'label' => 'Анкетирование',
-            'url' => ['/manager/surveys'],
-            'items' => [
-                ['label' => 'Анкеты', 'url' => ['/manager/surveys']],
-                ['label' => 'Создать анкету', 'url' => ['/manager/surveys/create']],
-            ],
-        ],
     ];
     $menu = array_values(array_filter($menu));
 }
