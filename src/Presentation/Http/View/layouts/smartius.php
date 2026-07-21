@@ -97,62 +97,47 @@ if ($isLandingPage) {
     $isOwner = (int)$id_user === (int)Yii::$app->user->identity->getPublicKey();
     $assignments = Yii::$app->authManager === null ? [] : Yii::$app->authManager->getAssignments(Yii::$app->user->id);
     $isAdmin = isset($assignments['admin']);
-    $activeProjectId = (int)Yii::$app->request->get('projectId') ?: null;
-    $projectParam = $activeProjectId === null ? [] : ['projectId' => $activeProjectId];
     $menu = $isAdmin ? [
         ['label' => 'Клиенты', 'url' => ['/admin/clients']],
-    ] : array_merge(
+    ] : [
+        ['label' => 'Мои проекты', 'url' => ['/manager']],
         [
-            ['label' => 'Мои проекты', 'url' => ['/manager']],
+            'label' => 'Онлайн-поддержка',
+            'url' => ['/manager/support/conversations'],
+            'items' => array_values(array_filter([
+                ['label' => 'Диалоги', 'url' => ['/manager/support/conversations']],
+                ['label' => 'Кнопки быстрых обращений', 'url' => ['/manager/support/entry-points']],
+                $isOwner ? ['label' => 'Менеджеры', 'url' => ['/manager/operators']] : null,
+                ['label' => 'Настройки', 'url' => ['/manager/support']],
+            ])),
         ],
-        $activeProjectId === null ? [] : [
-            [
-                'label' => 'Параметры',
-                'url' => ['/manager/params'] + $projectParam,
-                'items' => [
-                    ['label' => 'Подключение', 'url' => ['/manager/params'] + $projectParam],
-                    ['label' => 'Оформление', 'url' => ['/manager/designe'] + $projectParam],
-                    ['label' => 'Лимиты', 'url' => ['/manager/limits'] + $projectParam],
-                ],
+        [
+            'label' => 'Инструкции',
+            'url' => ['/manager/instructions'],
+            'items' => [
+                ['label' => 'Все инструкции', 'url' => ['/manager/instructions']],
+                ['label' => 'Разделы', 'url' => ['/manager/instructions/sections']],
+                ['label' => 'Создать инструкцию', 'url' => ['/manager/instructions/create']],
             ],
-            [
-                'label' => 'Онлайн-поддержка',
-                'url' => ['/manager/support/conversations'] + $projectParam,
-                'items' => array_values(array_filter([
-                    ['label' => 'Диалоги', 'url' => ['/manager/support/conversations'] + $projectParam],
-                    ['label' => 'Кнопки быстрых обращений', 'url' => ['/manager/support/entry-points'] + $projectParam],
-                    $isOwner ? ['label' => 'Менеджеры', 'url' => ['/manager/operators'] + $projectParam] : null,
-                    ['label' => 'Настройки', 'url' => ['/manager/support'] + $projectParam],
-                ])),
+        ],
+        [
+            'label' => 'Онбординг',
+            'url' => ['/manager/onboarding'],
+            'items' => [
+                ['label' => 'Сценарии', 'url' => ['/manager/onboarding']],
+                ['label' => 'Подсказки', 'url' => ['/manager/onboarding/hints']],
+                ['label' => 'Создать сценарий', 'url' => ['/manager/onboarding/create']],
             ],
-            [
-                'label' => 'Инструкции',
-                'url' => ['/manager/instructions'] + $projectParam,
-                'items' => [
-                    ['label' => 'Все инструкции', 'url' => ['/manager/instructions'] + $projectParam],
-                    ['label' => 'Разделы', 'url' => ['/manager/instructions/sections'] + $projectParam],
-                    ['label' => 'Создать инструкцию', 'url' => ['/manager/instructions/create'] + $projectParam],
-                ],
+        ],
+        [
+            'label' => 'Анкетирование',
+            'url' => ['/manager/surveys'],
+            'items' => [
+                ['label' => 'Анкеты', 'url' => ['/manager/surveys']],
+                ['label' => 'Создать анкету', 'url' => ['/manager/surveys/create']],
             ],
-            [
-                'label' => 'Онбординг',
-                'url' => ['/manager/onboarding'] + $projectParam,
-                'items' => [
-                    ['label' => 'Сценарии', 'url' => ['/manager/onboarding'] + $projectParam],
-                    ['label' => 'Подсказки', 'url' => ['/manager/onboarding/hints'] + $projectParam],
-                    ['label' => 'Создать сценарий', 'url' => ['/manager/onboarding/create'] + $projectParam],
-                ],
-            ],
-            [
-                'label' => 'Анкетирование',
-                'url' => ['/manager/surveys'] + $projectParam,
-                'items' => [
-                    ['label' => 'Анкеты', 'url' => ['/manager/surveys'] + $projectParam],
-                    ['label' => 'Создать анкету', 'url' => ['/manager/surveys/create'] + $projectParam],
-                ],
-            ],
-        ]
-    );
+        ],
+    ];
     $menu = array_values(array_filter($menu));
 }
 
