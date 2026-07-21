@@ -27,7 +27,6 @@ $urlText = implode("\n", array_map(static function (InstructionArticleUrlRecord 
 ?>
 
 <div class="uk-container uk-margin">
-    <?= $this->render('@app/src/Presentation/Http/View/manager/panel/_projectTabs', compact('projects', 'activeProject')) ?>
     <?= $this->render('_nav', compact('activeProject')) ?>
 
     <h3><?= Html::encode($this->title) ?></h3>

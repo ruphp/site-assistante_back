@@ -17,10 +17,12 @@ $this->title = 'Статистика инструкции';
 ?>
 
 <div class="uk-container uk-margin">
-    <?= $this->render('@app/src/Presentation/Http/View/manager/panel/_projectTabs', compact('projects', 'activeProject')) ?>
-    <?= $this->render('_nav', compact('activeProject')) ?>
+    <div class="uk-margin">
+        <?= Html::a('← К инструкциям', ['/manager/instructions', 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-default uk-button-small']) ?>
+    </div>
 
-    <h3><?= Html::encode($article->title) ?></h3>
+    <h3 class="uk-margin-remove-bottom">Статистика инструкции</h3>
+    <div class="uk-text-meta uk-margin-small-bottom"><?= Html::encode($article->title) ?></div>
     <div class="sw-module-summary sw-instruction-summary">
         <div class="sw-module-stat sw-instruction-stat"><b><?= Html::encode((string)$article->views) ?></b><span><?= Html::encode(RussianPlural::word((int)$article->views, 'просмотр', 'просмотра', 'просмотров')) ?></span></div>
         <div class="sw-module-stat sw-instruction-stat"><b><?= Html::encode((string)$article->likes) ?></b><span><?= Html::encode(RussianPlural::word((int)$article->likes, 'лайк', 'лайка', 'лайков')) ?></span></div>
