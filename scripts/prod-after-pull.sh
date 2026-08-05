@@ -5,6 +5,15 @@ PHP_CONTAINER="${SITEWIDGET_PHP_CONTAINER:-webserver_php_fpm}"
 NGINX_CONTAINER="${SITEWIDGET_NGINX_CONTAINER:-webserver_nginx}"
 APP_DIR="${SITEWIDGET_APP_DIR:-/var/www/sitewidget}"
 
+prepare_writable_directories() {
+  docker exec -u 0 "${PHP_CONTAINER}" sh -lc "
+    set -eu
+    mkdir -p '${APP_DIR}/web/assets' '${APP_DIR}/runtime/cache' '${APP_DIR}/runtime/logs'
+    chown -R www-data:www-data '${APP_DIR}/web/assets' '${APP_DIR}/runtime'
+    chmod -R 775 '${APP_DIR}/web/assets' '${APP_DIR}/runtime'
+  "
+}
+
 echo "[sitewidget] after git pull"
 echo "[sitewidget] php container: ${PHP_CONTAINER}"
 echo "[sitewidget] nginx container: ${NGINX_CONTAINER}"
@@ -20,12 +29,11 @@ if ! docker inspect "${PHP_CONTAINER}" >/dev/null 2>&1; then
   exit 0
 fi
 
+prepare_writable_directories
+
 docker exec "${PHP_CONTAINER}" sh -lc "
   set -eu
   cd '${APP_DIR}'
-  mkdir -p web/assets runtime/cache runtime/logs
-  chown -R www-data:www-data web/assets runtime 2>/dev/null || true
-  chmod -R 775 web/assets runtime 2>/dev/null || true
   if command -v composer >/dev/null 2>&1; then
     composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
   else
@@ -46,6 +54,7 @@ docker exec "${PHP_CONTAINER}" sh -lc "
 "
 
 docker restart "${PHP_CONTAINER}" >/dev/null
+prepare_writable_directories
 if docker inspect "${NGINX_CONTAINER}" >/dev/null 2>&1; then
   docker restart "${NGINX_CONTAINER}" >/dev/null
 fi
