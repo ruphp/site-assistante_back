@@ -8,9 +8,13 @@ APP_DIR="${SITEWIDGET_APP_DIR:-/var/www/sitewidget}"
 prepare_writable_directories() {
   docker exec -u 0 "${PHP_CONTAINER}" sh -lc "
     set -eu
-    mkdir -p '${APP_DIR}/web/assets' '${APP_DIR}/runtime/cache' '${APP_DIR}/runtime/logs'
-    chown -R www-data:www-data '${APP_DIR}/web/assets' '${APP_DIR}/runtime'
-    chmod -R 775 '${APP_DIR}/web/assets' '${APP_DIR}/runtime'
+    mkdir -p \
+      '${APP_DIR}/web/assets' \
+      '${APP_DIR}/web/uploads/operators' \
+      '${APP_DIR}/runtime/cache' \
+      '${APP_DIR}/runtime/logs'
+    chown -R www-data:www-data '${APP_DIR}/web/assets' '${APP_DIR}/web/uploads' '${APP_DIR}/runtime'
+    chmod -R 775 '${APP_DIR}/web/assets' '${APP_DIR}/web/uploads' '${APP_DIR}/runtime'
   "
 }
 
