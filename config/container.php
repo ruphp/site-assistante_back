@@ -41,6 +41,8 @@ use app\Modules\Support\Application\UseCase\GetSupportWidgetStateUseCase;
 use app\Modules\Support\Application\UseCase\GetSupportWidgetStateUseCaseInterface;
 use app\Modules\Support\Application\UseCase\ListSupportMessagesUseCase;
 use app\Modules\Support\Application\UseCase\ListSupportMessagesUseCaseInterface;
+use app\Modules\Support\Application\UseCase\CloseSupportConversationUseCase;
+use app\Modules\Support\Application\UseCase\CloseSupportConversationUseCaseInterface;
 use app\Modules\Support\Application\UseCase\ManageSupportSettingsUseCase;
 use app\Modules\Support\Application\UseCase\ManageSupportEntryPointsUseCase;
 use app\Modules\Support\Application\UseCase\OperatorSupportUseCase;
@@ -119,6 +121,7 @@ return [
         StartSupportConversationUseCaseInterface::class => StartSupportConversationUseCase::class,
         SendSupportMessageUseCaseInterface::class => SendSupportMessageUseCase::class,
         ListSupportMessagesUseCaseInterface::class => ListSupportMessagesUseCase::class,
+        CloseSupportConversationUseCaseInterface::class => CloseSupportConversationUseCase::class,
         ManageSupportSettingsUseCase::class => ManageSupportSettingsUseCase::class,
         ManageSupportEntryPointsUseCase::class => ManageSupportEntryPointsUseCase::class,
         OperatorSupportUseCase::class => OperatorSupportUseCase::class,

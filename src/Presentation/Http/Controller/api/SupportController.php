@@ -4,6 +4,7 @@ namespace app\Presentation\Http\Controller\api;
 
 use app\Application\Assistant\Exception\AssistantContextNotFoundException;
 use app\Modules\Support\Application\Dto\GetSupportWidgetStateRequest;
+use app\Modules\Support\Application\Dto\CloseSupportConversationRequest;
 use app\Modules\Support\Application\Dto\ListSupportMessagesRequest;
 use app\Modules\Support\Application\Dto\SendSupportMessageRequest;
 use app\Modules\Support\Application\Dto\StartSupportConversationRequest;
@@ -12,6 +13,7 @@ use app\Modules\Support\Application\Exception\SupportAccessDeniedException;
 use app\Modules\Support\Application\Exception\SupportConversationNotFoundException;
 use app\Modules\Support\Application\Exception\SupportLimitExceededException;
 use app\Modules\Support\Application\UseCase\GetSupportWidgetStateUseCaseInterface;
+use app\Modules\Support\Application\UseCase\CloseSupportConversationUseCaseInterface;
 use app\Modules\Support\Application\UseCase\ListSupportMessagesUseCaseInterface;
 use app\Modules\Support\Application\UseCase\SendSupportMessageUseCaseInterface;
 use app\Modules\Support\Application\UseCase\StartSupportConversationUseCaseInterface;
@@ -28,6 +30,7 @@ class SupportController extends ApiController
         private readonly StartSupportConversationUseCaseInterface $startConversation,
         private readonly SendSupportMessageUseCaseInterface $sendMessage,
         private readonly ListSupportMessagesUseCaseInterface $listMessages,
+        private readonly CloseSupportConversationUseCaseInterface $closeConversation,
         $config = [],
     ) {
         parent::__construct($id, $module, $config);
@@ -111,6 +114,28 @@ class SupportController extends ApiController
                     Yii::$app->request->get('after_id') === null ? null : (int)Yii::$app->request->get('after_id'),
                 ))
                 ->toArray();
+        } catch (AssistantContextNotFoundException $e) {
+            return $this->HTTPStatus(404, $e->getMessage());
+        } catch (SupportConversationNotFoundException $e) {
+            return $this->HTTPStatus(404, $e->getMessage());
+        } catch (SupportAccessDeniedException $e) {
+            return $this->HTTPStatus(403, $e->getMessage());
+        }
+    }
+
+    public function actionCloseConversation($publicKey): array
+    {
+        try {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $this->closeConversation->close(new CloseSupportConversationRequest(
+                (int)$publicKey,
+                (int)$this->bodyParam('conversation_id'),
+                $this->visitorContext(),
+            ));
+
+            return ['success' => true];
+        } catch (\InvalidArgumentException $e) {
+            return $this->HTTPStatus(400, $e->getMessage());
         } catch (AssistantContextNotFoundException $e) {
             return $this->HTTPStatus(404, $e->getMessage());
         } catch (SupportConversationNotFoundException $e) {
