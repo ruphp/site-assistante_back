@@ -73,7 +73,8 @@ class Users extends ActiveRecord
 
         $this->name = $userJoinForm->name;
         $this->email = mb_strtolower($userJoinForm->email);
-        $this->firm = $userJoinForm->firm;
+        $firm = trim((string)$userJoinForm->firm);
+        $this->firm = $firm !== '' ? $firm : $userJoinForm->name;
         $this->public_key = null;
         $this->setPassword($userJoinForm->password);
         $this->status = self::STATUS_ACTIVE;

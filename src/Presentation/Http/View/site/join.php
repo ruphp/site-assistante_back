@@ -25,7 +25,6 @@ $this->registerMetaTag([
             $form = ActiveForm::begin(['id' => 'user-join-form', 'classForm' => 'uk-form-stacked']); ?>
             <?= $form->field($userJoinForm, 'name')->label('Ваше имя') ?>
             <?= $form->field($userJoinForm, 'email')->label('Email') ?>
-            <?= $form->field($userJoinForm, 'firm')->label('Название проекта') ?>
             <?= $form->field($userJoinForm, 'password')->passwordInput()->label('Придумайте пароль') ?>
             <?= $form->field($userJoinForm, 'password2')->passwordInput()->label('Пароль ещё раз') ?>
             <?php if ($captchaEnabled): ?>
