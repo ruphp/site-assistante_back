@@ -66,6 +66,24 @@ $this->title = 'Изменение данных клиента';
                     'class' => 'uk-select',
                 ]) ?>
             </div>
+            <div class="uk-margin">
+                <?= Html::label('Тариф действует до', 'support-plan-expires-at', ['class' => 'uk-form-label']) ?>
+                <?= Html::input(
+                    'datetime-local',
+                    'Users[support_plan_expires_at]',
+                    $supportSettings->planExpiresAt === null
+                        ? ''
+                        : date('Y-m-d\\TH:i', strtotime($supportSettings->planExpiresAt)),
+                    ['id' => 'support-plan-expires-at', 'class' => 'uk-input']
+                ) ?>
+                <div class="uk-text-meta">Пустое значение означает тариф без ограничения по сроку.</div>
+            </div>
+
+            <?php if ($supportSettings->isTrialActive()): ?>
+                <div class="uk-alert-primary" uk-alert>
+                    Пробный Start действует до <?= Html::encode(date('d.m.Y H:i', strtotime((string)$supportSettings->planExpiresAt))) ?>.
+                </div>
+            <?php endif; ?>
 
             <?= Html::submitButton('Сохранить', ['class' => 'uk-button uk-button-primary']) ?>
             <?php ActiveForm::end(); ?>

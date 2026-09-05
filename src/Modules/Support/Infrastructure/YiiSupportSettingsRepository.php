@@ -3,10 +3,13 @@
 namespace app\Modules\Support\Infrastructure;
 
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportPlanLifecycleRepositoryInterface;
 use app\Modules\Support\Domain\SupportSettings;
+use app\Modules\Support\Domain\SupportPlan;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportSettingsRecord;
+use yii\db\Expression;
 
-final class YiiSupportSettingsRepository implements SupportSettingsRepositoryInterface
+final class YiiSupportSettingsRepository implements SupportSettingsRepositoryInterface, SupportPlanLifecycleRepositoryInterface
 {
     public function getForClient(int $publicKey): SupportSettings
     {
@@ -17,9 +20,11 @@ final class YiiSupportSettingsRepository implements SupportSettingsRepositoryInt
             return new SupportSettings($publicKey);
         }
 
-        return new SupportSettings(
+        return (new SupportSettings(
             publicKey: (int)$record->public_key,
             plan: (string)$record->plan,
+            planExpiresAt: $this->date($record->plan_expires_at),
+            trialStartedAt: $this->date($record->trial_started_at),
             enabled: (bool)$record->enabled,
             title: (string)$record->title,
             welcomeMessage: (string)$record->welcome_message,
@@ -45,7 +50,7 @@ final class YiiSupportSettingsRepository implements SupportSettingsRepositoryInt
             maxApiUrl: (string)$record->max_api_url,
             maxBotToken: (string)$record->max_bot_token,
             maxChatId: (string)$record->max_chat_id,
-        );
+        ))->effective();
     }
 
     public function save(SupportSettings $settings): bool
@@ -54,6 +59,8 @@ final class YiiSupportSettingsRepository implements SupportSettingsRepositoryInt
         $record = SupportSettingsRecord::findOne(['public_key' => $settings->publicKey]) ?? new SupportSettingsRecord();
         $record->public_key = $settings->publicKey;
         $record->plan = $settings->plan;
+        $record->plan_expires_at = $settings->planExpiresAt;
+        $record->trial_started_at = $settings->trialStartedAt;
         $record->enabled = $settings->enabled ? 1 : 0;
         $record->title = $settings->title;
         $record->welcome_message = $settings->welcomeMessage;
@@ -85,6 +92,49 @@ final class YiiSupportSettingsRepository implements SupportSettingsRepositoryInt
         return $record->save(false);
     }
 
+    public function startTrial(int $publicKey, int $days = 10): bool
+    {
+        $this->refreshSchema();
+        $record = SupportSettingsRecord::findOne(['public_key' => $publicKey]);
+        if ($record === null) {
+            if (!$this->save(new SupportSettings($publicKey))) {
+                return false;
+            }
+            $record = SupportSettingsRecord::findOne(['public_key' => $publicKey]);
+        }
+        if ($record === null || $record->trial_started_at !== null) {
+            return $record !== null;
+        }
+        if (SupportPlan::normalize((string)$record->plan) !== SupportPlan::FREE) {
+            return true;
+        }
+
+        $days = max(1, $days);
+        $record->plan = SupportPlan::START;
+        $record->trial_started_at = new Expression('CURRENT_TIMESTAMP');
+        $record->plan_expires_at = new Expression("CURRENT_TIMESTAMP + INTERVAL '{$days} days'");
+
+        return $record->save(false);
+    }
+
+    public function expireElapsedPlans(): int
+    {
+        $this->refreshSchema();
+
+        return SupportSettingsRecord::updateAll(
+            [
+                'plan' => SupportPlan::FREE,
+                'plan_expires_at' => null,
+            ],
+            [
+                'and',
+                ['<>', 'plan', SupportPlan::FREE],
+                ['not', ['plan_expires_at' => null]],
+                ['<=', 'plan_expires_at', new Expression('CURRENT_TIMESTAMP')],
+            ]
+        );
+    }
+
     private function json(mixed $value, array $default): array
     {
         if (is_array($value)) {
@@ -98,6 +148,17 @@ final class YiiSupportSettingsRepository implements SupportSettingsRepositoryInt
         }
 
         return $default;
+    }
+
+    private function date(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return $value instanceof \DateTimeInterface
+            ? $value->format('Y-m-d H:i:s')
+            : (string)$value;
     }
 
     private function refreshSchema(): void

@@ -30,6 +30,7 @@ final class YiiClientRepositoryTest extends YiiIntegrationTestCase
             1,
             5,
             'free',
+            null,
             false,
             [],
         ), null));
@@ -42,6 +43,7 @@ final class YiiClientRepositoryTest extends YiiIntegrationTestCase
             1,
             5,
             'free',
+            null,
             false,
             [],
         ), null));

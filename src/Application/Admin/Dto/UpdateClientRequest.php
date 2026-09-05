@@ -12,6 +12,7 @@ final class UpdateClientRequest
         public readonly int $status,
         public readonly int $gmt,
         public readonly string $supportPlan,
+        public readonly ?string $supportPlanExpiresAt,
         public readonly bool $changePassword,
         public readonly array $modules,
     ) {
@@ -29,9 +30,22 @@ final class UpdateClientRequest
             (int)($user['status'] ?? 0),
             (int)($user['gmt'] ?? 0),
             (string)($user['support_plan'] ?? 'free'),
+            self::normalizeExpiration((string)($user['support_plan_expires_at'] ?? '')),
             (bool)($user['change_password'] ?? false),
             self::normalizeModules((array)($user['modules'] ?? [])),
         );
+    }
+
+    private static function normalizeExpiration(string $value): ?string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+
+        $timestamp = strtotime($value);
+
+        return $timestamp === false ? null : date('Y-m-d H:i:s', $timestamp);
     }
 
     private static function normalizeModules(array $modules): array

@@ -7,6 +7,7 @@ use app\Application\Admin\Contract\ClientRepositoryInterface;
 use app\Application\Admin\Dto\CreateClientRequest;
 use app\Application\Admin\Dto\UpdateClientRequest;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportPlanLifecycleRepositoryInterface;
 use app\Modules\Support\Domain\SupportPlan;
 use app\Modules\Support\Domain\SupportSettings;
 use DomainException;
@@ -17,6 +18,7 @@ final class AdminClientService
         private readonly ClientRepositoryInterface $clients,
         private readonly ClientAccessRepositoryInterface $access,
         private readonly SupportSettingsRepositoryInterface $supportSettings,
+        private readonly SupportPlanLifecycleRepositoryInterface $planLifecycle,
     ) {
     }
 
@@ -31,6 +33,7 @@ final class AdminClientService
         $this->access->assignManagerRole($userId);
         $this->access->syncModuleAccess($userId, ['support' => 1]);
         $this->supportSettings->save(new SupportSettings($userId));
+        $this->planLifecycle->startTrial($userId, 10);
     }
 
     public function deleteClient(int $userId): void
@@ -56,7 +59,10 @@ final class AdminClientService
         $client = $this->clients->findForAdminView($request->id);
         $publicKey = (int)($client?->public_key ?? $request->id);
         $this->supportSettings->save(
-            $this->supportSettings->getForClient($publicKey)->withPlan(SupportPlan::normalize($request->supportPlan)),
+            $this->supportSettings->getForClient($publicKey)->withPlan(
+                SupportPlan::normalize($request->supportPlan),
+                $request->supportPlanExpiresAt,
+            ),
         );
 
         return $newPassword;

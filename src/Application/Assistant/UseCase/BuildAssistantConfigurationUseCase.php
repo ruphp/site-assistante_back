@@ -72,7 +72,7 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
             urlSiteWidgetTp: $client->params['server_stp'],
             modules: array_values($modules),
             moduleAccess: $moduleAccess,
-            plan: $this->planPayload($plan),
+            plan: $this->planPayload($supportSettings),
             autoOpenSnoozeMinutes: $supportSettings->autoOpenSnoozeMinutes,
             branding: $this->brandingForSettings($supportSettings),
         );
@@ -180,11 +180,12 @@ final class BuildAssistantConfigurationUseCase implements BuildAssistantConfigur
         return 'unavailable';
     }
 
-    private function planPayload(string $plan): array
+    private function planPayload(SupportSettings $settings): array
     {
         return [
-            'effective' => $plan,
-            'source' => 'plan',
+            'effective' => SupportPlan::normalize($settings->plan),
+            'source' => $settings->isTrialActive() ? 'trial' : 'plan',
+            'expiresAt' => $settings->planExpiresAt,
         ];
     }
 

@@ -10,6 +10,7 @@ use app\Presentation\Http\Form\UserSendEmailForm;
 use app\Presentation\Http\Form\UserJoinForm;
 use app\Presentation\Http\Form\UserLoginForm;
 use app\Infrastructure\YiiActiveRecord\Users;
+use app\Modules\Support\Application\Contract\SupportPlanLifecycleRepositoryInterface;
 use Yii;
 use yii\db\Exception;
 use yii\web\Response;
@@ -21,6 +22,7 @@ class SiteController extends SmartiusController
         $module,
         private readonly UserAccountServiceInterface $userAccountService,
         private readonly ClientProjectService $projects,
+        private readonly SupportPlanLifecycleRepositoryInterface $planLifecycle,
         $config = []
     ) {
         parent::__construct($id, $module, $config);
@@ -409,6 +411,7 @@ HTML;
             (int)$userRecord->public_key,
             (string)$userRecord->firm,
         );
+        $this->planLifecycle->startTrial((int)$userRecord->public_key, 10);
     }
 
     public function actionLogout(): Response

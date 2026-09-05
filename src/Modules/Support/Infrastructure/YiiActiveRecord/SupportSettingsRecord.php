@@ -17,7 +17,7 @@ final class SupportSettingsRecord extends ActiveRecord
             [['public_key'], 'required'],
             [['public_key', 'enabled', 'polling_interval_seconds', 'keep_widget_open_when_online', 'auto_open_snooze_minutes', 'show_branding', 'ask_name', 'ask_email', 'ask_phone', 'notify_email', 'notify_telegram', 'notify_max'], 'integer'],
             [['welcome_message', 'offline_message', 'working_hours', 'auto_reply', 'notification_emails'], 'string'],
-            [['work_schedule', 'holiday_schedule'], 'safe'],
+            [['work_schedule', 'holiday_schedule', 'plan_expires_at', 'trial_started_at'], 'safe'],
             [['title', 'plan', 'timezone', 'telegram_bot_token', 'telegram_chat_id', 'max_api_url', 'max_bot_token', 'max_chat_id'], 'string', 'max' => 255],
         ];
     }

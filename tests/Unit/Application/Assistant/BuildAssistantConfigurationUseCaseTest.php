@@ -13,6 +13,9 @@ use app\Domain\Assistant\AssistantClient;
 use app\Domain\Assistant\AssistantContext;
 use app\Domain\Assistant\AssistantUserContext;
 use app\Domain\Client\ClientModuleAccess;
+use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
+use app\Modules\Support\Domain\SupportPlan;
+use app\Modules\Support\Domain\SupportSettings;
 use PHPUnit\Framework\TestCase;
 
 final class BuildAssistantConfigurationUseCaseTest extends TestCase
@@ -35,6 +38,7 @@ final class BuildAssistantConfigurationUseCaseTest extends TestCase
             new FakeAssistantContextRepository($context),
             new FakeAssistantConfigurationLogger(),
             new FakeClientModuleAccessRepository(['courses', 'support']),
+            new FakeSupportSettingsRepository(),
         );
 
         $response = $useCase->build(new BuildAssistantConfigurationRequest(10))->toArray();
@@ -52,6 +56,7 @@ final class BuildAssistantConfigurationUseCaseTest extends TestCase
             new FakeAssistantContextRepository($this->context()),
             new FailingAssistantConfigurationLogger(),
             new FakeClientModuleAccessRepository([]),
+            new FakeSupportSettingsRepository(),
         );
 
         $response = $useCase->build(new BuildAssistantConfigurationRequest(10))->toArray();
@@ -67,6 +72,7 @@ final class BuildAssistantConfigurationUseCaseTest extends TestCase
             $repository,
             new FakeAssistantConfigurationLogger(),
             new FakeClientModuleAccessRepository([]),
+            new FakeSupportSettingsRepository(),
         );
 
         $useCase->build(new BuildAssistantConfigurationRequest(10, $requestContext));
@@ -80,6 +86,7 @@ final class BuildAssistantConfigurationUseCaseTest extends TestCase
             new FakeAssistantContextRepository($this->context(['domain' => 'https://client.test'])),
             new FakeAssistantConfigurationLogger(),
             new FakeClientModuleAccessRepository([]),
+            new FakeSupportSettingsRepository(),
         );
 
         $this->expectException(AssistantAccessDeniedException::class);
@@ -95,6 +102,7 @@ final class BuildAssistantConfigurationUseCaseTest extends TestCase
             ])),
             new FakeAssistantConfigurationLogger(),
             new FakeClientModuleAccessRepository(['courses', 'surveys']),
+            new FakeSupportSettingsRepository(),
         );
 
         $response = $useCase->build(new BuildAssistantConfigurationRequest(10))->toArray();
@@ -163,5 +171,25 @@ final class FakeClientModuleAccessRepository implements ClientModuleAccessReposi
     public function getForClient(int $publicKey): ClientModuleAccess
     {
         return new ClientModuleAccess($this->allowedModules);
+    }
+}
+
+final class FakeSupportSettingsRepository implements SupportSettingsRepositoryInterface
+{
+    public function __construct(
+        private SupportSettings $settings = new SupportSettings(10, SupportPlan::FREE),
+    ) {
+    }
+
+    public function getForClient(int $publicKey): SupportSettings
+    {
+        return $this->settings;
+    }
+
+    public function save(SupportSettings $settings): bool
+    {
+        $this->settings = $settings;
+
+        return true;
     }
 }

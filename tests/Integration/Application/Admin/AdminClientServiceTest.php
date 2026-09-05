@@ -20,10 +20,12 @@ final class AdminClientServiceTest extends YiiIntegrationTestCase
         $this->createClient($adminId);
         $this->assignRole($adminId, 'admin');
 
+        $supportSettings = new YiiSupportSettingsRepository();
         $service = new AdminClientService(
             new YiiClientRepository(),
             new YiiClientAccessRepository(),
-            new YiiSupportSettingsRepository(),
+            $supportSettings,
+            $supportSettings,
         );
 
         try {
@@ -35,6 +37,7 @@ final class AdminClientServiceTest extends YiiIntegrationTestCase
                 1,
                 5,
                 'free',
+                null,
                 false,
                 ['chatbots' => 1],
             ));

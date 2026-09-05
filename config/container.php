@@ -36,6 +36,7 @@ use app\Modules\Support\Application\Contract\SupportRealtimePublisherInterface;
 use app\Modules\Support\Application\Contract\SupportRealtimeTokenIssuerInterface;
 use app\Modules\Support\Application\Contract\SupportReplyNotifierInterface;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
+use app\Modules\Support\Application\Contract\SupportPlanLifecycleRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportUsageRepositoryInterface;
 use app\Modules\Support\Application\UseCase\GetSupportWidgetStateUseCase;
 use app\Modules\Support\Application\UseCase\GetSupportWidgetStateUseCaseInterface;
@@ -106,6 +107,7 @@ return [
         PanelModuleMetricChartRepositoryInterface::class => YiiPanelModuleMetricChartRepository::class,
         UserAccountServiceInterface::class => YiiUserAccountService::class,
         SupportSettingsRepositoryInterface::class => YiiSupportSettingsRepository::class,
+        SupportPlanLifecycleRepositoryInterface::class => YiiSupportSettingsRepository::class,
         SupportEntryPointRepositoryInterface::class => YiiSupportEntryPointRepository::class,
         SupportConversationRepositoryInterface::class => YiiSupportConversationRepository::class,
         SupportMessageRepositoryInterface::class => YiiSupportMessageRepository::class,

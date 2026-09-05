@@ -7,6 +7,8 @@ final class SupportSettings
     public function __construct(
         public readonly int $publicKey,
         public readonly string $plan = SupportPlan::FREE,
+        public readonly ?string $planExpiresAt = null,
+        public readonly ?string $trialStartedAt = null,
         public readonly bool $enabled = true,
         public readonly string $title = 'Онлайн-поддержка',
         public readonly string $welcomeMessage = 'Здравствуйте! Напишите нам, мы поможем.',
@@ -35,11 +37,15 @@ final class SupportSettings
     ) {
     }
 
-    public function withPlan(string $plan): self
+    public function withPlan(string $plan, ?string $planExpiresAt = null): self
     {
+        $plan = SupportPlan::normalize($plan);
+
         return new self(
             publicKey: $this->publicKey,
-            plan: SupportPlan::normalize($plan),
+            plan: $plan,
+            planExpiresAt: $plan === SupportPlan::FREE ? null : $planExpiresAt,
+            trialStartedAt: $this->trialStartedAt,
             enabled: $this->enabled,
             title: $this->title,
             welcomeMessage: $this->welcomeMessage,
@@ -66,6 +72,32 @@ final class SupportSettings
             maxBotToken: $this->maxBotToken,
             maxChatId: $this->maxChatId,
         );
+    }
+
+    public function hasExpired(?\DateTimeImmutable $now = null): bool
+    {
+        if ($this->plan === SupportPlan::FREE || $this->planExpiresAt === null) {
+            return false;
+        }
+
+        $expiresAt = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', $this->planExpiresAt)
+            ?: new \DateTimeImmutable($this->planExpiresAt);
+
+        return $expiresAt <= ($now ?? new \DateTimeImmutable());
+    }
+
+    public function effective(?\DateTimeImmutable $now = null): self
+    {
+        return $this->hasExpired($now)
+            ? $this->withPlan(SupportPlan::FREE)
+            : $this;
+    }
+
+    public function isTrialActive(?\DateTimeImmutable $now = null): bool
+    {
+        return $this->plan === SupportPlan::START
+            && $this->trialStartedAt !== null
+            && !$this->hasExpired($now);
     }
 
     public function normalizedWorkSchedule(): array
