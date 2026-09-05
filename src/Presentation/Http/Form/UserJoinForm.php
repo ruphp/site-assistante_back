@@ -32,10 +32,10 @@ class UserJoinForm extends Model // создаем список параметр
     { // механизм валидации
         return [
             ['name', 'required', 'message' => 'Укажите имя'],
-            ['firm', 'required', 'message' => 'Укажите Вашу компанию'],
+            ['firm', 'required', 'message' => 'Укажите название проекта'],
             ['name', 'string', 'min' => 3, 'max' => 30, 'tooShort' => 'минимум 3 символа', 'tooLong' => 'максимум 10 символов'],
             ['email', 'required', 'message' => 'Укажите email'],
-            ['email', 'email', 'message' => 'email не по формату'],
+            ['email', 'email', 'message' => 'Проверьте формат email'],
             ['email', 'errorIfEmailUsed'],
             ['password', 'required', 'message' => 'Укажите пароль'],
             ['password', 'string', 'min' => 4, 'max' => 30, 'tooShort' => 'минимум 4 символа', 'tooLong' => 'максимум 10 символов'],

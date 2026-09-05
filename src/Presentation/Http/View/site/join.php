@@ -23,11 +23,11 @@ $this->registerMetaTag([
             <?php
             app\Presentation\Yii\Asset\AppAsset::register($this);
             $form = ActiveForm::begin(['id' => 'user-join-form', 'classForm' => 'uk-form-stacked']); ?>
-            <?= $form->field($userJoinForm, 'name')->label('Имя') ?>
-            <?= $form->field($userJoinForm, 'email')->label('Адрес электронной почты') ?>
-            <?= $form->field($userJoinForm, 'firm')->label('Компания') ?>
-            <?= $form->field($userJoinForm, 'password')->passwordInput()->label('Пароль') ?>
-            <?= $form->field($userJoinForm, 'password2')->passwordInput()->label('Повторите пароль') ?>
+            <?= $form->field($userJoinForm, 'name')->label('Ваше имя') ?>
+            <?= $form->field($userJoinForm, 'email')->label('Email') ?>
+            <?= $form->field($userJoinForm, 'firm')->label('Название проекта') ?>
+            <?= $form->field($userJoinForm, 'password')->passwordInput()->label('Придумайте пароль') ?>
+            <?= $form->field($userJoinForm, 'password2')->passwordInput()->label('Пароль ещё раз') ?>
             <?php if ($captchaEnabled): ?>
                 <?php $this->registerJsFile('https://smartcaptcha.yandexcloud.net/captcha.js', ['defer' => true]); ?>
                 <div class="uk-margin">
@@ -35,7 +35,7 @@ $this->registerMetaTag([
                 </div>
             <?php endif; ?>
             <div class="auth-actions">
-                <?= Html::submitButton('Создать', ['class' => 'uk-button uk-button-primary auth-button']) ?>
+                <?= Html::submitButton('Создать аккаунт', ['class' => 'uk-button uk-button-primary auth-button']) ?>
             </div>
             <?php ActiveForm::end(); ?>
             <?php if (isset($oauthClients['yandex']) || isset($oauthClients['vkontakte'])): ?>
