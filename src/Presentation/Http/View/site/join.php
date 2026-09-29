@@ -6,10 +6,10 @@
 use ruwmapps\yii2_uikit3\ActiveForm;
 use yii\helpers\Html;
 
-$this->title = 'Регистрация пользователей';
+$this->title = 'Попробовать SiteWidget 10 дней';
 $this->registerMetaTag([
     'name'    => 'description',
-    'content' => 'Регистрация пользователя SiteWidget',
+    'content' => 'Создайте аккаунт SiteWidget и попробуйте все модули тарифа Start 10 дней',
 ]);
 $this->registerMetaTag([
     'name'    => 'keywords',
@@ -19,7 +19,17 @@ $this->registerMetaTag([
 <div class="auth-page uk-container uk-container-xsmall">
     <div class="uk-flex uk-flex-center">
         <div class="uk-card uk-card-default uk-card-body auth-card">
-            <h2 class="auth-title">Регистрация</h2>
+            <div class="auth-brand">
+                <span class="auth-brand__name">SiteWidget</span>
+                <span class="auth-brand__text">Онлайн-поддержка и модули для вашего сайта</span>
+            </div>
+            <h2 class="auth-title">Попробуйте Start 10 дней</h2>
+            <p class="auth-lead">После регистрации создадите проект и подключите виджет к сайту.</p>
+            <ul class="auth-benefits">
+                <li>Все модули Start на 10 дней</li>
+                <li>Онлайн-поддержка, FAQ, онбординг и анкеты</li>
+                <li>После теста — переход на Free без удаления данных</li>
+            </ul>
             <?php
             app\Presentation\Yii\Asset\AppAsset::register($this);
             $form = ActiveForm::begin(['id' => 'user-join-form', 'classForm' => 'uk-form-stacked']); ?>
@@ -34,7 +44,7 @@ $this->registerMetaTag([
                 </div>
             <?php endif; ?>
             <div class="auth-actions">
-                <?= Html::submitButton('Создать аккаунт', ['class' => 'uk-button uk-button-primary auth-button']) ?>
+                <?= Html::submitButton('Начать 10 дней Start', ['class' => 'uk-button uk-button-primary auth-button']) ?>
             </div>
             <?php ActiveForm::end(); ?>
             <?php if (isset($oauthClients['yandex']) || isset($oauthClients['vkontakte'])): ?>

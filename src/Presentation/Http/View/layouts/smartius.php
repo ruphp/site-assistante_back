@@ -60,8 +60,8 @@ if ($isLandingPage) {
             ],
         ],
         ['label' => 'Как работает', 'url' => '/#how'],
+        ['label' => 'Тарифы', 'url' => '/#pricing'],
         ['label' => 'Интеграции', 'url' => '/#integrations'],
-        ['label' => 'Приложение', 'url' => '/#android-app'],
     ];
 } elseif ($isPublicModulePage) {
     $menu = [
@@ -189,6 +189,46 @@ if (!empty($this->params['seoBreadcrumbs']) && is_array($this->params['seoBreadc
 }
 
 $this->registerJs(<<<'JS'
+function openSiteWidgetSupport(attempt) {
+    attempt = attempt || 0;
+    if (window.SiteWidget && window.SiteWidget.api && typeof window.SiteWidget.api.openSupport === 'function') {
+        window.siteWidgetSupportOpenPending = false;
+        window.SiteWidget.api.openSupport();
+        if (typeof window.SiteWidget.api.open === 'function') {
+            window.SiteWidget.api.open();
+        }
+        return;
+    }
+
+    if (window.SiteWidget && window.SiteWidget.api && typeof window.SiteWidget.api.open === 'function') {
+        window.siteWidgetSupportOpenPending = false;
+        window.SiteWidget.api.open();
+        return;
+    }
+
+    var widgetRoot = document.getElementById('smartius-widget');
+    if (widgetRoot && widgetRoot.shadowRoot && widgetRoot.shadowRoot.childNodes.length > 0) {
+        window.siteWidgetSupportOpenPending = false;
+        document.dispatchEvent(new CustomEvent('smartiusopensupportwidget'));
+        var launcher = widgetRoot.shadowRoot.querySelector('button[data-draggable="true"]');
+        if (launcher && launcher.getBoundingClientRect().width > 0) {
+            launcher.click();
+        } else {
+            document.dispatchEvent(new CustomEvent('smartiusopenwidget'));
+        }
+        return;
+    }
+
+    if (attempt < 50) {
+        window.setTimeout(function () {
+            openSiteWidgetSupport(attempt + 1);
+        }, 100);
+        return;
+    }
+
+    window.siteWidgetSupportOpenPending = false;
+}
+
 document.addEventListener('click', function (event) {
     var target = event.target;
     if (!target || typeof target.closest !== 'function') {
@@ -201,16 +241,13 @@ document.addEventListener('click', function (event) {
     }
 
     event.preventDefault();
-    if (window.SiteWidget && window.SiteWidget.api && typeof window.SiteWidget.api.openSupport === 'function') {
-        window.SiteWidget.api.openSupport();
+    if (window.siteWidgetSupportOpenPending) {
         return;
     }
-
-    if (window.SiteWidget && window.SiteWidget.api && typeof window.SiteWidget.api.open === 'function') {
-        window.SiteWidget.api.open();
-    }
+    window.siteWidgetSupportOpenPending = true;
+    openSiteWidgetSupport(0);
 });
-JS);
+JS, \yii\web\View::POS_END);
 
 $this->beginPage();
 

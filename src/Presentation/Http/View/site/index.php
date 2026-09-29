@@ -4,8 +4,8 @@
 
 use yii\helpers\Html;
 
-$this->title = 'Обратная связь на сайт: форма, чат и виджет поддержки | SiteWidget';
-$this->params['seoDescription'] = 'SiteWidget добавляет на сайт форму обратной связи, чат с менеджером, быстрые кнопки обращений, Android-уведомления, Telegram-бота, базу знаний, анкеты и онбординг.';
+$this->title = 'Онлайн-поддержка на сайт — чат и FAQ | SiteWidget';
+$this->params['seoDescription'] = 'Подключите онлайн-поддержку на сайт: чат с посетителями, ответы из Telegram и панели, FAQ и инструкции в одном виджете. Start на 10 дней.';
 $this->params['seoCanonical'] = '/';
 $this->params['seoSchemas'][] = [
     '@context' => 'https://schema.org',
@@ -26,7 +26,7 @@ $this->params['seoSchemas'][] = [
     '@context' => 'https://schema.org',
     '@type' => 'WebApplication',
     'name' => 'SiteWidget',
-    'alternateName' => 'Виджет обратной связи для сайта',
+    'alternateName' => 'Онлайн-поддержка для сайта',
     'applicationCategory' => 'BusinessApplication',
     'browserRequirements' => 'JavaScript',
     'url' => 'https://sitewidget.ru/',
@@ -106,23 +106,26 @@ $this->registerMetaTag([
 ]);
 $this->registerMetaTag([
         'name' => 'keywords',
-        'content' => 'обратная связь на сайт, форма обратной связи, виджет обратной связи, онлайн-поддержка на сайт, чат поддержки на сайт, кнопки обратной связи, SiteWidget',
+        'content' => 'онлайн-поддержка на сайт, чат для сайта, онлайн-консультант, виджет поддержки, FAQ для сайта, SiteWidget',
 ]);
 ?>
 
 <main class="site-landing">
     <section class="site-landing__hero">
         <div>
-            <div class="site-landing__eyebrow">Когда посетителю нужен быстрый ответ</div>
-            <h1>Виджет обратной связи для сайта</h1>
+            <div class="site-landing__eyebrow">Вопросы посетителей не теряются</div>
+            <h1>Онлайн-поддержка на сайт — отвечайте из Telegram или панели</h1>
             <p class="site-landing__lead">
-                SiteWidget добавляет на сайт обратную связь: форму обращения, онлайн-чат с менеджером,
-                быстрые кнопки вопросов, Android-уведомления, Telegram-бота, базу знаний, анкеты и онбординг
-                в одном виджете.
+                Посетитель задаёт вопрос прямо на сайте, менеджер получает уведомление и отвечает.
+                Диалог и история остаются в панели SiteWidget. FAQ, инструкции, онбординг и анкеты дополняют онлайн-поддержку.
             </p>
             <div class="site-landing__actions">
-                <?= Html::a('Начать использовать', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
-                <a class="site-landing__button site-landing__button--ghost" href="#modules">Посмотреть модули</a>
+                <?= Html::a('Попробовать Start 10 дней', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
+                <button class="site-landing__button site-landing__button--ghost" type="button" data-sitewidget-open-support>Открыть живой чат</button>
+            </div>
+            <p class="site-landing__trial-note">Все модули Start доступны 10 дней. После теста проект перейдёт на Free, а созданные данные сохранятся.</p>
+            <div class="site-landing__hero-facts" aria-label="Ключевые возможности">
+                <span>Чат на сайте</span><span>Ответы из Telegram</span><span>История диалогов</span>
             </div>
         </div>
 
@@ -134,31 +137,15 @@ $this->registerMetaTag([
                     <span class="site-landing__dot"></span>
                 </div>
                 <div class="site-landing__browser-body">
-                    <div>
-                        <div class="site-landing__chart"></div>
-                        <div class="site-landing__mini-graph" aria-hidden="true">
-                            <div class="site-landing__bars">
-                                <span class="site-landing__bar"></span>
-                                <span class="site-landing__bar"></span>
-                                <span class="site-landing__bar"></span>
-                                <span class="site-landing__bar"></span>
-                            </div>
-                            <div class="site-landing__mini-line"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="site-landing__line"></div>
-                        <div class="site-landing__line"></div>
-                        <div class="site-landing__line"></div>
-                        <div class="site-landing__line"></div>
-                    </div>
+                    <div class="site-landing__page-copy"><strong>Ваш сайт</strong><span></span><span></span><span></span></div>
+                    <div class="site-landing__manager-alert"><small>Новое обращение</small><strong>«Поможете выбрать?»</strong><span>Ответить из Telegram или панели</span></div>
                 </div>
             </div>
             <div class="site-landing__widget">
                 <div class="site-landing__widget-head">Онлайн-поддержка</div>
                 <div class="site-landing__widget-body">
-                    <div class="site-landing__message">Операторы онлайн</div>
-                    <div class="site-landing__message">Чем помочь на этой странице?</div>
+                    <div class="site-landing__message site-landing__message--visitor">Поможете выбрать тариф?</div>
+                    <div class="site-landing__message site-landing__message--operator">Start подойдёт для одного сайта. Помочь с подключением?</div>
                 </div>
             </div>
         </div>
@@ -166,10 +153,9 @@ $this->registerMetaTag([
 
     <section id="modules" class="site-landing__section site-landing__section--tint">
         <div class="site-landing__inner">
-            <h2>Форма обратной связи, чат и подсказки в одном виджете</h2>
+            <h2>Онлайн-поддержка — основа виджета</h2>
             <p class="site-landing__section-lead">
-                SiteWidget закрывает несколько задач сразу: посетитель может написать менеджеру,
-                выбрать частый вопрос, оставить контакты, открыть инструкцию из подсказки или пройти сценарий онбординга.
+                При открытии посетитель сразу видит онлайн-связь. FAQ, инструкции, онбординг и анкеты остаются дополнительными модулями.
             </p>
             <div class="site-landing__grid">
                 <article class="site-landing__card" id="support">
@@ -201,19 +187,19 @@ $this->registerMetaTag([
 
     <section id="how" class="site-landing__section">
         <div class="site-landing__inner">
-            <h2>Как подключается обратная связь</h2>
+            <h2>От вопроса до ответа — три шага</h2>
             <div class="site-landing__steps">
                 <div class="site-landing__step">
-                    <strong>01. Подключение</strong>
-                    <p>Владелец сайта вставляет JS-код или подключает CMS-модуль. Виджет получает конфигурацию по public key и домену сайта.</p>
+                    <strong>01. Посетитель спрашивает</strong>
+                    <p>Онлайн-поддержка открывается первой. Посетитель пишет вопрос или выбирает быструю тему.</p>
                 </div>
                 <div class="site-landing__step">
-                    <strong>02. Настройка</strong>
-                    <p>В панели владельца сайта настраиваются форма обратной связи, оформление, модули, расписание операторов, уведомления и роли.</p>
+                    <strong>02. Менеджер получает сигнал</strong>
+                    <p>Обращение появляется в панели, Telegram-боте или Android-приложении, чтобы вопрос не затерялся.</p>
                 </div>
                 <div class="site-landing__step">
-                    <strong>03. Работа</strong>
-                    <p>Пользователь сайта получает помощь на месте, а владелец сайта видит обращения, историю диалогов и активность виджета.</p>
+                    <strong>03. Ответ остаётся в диалоге</strong>
+                    <p>Менеджер отвечает из удобного канала, посетитель видит ответ в виджете, а история сохраняется.</p>
                 </div>
             </div>
         </div>
@@ -324,11 +310,10 @@ $this->registerMetaTag([
 
     <section id="pricing" class="site-landing__section site-landing__section--tint">
         <div class="site-landing__inner">
-            <h2>Тарифы под рост обратной связи</h2>
+            <h2>10 дней Start, затем — подходящий тариф</h2>
             <p class="site-landing__section-lead">
-                Онлайн-поддержка доступна сразу. Платные тарифы открывают больше ответов, операторов,
-                дополнительные модули, а Pro — несколько проектов. Оплату подключим позже, сейчас тариф можно
-                включить вручную после обращения.
+                Сразу после регистрации доступны все модули Start. Через 10 дней проект автоматически перейдёт на Free.
+                Данные платных модулей сохранятся и снова станут доступны после подключения Start.
             </p>
 
             <div class="site-landing__pricing">
@@ -340,17 +325,15 @@ $this->registerMetaTag([
                     <p>Для первого подключения и проверки виджета на сайте.</p>
                     <ul>
                         <li>50 ответов операторов в день</li>
-                        <li>Пользуйся сразу после регистрации</li>
                         <li>300 диалогов и 3000 сообщений в месяц</li>
                         <li>1 проект</li>
                         <li>1 оператор</li>
                         <li>Онлайн-поддержка: чат, диалоги и история обращений</li>
-                        <li>Android-приложение: уведомления о новых обращениях</li>
-                        <li>Настраиваемое автооткрытие виджета</li>
-                        <li>1 кнопка быстрого обращения с готовым ответом</li>
-                        <li>CMS-интеграции</li>
                         <li>История 30 дней</li>
                     </ul>
+                    <div class="site-landing__price-action">
+                        <?= Html::a('Начать с 10 дней Start', ['/join'], ['class' => 'site-landing__button site-landing__button--ghost']) ?>
+                    </div>
                 </article>
 
                 <article class="site-landing__price-card site-landing__price-card--accent">
@@ -371,6 +354,9 @@ $this->registerMetaTag([
                         <li>До 5 кнопок - быстрые обращения</li>
                         <li>История 90 дней</li>
                     </ul>
+                    <div class="site-landing__price-action">
+                        <?= Html::a('Попробовать Start', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
+                    </div>
                 </article>
 
                 <article class="site-landing__price-card">
@@ -386,6 +372,9 @@ $this->registerMetaTag([
                         <li>До 3 проектов</li>
                         <li>До 5 операторов</li>
                     </ul>
+                    <div class="site-landing__price-action">
+                        <button class="site-landing__button site-landing__button--ghost" type="button" data-sitewidget-open-support>Обсудить Pro</button>
+                    </div>
                 </article>
             </div>
 
@@ -395,7 +384,7 @@ $this->registerMetaTag([
                     Можно согласовать индивидуальный лимит, отдельные условия хранения истории и расширенные настройки
                     нагрузки.
                 </span><br><br>
-                <strong>Тариф можно включить вручную, пока оплата на сайте готовится.</strong>
+                <strong>Сейчас Start и Pro подключаются через поддержку.</strong>
                 <div class="site-landing__actions">
                     <button class="site-landing__button site-landing__button--primary" type="button" data-sitewidget-open-support>
                         Написать в поддержку
@@ -408,12 +397,11 @@ $this->registerMetaTag([
     <section class="site-landing__section">
         <div class="site-landing__inner">
             <div class="site-landing__cta">
-                <h2>SiteWidget превращает обратную связь в понятный диалог</h2>
+                <h2>Проверьте онлайн-поддержку на своём сайте</h2>
                 <p class="site-landing__section-lead">
-                    Онлайн-поддержка доступна как базовый модуль. В Start добавляются инструкции, онбординг,
-                    анкетирование и роли. Pro нужен для нескольких проектов и повышенных лимитов.
+                    Создайте проект, установите код или CMS-модуль и проведите первый тестовый диалог. На проверку всех модулей Start есть 10 дней.
                 </p>
-                <?= Html::a('Начать использовать', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
+                <?= Html::a('Попробовать 10 дней', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
             </div>
         </div>
     </section>
