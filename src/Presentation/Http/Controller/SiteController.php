@@ -203,6 +203,11 @@ HTML;
         return $this->render('surveys');
     }
 
+    public function actionPrivacy(): string
+    {
+        return $this->render('privacy');
+    }
+
     public function actionLogin(): Response|string
     {
         if (Yii::$app->request->isPost)

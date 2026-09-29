@@ -370,7 +370,7 @@ $this->beginPage();
                         <div class="uk-text-center"><a href="mailto:sitewidget@ya.ru">sitewidget@ya.ru</a></div>
                     </div>
                     <div class="sw-footer__col">
-                        <a href="/files/pzpd.docx">Политика конфиденциальности</a>
+                        <a href="/privacy">Политика конфиденциальности</a>
                     </div>
                 </div>
             </footer>

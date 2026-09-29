@@ -39,6 +39,10 @@ $url_rules = [
         'route' => 'site/surveys',
     ],
     [
+        'pattern' => '/privacy',
+        'route' => 'site/privacy',
+    ],
+    [
         'pattern' => '/instructions',
         'route' => 'site/instructions',
     ],
@@ -565,6 +569,7 @@ $config = [
             'errorAction' => 'site/error',
         ],
         'assetManager' => [
+            'appendTimestamp' => true,
             'bundles' => [
                 'yii\bootstrap\BootstrapPluginAsset' => [
                     // 'js'=>[]
