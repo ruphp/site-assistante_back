@@ -5,7 +5,7 @@
 use yii\helpers\Html;
 
 $this->title = 'Онлайн-поддержка на сайт - чат и FAQ | SiteWidget';
-$this->params['seoDescription'] = 'Онлайн-поддержка для сайта: push-уведомления и ответы из приложения Android или Telegram. Весь функционал доступен бесплатно 10 дней.';
+$this->params['seoDescription'] = 'Онлайн-поддержка для сайта: чат с посетителями, push-уведомления и ответы из приложения Android или Telegram. Подключение за несколько минут.';
 $this->params['seoCanonical'] = '/';
 $this->params['seoSchemas'][] = [
     '@context' => 'https://schema.org',
@@ -54,10 +54,9 @@ $this->registerMetaTag([
                 Диалог и история остаются в панели SiteWidget. FAQ, инструкции, онбординг и анкеты дополняют онлайн-поддержку.
             </p>
             <div class="site-landing__actions">
-                <?= Html::a('Попробовать весь функционал', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
+                <?= Html::a('Начать бесплатно', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
                 <button class="site-landing__button site-landing__button--ghost" type="button" data-sitewidget-open-support>Открыть живой чат</button>
             </div>
-            <p class="site-landing__trial-note">10 дней доступен весь функционал без карты и автоматических списаний. Все созданные данные сохранятся.</p>
             <div class="site-landing__hero-facts" aria-label="Ключевые возможности">
                 <span>Чат на сайте</span><span>Android-приложение</span><span>Ответы из Telegram</span><span>История диалогов</span>
             </div>
@@ -95,7 +94,7 @@ $this->registerMetaTag([
                 <article class="site-landing__card" id="support">
                     <img class="site-landing__card-icon" src="/img/sitewidget-module-support.svg" alt="">
                     <h3>Онлайн-поддержка на сайт</h3>
-                    <p>Чат с оператором, форма обратной связи, быстрые кнопки тем и тикеты. Менеджеры видят горячие обращения в панели, Android-приложении и Telegram-боте.</p>
+                    <p>Чат с оператором, форма обратной связи, быстрые кнопки тем и тикеты. Менеджеры получают уведомления в приложении Android и Telegram-боте.</p>
                 </article>
                 <article class="site-landing__card">
                     <img class="site-landing__card-icon" src="/img/sitewidget-module-instructions.svg" alt="">
@@ -129,7 +128,7 @@ $this->registerMetaTag([
                 </div>
                 <div class="site-landing__step">
                     <strong>02. Менеджер получает сигнал</strong>
-                    <p>Обращение появляется в панели, Telegram-боте или Android-приложении, чтобы вопрос не затерялся.</p>
+                    <p>Менеджер получает уведомление в приложении Android или Telegram-боте, чтобы вопрос не затерялся.</p>
                 </div>
                 <div class="site-landing__step">
                     <strong>03. Ответ остаётся в диалоге</strong>
@@ -244,11 +243,9 @@ $this->registerMetaTag([
 
     <section id="pricing" class="site-landing__section site-landing__section--tint">
         <div class="site-landing__inner">
-            <h2>Весь функционал бесплатно на 10 дней</h2>
+            <h2>Выберите тариф под вашу задачу</h2>
             <p class="site-landing__section-lead">
-                Сразу после регистрации доступны онлайн-поддержка, инструкции, онбординг и анкеты.
-                Карта не нужна, автоматических списаний нет. После пробного периода можно остаться на Free
-                или подключить подходящий тариф. Все созданные данные сохранятся.
+                Начните бесплатно и подключите расширенные возможности, когда они понадобятся.
             </p>
 
             <div class="site-landing__pricing">
@@ -257,7 +254,7 @@ $this->registerMetaTag([
                         <span>Free</span>
                         <strong>0 ₽</strong>
                     </div>
-                    <p>Для первого подключения и проверки виджета на сайте.</p>
+                    <p>Для первого подключения и проверки виджета. При первом запуске можно попробовать весь функционал.</p>
                     <ul>
                         <li>50 ответов операторов в день</li>
                         <li>300 диалогов и 3000 сообщений в месяц</li>
@@ -290,7 +287,7 @@ $this->registerMetaTag([
                         <li>История 90 дней</li>
                     </ul>
                     <div class="site-landing__price-action">
-                        <?= Html::a('Попробовать весь функционал', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
+                        <?= Html::a('Подключить Start', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
                     </div>
                 </article>
 
@@ -334,9 +331,9 @@ $this->registerMetaTag([
             <div class="site-landing__cta">
                 <h2>Проверьте онлайн-поддержку на своём сайте</h2>
                 <p class="site-landing__section-lead">
-                    Создайте проект, установите код или CMS-модуль и проведите первый тестовый диалог. Весь функционал доступен бесплатно 10 дней.
+                    Создайте проект, установите код или CMS-модуль и проведите первый тестовый диалог.
                 </p>
-                <?= Html::a('Открыть весь функционал', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
+                <?= Html::a('Создать проект', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
             </div>
         </div>
     </section>
