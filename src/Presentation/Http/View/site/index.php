@@ -5,7 +5,7 @@
 use yii\helpers\Html;
 
 $this->title = 'Онлайн-поддержка на сайт - чат и FAQ | SiteWidget';
-$this->params['seoDescription'] = 'Онлайн-поддержка для сайта: push-уведомления и ответы из приложения Android или Telegram. Не пропускайте обращения посетителей. 10 дней бесплатно.';
+$this->params['seoDescription'] = 'Онлайн-поддержка для сайта: push-уведомления и ответы из приложения Android или Telegram. Весь функционал доступен бесплатно 10 дней.';
 $this->params['seoCanonical'] = '/';
 $this->params['seoSchemas'][] = [
     '@context' => 'https://schema.org',
@@ -54,10 +54,10 @@ $this->registerMetaTag([
                 Диалог и история остаются в панели SiteWidget. FAQ, инструкции, онбординг и анкеты дополняют онлайн-поддержку.
             </p>
             <div class="site-landing__actions">
-                <?= Html::a('Попробовать бесплатно 10 дней', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
+                <?= Html::a('Попробовать весь функционал', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
                 <button class="site-landing__button site-landing__button--ghost" type="button" data-sitewidget-open-support>Открыть живой чат</button>
             </div>
-            <p class="site-landing__trial-note">Все платные модули доступны 10 дней. После теста проект перейдёт на Free, а созданные данные сохранятся.</p>
+            <p class="site-landing__trial-note">10 дней доступен весь функционал без карты и автоматических списаний. Все созданные данные сохранятся.</p>
             <div class="site-landing__hero-facts" aria-label="Ключевые возможности">
                 <span>Чат на сайте</span><span>Android-приложение</span><span>Ответы из Telegram</span><span>История диалогов</span>
             </div>
@@ -244,10 +244,11 @@ $this->registerMetaTag([
 
     <section id="pricing" class="site-landing__section site-landing__section--tint">
         <div class="site-landing__inner">
-            <h2>10 дней бесплатно, затем - подходящий тариф</h2>
+            <h2>Весь функционал бесплатно на 10 дней</h2>
             <p class="site-landing__section-lead">
-                Сразу после регистрации доступны все платные модули. Через 10 дней проект автоматически перейдёт на Free.
-                Данные платных модулей сохранятся и снова станут доступны после оплаты тарифа.
+                Сразу после регистрации доступны онлайн-поддержка, инструкции, онбординг и анкеты.
+                Карта не нужна, автоматических списаний нет. После пробного периода можно остаться на Free
+                или подключить подходящий тариф. Все созданные данные сохранятся.
             </p>
 
             <div class="site-landing__pricing">
@@ -289,7 +290,7 @@ $this->registerMetaTag([
                         <li>История 90 дней</li>
                     </ul>
                     <div class="site-landing__price-action">
-                        <?= Html::a('Попробовать 10 дней', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
+                        <?= Html::a('Попробовать весь функционал', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
                     </div>
                 </article>
 
@@ -333,9 +334,9 @@ $this->registerMetaTag([
             <div class="site-landing__cta">
                 <h2>Проверьте онлайн-поддержку на своём сайте</h2>
                 <p class="site-landing__section-lead">
-                    Создайте проект, установите код или CMS-модуль и проведите первый тестовый диалог. На проверку всех платных модулей есть 10 дней.
+                    Создайте проект, установите код или CMS-модуль и проведите первый тестовый диалог. Весь функционал доступен бесплатно 10 дней.
                 </p>
-                <?= Html::a('Попробовать 10 дней', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
+                <?= Html::a('Открыть весь функционал', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
             </div>
         </div>
     </section>
