@@ -5,7 +5,7 @@
 use yii\helpers\Html;
 
 $this->title = 'Онлайн-поддержка на сайт - чат и FAQ | SiteWidget';
-$this->params['seoDescription'] = 'Онлайн-поддержка для сайта: push-уведомления и ответы из Android-приложения или Telegram. Не пропускайте обращения посетителей. Start на 10 дней.';
+$this->params['seoDescription'] = 'Онлайн-поддержка для сайта: push-уведомления и ответы из Android-приложения или Telegram. Не пропускайте обращения посетителей. 10 дней бесплатно.';
 $this->params['seoCanonical'] = '/';
 $this->params['seoSchemas'][] = [
     '@context' => 'https://schema.org',
@@ -54,10 +54,10 @@ $this->registerMetaTag([
                 Диалог и история остаются в панели SiteWidget. FAQ, инструкции, онбординг и анкеты дополняют онлайн-поддержку.
             </p>
             <div class="site-landing__actions">
-                <?= Html::a('Попробовать Start 10 дней', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
+                <?= Html::a('Попробовать бесплатно 10 дней', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
                 <button class="site-landing__button site-landing__button--ghost" type="button" data-sitewidget-open-support>Открыть живой чат</button>
             </div>
-            <p class="site-landing__trial-note">Все модули Start доступны 10 дней. После теста проект перейдёт на Free, а созданные данные сохранятся.</p>
+            <p class="site-landing__trial-note">Все платные модули доступны 10 дней. После теста проект перейдёт на Free, а созданные данные сохранятся.</p>
             <div class="site-landing__hero-facts" aria-label="Ключевые возможности">
                 <span>Чат на сайте</span><span>Android-приложение</span><span>Ответы из Telegram</span><span>История диалогов</span>
             </div>
@@ -72,14 +72,14 @@ $this->registerMetaTag([
                 </div>
                 <div class="site-landing__browser-body">
                     <div class="site-landing__page-copy"><strong>Ваш сайт</strong><span></span><span></span><span></span></div>
-                    <div class="site-landing__manager-alert"><small>Новое обращение</small><strong>«Поможете выбрать?»</strong><span>Ответить из Android или Telegram</span></div>
+                    <div class="site-landing__manager-alert"><small>Новое обращение</small><strong>«Этот товар есть в наличии?»</strong><span>Ответить из Android или Telegram</span></div>
                 </div>
             </div>
             <div class="site-landing__widget">
                 <div class="site-landing__widget-head">Онлайн-поддержка</div>
                 <div class="site-landing__widget-body">
-                    <div class="site-landing__message site-landing__message--visitor">Поможете выбрать тариф?</div>
-                    <div class="site-landing__message site-landing__message--operator">Start подойдёт для одного сайта. Помочь с подключением?</div>
+                    <div class="site-landing__message site-landing__message--visitor">Здравствуйте! Этот товар есть в наличии?</div>
+                    <div class="site-landing__message site-landing__message--operator">Здравствуйте! Да, есть. Подскажите, нужна доставка или самовывоз?</div>
                 </div>
             </div>
         </div>
@@ -244,10 +244,10 @@ $this->registerMetaTag([
 
     <section id="pricing" class="site-landing__section site-landing__section--tint">
         <div class="site-landing__inner">
-            <h2>10 дней Start, затем - подходящий тариф</h2>
+            <h2>10 дней бесплатно, затем - подходящий тариф</h2>
             <p class="site-landing__section-lead">
-                Сразу после регистрации доступны все модули Start. Через 10 дней проект автоматически перейдёт на Free.
-                Данные платных модулей сохранятся и снова станут доступны после подключения Start.
+                Сразу после регистрации доступны все платные модули. Через 10 дней проект автоматически перейдёт на Free.
+                Данные платных модулей сохранятся и снова станут доступны после оплаты тарифа.
             </p>
 
             <div class="site-landing__pricing">
@@ -266,7 +266,7 @@ $this->registerMetaTag([
                         <li>История 30 дней</li>
                     </ul>
                     <div class="site-landing__price-action">
-                        <?= Html::a('Начать с 10 дней Start', ['/join'], ['class' => 'site-landing__button site-landing__button--ghost']) ?>
+                        <?= Html::a('Начать бесплатно', ['/join'], ['class' => 'site-landing__button site-landing__button--ghost']) ?>
                     </div>
                 </article>
 
@@ -289,7 +289,7 @@ $this->registerMetaTag([
                         <li>История 90 дней</li>
                     </ul>
                     <div class="site-landing__price-action">
-                        <?= Html::a('Попробовать Start', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
+                        <?= Html::a('Попробовать 10 дней', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
                     </div>
                 </article>
 
@@ -333,7 +333,7 @@ $this->registerMetaTag([
             <div class="site-landing__cta">
                 <h2>Проверьте онлайн-поддержку на своём сайте</h2>
                 <p class="site-landing__section-lead">
-                    Создайте проект, установите код или CMS-модуль и проведите первый тестовый диалог. На проверку всех модулей Start есть 10 дней.
+                    Создайте проект, установите код или CMS-модуль и проведите первый тестовый диалог. На проверку всех платных модулей есть 10 дней.
                 </p>
                 <?= Html::a('Попробовать 10 дней', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
             </div>
