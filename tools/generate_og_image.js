@@ -16,8 +16,8 @@ const card = `
   <text x="160" y="118" fill="#211A52" font-family="Arial, sans-serif" font-size="30" font-weight="700">SiteWidget</text>
   <text x="94" y="259" fill="#211A52" font-family="Arial, sans-serif" font-size="55" font-weight="700">Онлайн-поддержка</text>
   <text x="94" y="326" fill="#211A52" font-family="Arial, sans-serif" font-size="55" font-weight="700">на сайт</text>
-  <text x="96" y="392" fill="#615B78" font-family="Arial, sans-serif" font-size="25">Push-уведомления в Android-приложении</text>
-  <text x="96" y="429" fill="#615B78" font-family="Arial, sans-serif" font-size="25">Ответы из Android-приложения или Telegram</text>
+  <text x="96" y="392" fill="#615B78" font-family="Arial, sans-serif" font-size="25">Push-уведомления в приложении Android</text>
+  <text x="96" y="429" fill="#615B78" font-family="Arial, sans-serif" font-size="25">Ответы из приложения Android или Telegram</text>
 
   <rect x="96" y="482" width="283" height="54" fill="#7C3AED"/>
   <text x="125" y="517" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="21" font-weight="700">10 дней бесплатно</text>

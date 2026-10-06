@@ -5,7 +5,7 @@
 use yii\helpers\Html;
 
 $this->title = 'Онлайн-поддержка на сайт - чат и FAQ | SiteWidget';
-$this->params['seoDescription'] = 'Онлайн-поддержка для сайта: push-уведомления и ответы из Android-приложения или Telegram. Не пропускайте обращения посетителей. 10 дней бесплатно.';
+$this->params['seoDescription'] = 'Онлайн-поддержка для сайта: push-уведомления и ответы из приложения Android или Telegram. Не пропускайте обращения посетителей. 10 дней бесплатно.';
 $this->params['seoCanonical'] = '/';
 $this->params['seoSchemas'][] = [
     '@context' => 'https://schema.org',
@@ -48,7 +48,7 @@ $this->registerMetaTag([
     <section class="site-landing__hero">
         <div>
             <div class="site-landing__eyebrow">Вопросы посетителей не теряются</div>
-            <h1>Онлайн-поддержка на сайт - отвечайте из Android-приложения или Telegram</h1>
+            <h1>Онлайн-поддержка на сайт - отвечайте из приложения Android или Telegram</h1>
             <p class="site-landing__lead">
                 Посетитель задаёт вопрос прямо на сайте, менеджер получает уведомление и отвечает.
                 Диалог и история остаются в панели SiteWidget. FAQ, инструкции, онбординг и анкеты дополняют онлайн-поддержку.
