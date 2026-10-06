@@ -20,7 +20,7 @@ const card = `
   <text x="96" y="429" fill="#615B78" font-family="Arial, sans-serif" font-size="25">Ответы из приложения Android или Telegram</text>
 
   <rect x="96" y="482" width="319" height="54" fill="#7C3AED"/>
-  <text x="121" y="517" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="21" font-weight="700">Не пропускайте обращения</text>
+  <text x="255.5" y="517" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="21" font-weight="700" text-anchor="middle">Не пропускайте обращения</text>
 
   <rect x="844" y="176" width="204" height="236" fill="#F1EEFF"/>
   <image href="data:image/svg+xml;base64,${logoData}" x="875" y="191" width="142" height="164"/>
