@@ -28,7 +28,7 @@ $this->registerMetaTag([
             <ul class="auth-benefits">
                 <li>Все модули Start на 10 дней</li>
                 <li>Онлайн-поддержка, FAQ, онбординг и анкеты</li>
-                <li>После теста — переход на Free без удаления данных</li>
+                <li>После теста - переход на Free без удаления данных</li>
             </ul>
             <?php
             app\Presentation\Yii\Asset\AppAsset::register($this);

@@ -4,8 +4,8 @@
 
 use yii\helpers\Html;
 
-$this->title = 'Онлайн-поддержка на сайт — чат и FAQ | SiteWidget';
-$this->params['seoDescription'] = 'Онлайн-поддержка для сайта: push-уведомления и ответы из Android-приложения, Telegram или панели. Не пропускайте обращения посетителей. Start на 10 дней.';
+$this->title = 'Онлайн-поддержка на сайт - чат и FAQ | SiteWidget';
+$this->params['seoDescription'] = 'Онлайн-поддержка для сайта: push-уведомления и ответы из Android-приложения или Telegram. Не пропускайте обращения посетителей. Start на 10 дней.';
 $this->params['seoCanonical'] = '/';
 $this->params['seoSchemas'][] = [
     '@context' => 'https://schema.org',
@@ -48,7 +48,7 @@ $this->registerMetaTag([
     <section class="site-landing__hero">
         <div>
             <div class="site-landing__eyebrow">Вопросы посетителей не теряются</div>
-            <h1>Онлайн-поддержка на сайт — отвечайте из Android, Telegram или панели</h1>
+            <h1>Онлайн-поддержка на сайт - отвечайте из Android-приложения или Telegram</h1>
             <p class="site-landing__lead">
                 Посетитель задаёт вопрос прямо на сайте, менеджер получает уведомление и отвечает.
                 Диалог и история остаются в панели SiteWidget. FAQ, инструкции, онбординг и анкеты дополняют онлайн-поддержку.
@@ -72,7 +72,7 @@ $this->registerMetaTag([
                 </div>
                 <div class="site-landing__browser-body">
                     <div class="site-landing__page-copy"><strong>Ваш сайт</strong><span></span><span></span><span></span></div>
-                    <div class="site-landing__manager-alert"><small>Новое обращение</small><strong>«Поможете выбрать?»</strong><span>Ответить из Android, Telegram или панели</span></div>
+                    <div class="site-landing__manager-alert"><small>Новое обращение</small><strong>«Поможете выбрать?»</strong><span>Ответить из Android или Telegram</span></div>
                 </div>
             </div>
             <div class="site-landing__widget">
@@ -87,7 +87,7 @@ $this->registerMetaTag([
 
     <section id="modules" class="site-landing__section site-landing__section--tint">
         <div class="site-landing__inner">
-            <h2>Онлайн-поддержка — основа виджета</h2>
+            <h2>Онлайн-поддержка - основа виджета</h2>
             <p class="site-landing__section-lead">
                 При открытии посетитель сразу видит онлайн-связь. FAQ, инструкции, онбординг и анкеты остаются дополнительными модулями.
             </p>
@@ -121,7 +121,7 @@ $this->registerMetaTag([
 
     <section id="how" class="site-landing__section">
         <div class="site-landing__inner">
-            <h2>От вопроса до ответа — три шага</h2>
+            <h2>От вопроса до ответа - три шага</h2>
             <div class="site-landing__steps">
                 <div class="site-landing__step">
                     <strong>01. Посетитель спрашивает</strong>
@@ -244,7 +244,7 @@ $this->registerMetaTag([
 
     <section id="pricing" class="site-landing__section site-landing__section--tint">
         <div class="site-landing__inner">
-            <h2>10 дней Start, затем — подходящий тариф</h2>
+            <h2>10 дней Start, затем - подходящий тариф</h2>
             <p class="site-landing__section-lead">
                 Сразу после регистрации доступны все модули Start. Через 10 дней проект автоматически перейдёт на Free.
                 Данные платных модулей сохранятся и снова станут доступны после подключения Start.
