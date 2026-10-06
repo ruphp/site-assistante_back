@@ -5,23 +5,8 @@
 use yii\helpers\Html;
 
 $this->title = 'Онлайн-поддержка на сайт — чат и FAQ | SiteWidget';
-$this->params['seoDescription'] = 'Подключите онлайн-поддержку на сайт: чат с посетителями, ответы из Telegram и панели, FAQ и инструкции в одном виджете. Start на 10 дней.';
+$this->params['seoDescription'] = 'Онлайн-поддержка для сайта: push-уведомления и ответы из Android-приложения, Telegram или панели. Не пропускайте обращения посетителей. Start на 10 дней.';
 $this->params['seoCanonical'] = '/';
-$this->params['seoSchemas'][] = [
-    '@context' => 'https://schema.org',
-    '@type' => 'SoftwareApplication',
-    'name' => 'SiteWidget',
-    'applicationCategory' => 'BusinessApplication',
-    'operatingSystem' => 'Web, Android, Telegram',
-    'url' => 'https://sitewidget.ru/',
-    'description' => $this->params['seoDescription'],
-    'offers' => [
-        '@type' => 'AggregateOffer',
-        'lowPrice' => '0',
-        'highPrice' => '999',
-        'priceCurrency' => 'RUB',
-    ],
-];
 $this->params['seoSchemas'][] = [
     '@context' => 'https://schema.org',
     '@type' => 'WebApplication',
@@ -49,57 +34,6 @@ $this->params['seoSchemas'][] = [
         'availability' => 'https://schema.org/InStock',
     ],
 ];
-$this->params['seoSchemas'][] = [
-    '@context' => 'https://schema.org',
-    '@type' => 'Service',
-    'name' => 'Виджет обратной связи и онлайн-поддержки для сайта',
-    'provider' => [
-        '@type' => 'Organization',
-        'name' => 'SiteWidget',
-        'url' => 'https://sitewidget.ru',
-    ],
-    'serviceType' => 'Форма обратной связи, чат поддержки, FAQ, онбординг, опросы и анкеты для сайта',
-    'url' => 'https://sitewidget.ru/',
-    'description' => $this->params['seoDescription'],
-    'hasOfferCatalog' => [
-        '@type' => 'OfferCatalog',
-        'name' => 'Модули SiteWidget',
-        'itemListElement' => [
-            [
-                '@type' => 'Offer',
-                'itemOffered' => [
-                    '@type' => 'Service',
-                    'name' => 'Онлайн-поддержка на сайт',
-                    'description' => 'Чат с менеджером, обращения как тикеты, быстрые кнопки тем, Android-уведомления и Telegram-бот.',
-                ],
-            ],
-            [
-                '@type' => 'Offer',
-                'itemOffered' => [
-                    '@type' => 'Service',
-                    'name' => 'FAQ и инструкции для сайта',
-                    'description' => 'Разделы, справочные статьи, полезные ответы и инструкции внутри виджета.',
-                ],
-            ],
-            [
-                '@type' => 'Offer',
-                'itemOffered' => [
-                    '@type' => 'Service',
-                    'name' => 'Онбординг пользователей на сайте',
-                    'description' => 'Пошаговые подсказки к элементам страницы и интерактивные сценарии.',
-                ],
-            ],
-            [
-                '@type' => 'Offer',
-                'itemOffered' => [
-                    '@type' => 'Service',
-                    'name' => 'Опросы и анкеты для сайта',
-                    'description' => 'Пошаговые анкеты и мини-опросы для сбора ответов, контактов, вводных и обратной связи посетителя.',
-                ],
-            ],
-        ],
-    ],
-];
 $this->registerMetaTag([
         'name' => 'description',
         'content' => $this->params['seoDescription'],
@@ -114,7 +48,7 @@ $this->registerMetaTag([
     <section class="site-landing__hero">
         <div>
             <div class="site-landing__eyebrow">Вопросы посетителей не теряются</div>
-            <h1>Онлайн-поддержка на сайт — отвечайте из Telegram или панели</h1>
+            <h1>Онлайн-поддержка на сайт — отвечайте из Android, Telegram или панели</h1>
             <p class="site-landing__lead">
                 Посетитель задаёт вопрос прямо на сайте, менеджер получает уведомление и отвечает.
                 Диалог и история остаются в панели SiteWidget. FAQ, инструкции, онбординг и анкеты дополняют онлайн-поддержку.
@@ -125,7 +59,7 @@ $this->registerMetaTag([
             </div>
             <p class="site-landing__trial-note">Все модули Start доступны 10 дней. После теста проект перейдёт на Free, а созданные данные сохранятся.</p>
             <div class="site-landing__hero-facts" aria-label="Ключевые возможности">
-                <span>Чат на сайте</span><span>Ответы из Telegram</span><span>История диалогов</span>
+                <span>Чат на сайте</span><span>Android-приложение</span><span>Ответы из Telegram</span><span>История диалогов</span>
             </div>
         </div>
 
@@ -138,7 +72,7 @@ $this->registerMetaTag([
                 </div>
                 <div class="site-landing__browser-body">
                     <div class="site-landing__page-copy"><strong>Ваш сайт</strong><span></span><span></span><span></span></div>
-                    <div class="site-landing__manager-alert"><small>Новое обращение</small><strong>«Поможете выбрать?»</strong><span>Ответить из Telegram или панели</span></div>
+                    <div class="site-landing__manager-alert"><small>Новое обращение</small><strong>«Поможете выбрать?»</strong><span>Ответить из Android, Telegram или панели</span></div>
                 </div>
             </div>
             <div class="site-landing__widget">

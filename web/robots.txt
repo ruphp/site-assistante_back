@@ -4,8 +4,6 @@ Allow: /
 Disallow: /admin/
 Disallow: /manager/
 Disallow: /api/
-Disallow: /login
-Disallow: /join
 Disallow: /logout
 
 Sitemap: https://sitewidget.ru/sitemap.xml

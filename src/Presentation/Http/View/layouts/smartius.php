@@ -144,13 +144,13 @@ if ($isLandingPage) {
 $id_user = Yii::$app->request->get()['id_user'] ?? $id_user;
 $request = Yii::$app->request;
 $siteBaseUrl = 'https://sitewidget.ru';
-$isPublicSeoPage = $isLandingPage || $isPublicModulePage || in_array($requestPath, ['cms-plugins'], true);
+$isPublicSeoPage = $isLandingPage || $isPublicModulePage || in_array($requestPath, ['cms-plugins', 'privacy'], true);
 $seoDescription = $this->params['seoDescription'] ?? null;
 $seoCanonical = $this->params['seoCanonical'] ?? ($isLandingPage ? '/' : ('/' . $requestPath));
 $seoCanonicalUrl = strpos((string)$seoCanonical, 'http') === 0
     ? (string)$seoCanonical
     : $siteBaseUrl . '/' . ltrim((string)$seoCanonical, '/');
-$seoImageUrl = $siteBaseUrl . ($this->params['seoImage'] ?? '/img/sitewidget-logo.svg');
+$seoImageUrl = $siteBaseUrl . ($this->params['seoImage'] ?? '/img/sitewidget-og.png');
 $seoRobots = $this->params['seoRobots'] ?? ($isPublicSeoPage ? 'index,follow' : 'noindex,nofollow');
 $seoSchemas = $this->params['seoSchemas'] ?? [];
 
@@ -273,6 +273,9 @@ $this->beginPage();
         <?php endif; ?>
         <meta property="og:url" content="<?= Html::encode($seoCanonicalUrl) ?>">
         <meta property="og:image" content="<?= Html::encode($seoImageUrl) ?>">
+        <meta property="og:image:type" content="image/png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="<?= Html::encode($this->title) ?>">
         <meta name="twitter:image" content="<?= Html::encode($seoImageUrl) ?>">
