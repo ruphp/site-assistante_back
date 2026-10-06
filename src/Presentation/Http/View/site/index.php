@@ -4,21 +4,21 @@
 
 use yii\helpers\Html;
 
-$this->title = 'Онлайн поддержка на сайт - чат и FAQ | SiteWidget';
-$this->params['seoDescription'] = 'Онлайн-поддержка для сайта: чат с посетителями, push-уведомления и ответы из приложения Android или Telegram. Подключение за несколько минут.';
+$this->title = 'Онлайн чат для сайта и онлайн консультант | SiteWidget';
+$this->params['seoDescription'] = 'Онлайн чат для сайта и онлайн консультант: общение с посетителями, push-уведомления и ответы из приложения Android или Telegram.';
 $this->params['seoCanonical'] = '/';
 $this->params['seoSchemas'][] = [
     '@context' => 'https://schema.org',
     '@type' => 'WebApplication',
     'name' => 'SiteWidget',
-    'alternateName' => 'Онлайн-поддержка для сайта',
+    'alternateName' => 'Онлайн чат для сайта',
     'applicationCategory' => 'BusinessApplication',
     'browserRequirements' => 'JavaScript',
     'url' => 'https://sitewidget.ru/',
     'description' => $this->params['seoDescription'],
     'featureList' => [
         'форма обратной связи на сайт',
-        'онлайн-поддержка и чат с менеджером',
+        'онлайн чат и консультант для сайта',
         'быстрые кнопки обращений',
         'уведомления в Android-приложении',
         'уведомления и ответы через Telegram-бота',
@@ -40,7 +40,7 @@ $this->registerMetaTag([
 ]);
 $this->registerMetaTag([
         'name' => 'keywords',
-        'content' => 'онлайн-поддержка на сайт, чат для сайта, онлайн-консультант, виджет поддержки, FAQ для сайта, SiteWidget',
+        'content' => 'онлайн чат для сайта, чат для сайта, онлайн консультант для сайта, виджет поддержки, FAQ для сайта, SiteWidget',
 ]);
 ?>
 
@@ -48,7 +48,7 @@ $this->registerMetaTag([
     <section class="site-landing__hero">
         <div>
             <div class="site-landing__eyebrow">Вопросы посетителей не теряются</div>
-            <h1>Онлайн поддержка на сайт - отвечайте из приложения Android или Telegram</h1>
+            <h1>Онлайн чат для сайта - отвечайте из приложения Android или Telegram</h1>
             <p class="site-landing__lead">
                 Посетитель задаёт вопрос прямо на сайте, менеджер получает уведомление и отвечает.
                 Диалог и история остаются в панели SiteWidget. FAQ, инструкции, онбординг и анкеты дополняют онлайн-поддержку.
@@ -75,7 +75,7 @@ $this->registerMetaTag([
                 </div>
             </div>
             <div class="site-landing__widget">
-                <div class="site-landing__widget-head">Онлайн-поддержка</div>
+                <div class="site-landing__widget-head">Онлайн чат</div>
                 <div class="site-landing__widget-body">
                     <div class="site-landing__message site-landing__message--visitor">Здравствуйте! Этот товар есть в наличии?</div>
                     <div class="site-landing__message site-landing__message--operator">Здравствуйте! Да, есть. Подскажите, нужна доставка или самовывоз?</div>
@@ -86,14 +86,14 @@ $this->registerMetaTag([
 
     <section id="modules" class="site-landing__section site-landing__section--tint">
         <div class="site-landing__inner">
-            <h2>Онлайн-поддержка - основа виджета</h2>
+            <h2>Онлайн чат - основа виджета</h2>
             <p class="site-landing__section-lead">
                 При открытии посетитель сразу видит онлайн-связь. FAQ, инструкции, онбординг и анкеты остаются дополнительными модулями.
             </p>
             <div class="site-landing__grid">
                 <article class="site-landing__card" id="support">
                     <img class="site-landing__card-icon" src="/img/sitewidget-module-support.svg" alt="">
-                    <h3>Онлайн-поддержка на сайт</h3>
+                    <h3>Онлайн консультант для сайта</h3>
                     <p>Чат с оператором, форма обратной связи, быстрые кнопки тем и тикеты. Менеджеры получают уведомления в приложении Android и Telegram-боте.</p>
                 </article>
                 <article class="site-landing__card">
@@ -124,7 +124,7 @@ $this->registerMetaTag([
             <div class="site-landing__steps">
                 <div class="site-landing__step">
                     <strong>01. Посетитель спрашивает</strong>
-                    <p>Онлайн-поддержка открывается первой. Посетитель пишет вопрос или выбирает быструю тему.</p>
+                    <p>Онлайн чат открывается первым. Посетитель пишет вопрос или выбирает быструю тему.</p>
                 </div>
                 <div class="site-landing__step">
                     <strong>02. Менеджер получает сигнал</strong>
@@ -260,7 +260,7 @@ $this->registerMetaTag([
                         <li>300 диалогов и 3000 сообщений в месяц</li>
                         <li>1 проект</li>
                         <li>1 оператор</li>
-                        <li>Онлайн-поддержка: чат, диалоги и история обращений</li>
+                        <li>Онлайн чат, диалоги и история обращений</li>
                         <li>История 30 дней</li>
                     </ul>
                     <div class="site-landing__price-action">
