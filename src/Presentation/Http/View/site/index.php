@@ -58,7 +58,7 @@ $this->registerMetaTag([
                 <button class="site-landing__button site-landing__button--ghost" type="button" data-sitewidget-open-support>Открыть живой чат</button>
             </div>
             <div class="site-landing__hero-facts" aria-label="Ключевые возможности">
-                <span>Чат на сайте</span><span>Android-приложение</span><span>Ответы из Telegram</span><span>История диалогов</span>
+                <span>Чат на вашем сайте</span><span>Ответы из приложения Android и Telegram</span><span>История диалогов</span>
             </div>
         </div>
 
