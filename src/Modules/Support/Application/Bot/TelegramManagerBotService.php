@@ -8,6 +8,7 @@ use app\Modules\Support\Application\Service\SupportOperatorProjectAccessService;
 use app\Modules\Support\Application\UseCase\OperatorSupportUseCase;
 use app\Modules\Support\Domain\SupportConversation;
 use app\Modules\Support\Domain\SupportMessage;
+use app\Modules\Support\Domain\SupportPhoneNumber;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportProjectRecord;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportTelegramManagerCodeRecord;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportTelegramManagerLinkRecord;
@@ -278,12 +279,17 @@ final class TelegramManagerBotService
             'Посетитель: ' . $visitor,
         ];
 
+        $phone = SupportPhoneNumber::normalize((string)($conversation->visitorPhone ?? ''));
+        if ($phone !== null) {
+            $lines[] = 'Телефон: ' . $phone;
+        }
+
         if ($conversation->pageUrl !== null && trim($conversation->pageUrl) !== '') {
             $lines[] = 'Страница: ' . $conversation->pageUrl;
         }
 
         $lines[] = '';
-        $lines[] = trim($message->body);
+        $lines[] = SupportPhoneNumber::normalizeInText(trim($message->body));
         $lines[] = '';
         $lines[] = $this->conversationHistoryText($conversation, 6);
 
@@ -304,6 +310,11 @@ final class TelegramManagerBotService
 
         if (!empty($conversation['project_name']) || !empty($conversation['project_domain'])) {
             $lines[] = 'Проект: ' . trim((string)($conversation['project_name'] ?? '') . ' ' . (string)($conversation['project_domain'] ?? ''));
+        }
+
+        $phone = SupportPhoneNumber::normalize((string)($conversation['visitor_phone'] ?? ''));
+        if ($phone !== null) {
+            $lines[] = 'Телефон: ' . $phone;
         }
 
         if (!empty($conversation['page_url'])) {
@@ -348,6 +359,7 @@ final class TelegramManagerBotService
             $sender = ($message['sender_type'] ?? '') === SupportMessage::SENDER_OPERATOR ? 'Менеджер' : 'Посетитель';
             $body = trim(strip_tags((string)($message['body'] ?? '')));
             $body = preg_replace('/\s+/u', ' ', $body) ?: '';
+            $body = SupportPhoneNumber::normalizeInText($body);
             if (mb_strlen($body) > 700) {
                 $body = mb_substr($body, 0, 697) . '...';
             }

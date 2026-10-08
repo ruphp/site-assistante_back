@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use app\Modules\Support\Presentation\Http\SupportPhoneLinkFormatter;
 
 /**
  * @var int $conversationId
@@ -62,7 +63,7 @@ $isArchived = ($conversation['status'] ?? null) === 'closed';
                 <p>Email: <?= Html::encode((string)$conversation['visitor_email']) ?></p>
             <?php endif; ?>
             <?php if (trim((string)($conversation['visitor_phone'] ?? '')) !== ''): ?>
-                <p>Телефон: <?= Html::encode((string)$conversation['visitor_phone']) ?></p>
+                <p>Телефон: <?= SupportPhoneLinkFormatter::phone((string)$conversation['visitor_phone']) ?></p>
             <?php endif; ?>
             <?php if ($conversation['page_url']): ?>
                 <p>
@@ -97,7 +98,7 @@ $isArchived = ($conversation['status'] ?? null) === 'closed';
                                 · <?= Html::encode((string)$message['created_at']) ?>
                             <?php endif; ?>
                         </div>
-                        <div style="white-space: pre-wrap"><?= Html::encode((string)$message['body']) ?></div>
+                        <div style="white-space: pre-wrap"><?= SupportPhoneLinkFormatter::message((string)$message['body']) ?></div>
                     </div>
                 </div>
             <?php endforeach; ?>

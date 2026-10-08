@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\Modules\Support\Presentation\Http\SupportPhoneLinkFormatter;
 
 /**
  * @var array<int, array<string, mixed>> $conversations
@@ -107,7 +108,7 @@ $visitorLabel = static function (array $conversation): string {
                     <div class="sw-support-conversation-row__topic">
                         <?= Html::encode($entryPointTitle !== '' ? $entryPointTitle : 'Обычное обращение') ?>
                         <?php if (trim((string)($conversation['visitor_phone'] ?? '')) !== ''): ?>
-                            <div class="uk-text-meta"><?= Html::encode((string)$conversation['visitor_phone']) ?></div>
+                            <div class="uk-text-meta"><?= SupportPhoneLinkFormatter::phone((string)$conversation['visitor_phone']) ?></div>
                         <?php endif; ?>
                     </div>
 

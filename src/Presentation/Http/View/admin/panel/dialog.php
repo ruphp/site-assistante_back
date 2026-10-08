@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use app\Modules\Support\Presentation\Http\SupportPhoneLinkFormatter;
 
 /** @var int $publicKey */
 /** @var int $conversationId */
@@ -32,6 +33,10 @@ $this->title = 'Диалог #' . $conversationId;
         <div>
             <?= Html::encode($visitorLabel) ?>
         </div>
+        <?php if (trim((string)($conversation['visitor_phone'] ?? '')) !== ''): ?>
+            <div class="uk-text-meta uk-margin-small-top">Телефон</div>
+            <div><?= SupportPhoneLinkFormatter::phone((string)$conversation['visitor_phone']) ?></div>
+        <?php endif; ?>
         <div class="uk-text-meta uk-margin-small-top">Страница</div>
         <div><?= Html::encode((string)($conversation['page_url'] ?? '-')) ?></div>
     </div>
@@ -43,7 +48,7 @@ $this->title = 'Диалог #' . $conversationId;
                 ·
                 <?= Html::encode((string)($message['created_at'] ?? $message['createdAt'] ?? '')) ?>
             </div>
-            <div><?= nl2br(Html::encode((string)($message['body'] ?? ''))) ?></div>
+            <div style="white-space: pre-wrap"><?= SupportPhoneLinkFormatter::message((string)($message['body'] ?? '')) ?></div>
         </div>
     <?php endforeach; ?>
 </div>

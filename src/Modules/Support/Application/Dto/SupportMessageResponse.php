@@ -3,6 +3,7 @@
 namespace app\Modules\Support\Application\Dto;
 
 use app\Modules\Support\Domain\SupportMessage;
+use app\Modules\Support\Domain\SupportPhoneNumber;
 
 final class SupportMessageResponse
 {
@@ -21,6 +22,7 @@ final class SupportMessageResponse
                 'sender_type' => $this->message->senderType,
                 'sender_id' => $this->message->senderId,
                 'body' => $this->message->body,
+                'phone_numbers' => SupportPhoneNumber::extract($this->message->body),
                 'created_at' => $this->message->createdAt,
                 'sender_name' => $this->message->senderName,
                 'sender_avatar_url' => $this->message->senderAvatarUrl,
