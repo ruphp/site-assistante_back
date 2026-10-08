@@ -61,7 +61,6 @@ final class ManageAssistantSettingsService
 
     public function getParamsViewData(int $publicKey): ParamsViewData
     {
-        $this->designStorage->ensureFiles($publicKey);
         $params = $this->params->findOrCreateForClient($publicKey);
 
         return new ParamsViewData(
@@ -73,7 +72,6 @@ final class ManageAssistantSettingsService
 
     public function saveParams(int $publicKey, array $post): bool
     {
-        $this->designStorage->ensureFiles($publicKey);
         $moduleAccess = $this->moduleAccess->getForClient($publicKey);
 
         return $this->params->saveFromPost(

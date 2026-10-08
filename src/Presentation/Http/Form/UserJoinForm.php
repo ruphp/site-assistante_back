@@ -33,6 +33,8 @@ class UserJoinForm extends Model // создаем список параметр
         return [
             ['name', 'required', 'message' => 'Укажите имя'],
             ['name', 'string', 'min' => 3, 'max' => 30, 'tooShort' => 'минимум 3 символа', 'tooLong' => 'максимум 10 символов'],
+            ['firm', 'trim'],
+            ['firm', 'string', 'max' => 255],
             ['email', 'required', 'message' => 'Укажите email'],
             ['email', 'email', 'message' => 'Проверьте формат email'],
             ['email', 'errorIfEmailUsed'],

@@ -14,27 +14,32 @@ final class FilesystemAssistantDesignStorage implements AssistantDesignStorageIn
         $this->ensureDirectory();
 
         if (!file_exists($this->customCssPath($publicKey))) {
-            file_put_contents($this->customCssPath($publicKey), '');
+            $this->writeFile($this->customCssPath($publicKey), '');
         }
 
         if (!file_exists($this->logoSvgPath($publicKey))) {
-            file_put_contents($this->logoSvgPath($publicKey), self::DEFAULT_LOGO_SVG);
+            $this->writeFile($this->logoSvgPath($publicKey), self::DEFAULT_LOGO_SVG);
         }
     }
 
     public function getCustomCss(int $publicKey): string
     {
-        return (string)file_get_contents($this->customCssPath($publicKey));
+        $path = $this->customCssPath($publicKey);
+
+        return file_exists($path) ? (string)file_get_contents($path) : '';
     }
 
     public function getLogoSvg(int $publicKey): string
     {
-        return (string)file_get_contents($this->logoSvgPath($publicKey));
+        $path = $this->logoSvgPath($publicKey);
+
+        return file_exists($path) ? (string)file_get_contents($path) : self::DEFAULT_LOGO_SVG;
     }
 
     public function saveCustomCss(int $publicKey, string $customCss): void
     {
-        file_put_contents($this->customCssPath($publicKey), $customCss);
+        $this->ensureDirectory();
+        $this->writeFile($this->customCssPath($publicKey), $customCss);
     }
 
     public function saveLogoSvg(int $publicKey, string $logoSvg): void
@@ -49,13 +54,21 @@ final class FilesystemAssistantDesignStorage implements AssistantDesignStorageIn
             throw new RuntimeException('Invalid svg format.');
         }
 
-        file_put_contents($this->logoSvgPath($publicKey), $logoSvg);
+        $this->ensureDirectory();
+        $this->writeFile($this->logoSvgPath($publicKey), $logoSvg);
     }
 
     private function ensureDirectory(): void
     {
-        if (!is_dir($this->customDir())) {
-            mkdir($this->customDir(), 0777, true);
+        if (!is_dir($this->customDir()) && !mkdir($this->customDir(), 0775, true) && !is_dir($this->customDir())) {
+            throw new RuntimeException('Не удалось создать каталог оформления виджета.');
+        }
+    }
+
+    private function writeFile(string $path, string $content): void
+    {
+        if (@file_put_contents($path, $content, LOCK_EX) === false) {
+            throw new RuntimeException('Не удалось сохранить файл оформления виджета.');
         }
     }
 

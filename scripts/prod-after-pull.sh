@@ -10,11 +10,12 @@ prepare_writable_directories() {
     set -eu
     mkdir -p \
       '${APP_DIR}/web/assets' \
+      '${APP_DIR}/web/custom' \
       '${APP_DIR}/web/uploads/operators' \
       '${APP_DIR}/runtime/cache' \
       '${APP_DIR}/runtime/logs'
-    chown -R www-data:www-data '${APP_DIR}/web/assets' '${APP_DIR}/web/uploads' '${APP_DIR}/runtime'
-    chmod -R 775 '${APP_DIR}/web/assets' '${APP_DIR}/web/uploads' '${APP_DIR}/runtime'
+    chown -R www-data:www-data '${APP_DIR}/web/assets' '${APP_DIR}/web/custom' '${APP_DIR}/web/uploads' '${APP_DIR}/runtime'
+    chmod -R 775 '${APP_DIR}/web/assets' '${APP_DIR}/web/custom' '${APP_DIR}/web/uploads' '${APP_DIR}/runtime'
   "
 }
 
