@@ -10,6 +10,7 @@ use app\Modules\Support\Application\Contract\SupportPushDeviceRepositoryInterfac
 use app\Modules\Support\Application\Contract\SupportPushNotificationSenderInterface;
 use app\Modules\Support\Infrastructure\YiiSupportConversationRepository;
 use app\Modules\Support\Application\UseCase\OperatorSupportUseCase;
+use app\Modules\SmsDelivery\Application\SmsDeliveryService;
 use app\Presentation\Http\MobileTokenAuth;
 use Yii;
 use yii\rest\Controller;
@@ -24,6 +25,7 @@ class SupportManagerController extends Controller
         private readonly SupportPushDeviceRepositoryInterface $pushDevices,
         private readonly SupportPushNotificationSenderInterface $pushSender,
         private readonly SupportOperatorProjectAccessService $projectAccess,
+        private readonly SmsDeliveryService $smsDelivery,
         $config = [],
     ) {
         parent::__construct($id, $module, $config);
@@ -209,6 +211,53 @@ class SupportManagerController extends Controller
         } catch (\Throwable $e) {
             Yii::error($e->getMessage(), 'support-manager');
             return $this->errorResponse(500, 'Не удалось удалить токен устройства');
+        }
+    }
+
+    public function actionSmsTasks(): array
+    {
+        try {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $user = Yii::$app->user->identity;
+            if (!$user instanceof UserIdentity) {
+                return $this->errorResponse(401, 'Токен недействителен');
+            }
+
+            return ['tasks' => $this->smsDelivery->pendingTasks($this->projectPublicKeysFor($user))];
+        } catch (\Throwable $exception) {
+            Yii::error($exception, 'sms-delivery-manager');
+            return $this->errorResponse(500, 'Не удалось загрузить SMS-задания');
+        }
+    }
+
+    public function actionSmsTaskOpen(): array
+    {
+        try {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $user = Yii::$app->user->identity;
+            if (!$user instanceof UserIdentity) {
+                return $this->errorResponse(401, 'Токен недействителен');
+            }
+
+            $data = $this->requestData();
+            $taskId = (int)($data['taskId'] ?? $data['task_id'] ?? 0);
+            if ($taskId <= 0) {
+                return $this->errorResponse(400, 'Задание не указано');
+            }
+
+            return [
+                'success' => true,
+                'task' => $this->smsDelivery->markSmsOpened(
+                    $taskId,
+                    (int)$user->id,
+                    $this->projectPublicKeysFor($user),
+                ),
+            ];
+        } catch (\RuntimeException $exception) {
+            return $this->errorResponse(404, $exception->getMessage());
+        } catch (\Throwable $exception) {
+            Yii::error($exception, 'sms-delivery-manager');
+            return $this->errorResponse(500, 'Не удалось открыть SMS-задание');
         }
     }
 

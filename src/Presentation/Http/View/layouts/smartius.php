@@ -107,6 +107,7 @@ if ($isLandingPage) {
             'items' => array_values(array_filter([
                 ['label' => 'Диалоги', 'url' => ['/manager/support/conversations']],
                 ['label' => 'Кнопки быстрых обращений', 'url' => ['/manager/support/entry-points']],
+                $isOwner ? ['label' => 'SMS-коды', 'url' => ['/manager/sms-delivery']] : null,
                 $isOwner ? ['label' => 'Менеджеры', 'url' => ['/manager/operators']] : null,
                 ['label' => 'Настройки', 'url' => ['/manager/support']],
             ])),

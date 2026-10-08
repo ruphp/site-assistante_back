@@ -222,6 +222,20 @@ $url_rules = [
         'route' => 'manager-support/index',
     ],
     [
+        'pattern' => '/manager/sms-delivery',
+        'route' => 'manager/sms-delivery/index',
+    ],
+    [
+        'pattern' => '/manager/sms-delivery/token',
+        'route' => 'manager/sms-delivery/token',
+        'verb' => 'POST',
+    ],
+    [
+        'pattern' => '/manager/sms-delivery/save',
+        'route' => 'manager/sms-delivery/save',
+        'verb' => 'POST',
+    ],
+    [
         'pattern' => '/manager/support/conversations',
         'route' => 'manager-support/conversations',
     ],
@@ -500,6 +514,10 @@ $url_rules = [
     'POST api/support/manager/send-message' => 'api/support-manager/send-message',
     'POST api/support/manager/device-token' => 'api/support-manager/device-token',
     'POST api/support/manager/device-token/delete' => 'api/support-manager/device-token-delete',
+    'GET api/support/manager/sms-tasks' => 'api/support-manager/sms-tasks',
+    'POST api/support/manager/sms-task/open' => 'api/support-manager/sms-task-open',
+    'POST api/sms/v1/tasks' => 'api/sms-delivery/create-task',
+    'GET api/sms/v1/tasks/<requestId:[A-Za-z0-9._:-]+>' => 'api/sms-delivery/status',
 
 ];
 
