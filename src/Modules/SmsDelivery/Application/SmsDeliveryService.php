@@ -186,6 +186,18 @@ final class SmsDeliveryService
         );
     }
 
+    public function expirePendingTasks(): int
+    {
+        $publicKeys = SmsDeliveryTaskRecord::find()
+            ->select('public_key')
+            ->where(['status' => [self::STATUS_QUEUED, self::STATUS_NOTIFIED]])
+            ->andWhere(['<=', 'expires_at', date('Y-m-d H:i:s')])
+            ->distinct()
+            ->column();
+
+        return $this->expireTasks(array_map('intval', $publicKeys));
+    }
+
     public function markSmsOpened(int $taskId, int $userId, array $publicKeys): array
     {
         $task = SmsDeliveryTaskRecord::find()
@@ -269,14 +281,18 @@ final class SmsDeliveryService
         }
     }
 
-    private function expireTasks(array $publicKeys): void
+    private function expireTasks(array $publicKeys): int
     {
+        if ($publicKeys === []) {
+            return 0;
+        }
+
         $tasks = SmsDeliveryTaskRecord::find()->where([
             'public_key' => $publicKeys,
             'status' => [self::STATUS_QUEUED, self::STATUS_NOTIFIED],
         ])->andWhere(['<=', 'expires_at', date('Y-m-d H:i:s')])->all();
         if ($tasks === []) {
-            return;
+            return 0;
         }
 
         foreach ($tasks as $task) {
@@ -289,6 +305,8 @@ final class SmsDeliveryService
                 $this->sendCallback($project, $task);
             }
         }
+
+        return count($tasks);
     }
 
     private function taskData(SmsDeliveryTaskRecord $task): array

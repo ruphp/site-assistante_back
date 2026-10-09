@@ -5,6 +5,7 @@ namespace app\Presentation\Console\Controller;
 use app\Application\Cron\PrepareLogConfigurationService;
 use app\Modules\Support\Infrastructure\YiiSupportConversationRepository;
 use app\Modules\Support\Application\Contract\SupportPlanLifecycleRepositoryInterface;
+use app\Modules\SmsDelivery\Application\SmsDeliveryService;
 use yii\console\Controller;
 use yii\console\ExitCode;
 
@@ -16,6 +17,7 @@ class CronController extends Controller
         private readonly PrepareLogConfigurationService $prepareLogConfiguration,
         private readonly YiiSupportConversationRepository $supportConversations,
         private readonly SupportPlanLifecycleRepositoryInterface $planLifecycle,
+        private readonly SmsDeliveryService $smsDelivery,
         $config = []
     ) {
         parent::__construct($id, $module, $config);
@@ -46,12 +48,14 @@ class CronController extends Controller
         $closedAfterSeen = $this->supportConversations->closeExpiredAfterOperatorSeen(max(60, $seenTimeoutMinutes * 60));
         $closedAfterReply = $this->supportConversations->closeExpiredAfterOperatorReply(max(60, $replyTimeoutMinutes * 60));
         $expiredPlans = $this->planLifecycle->expireElapsedPlans();
+        $expiredSmsTasks = $this->smsDelivery->expirePendingTasks();
 
         echo sprintf(
-            "Closed support conversations: after_seen=%d, after_reply=%d; expired_plans=%d\n",
+            "Closed support conversations: after_seen=%d, after_reply=%d; expired_plans=%d; expired_sms_tasks=%d\n",
             $closedAfterSeen,
             $closedAfterReply,
-            $expiredPlans
+            $expiredPlans,
+            $expiredSmsTasks,
         );
 
         return ExitCode::OK;

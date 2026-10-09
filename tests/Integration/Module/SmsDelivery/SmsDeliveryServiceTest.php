@@ -4,6 +4,7 @@ namespace tests\Integration\Module\SmsDelivery;
 
 use app\Infrastructure\User\UserIdentity;
 use app\Modules\SmsDelivery\Application\SmsDeliveryService;
+use app\Modules\SmsDelivery\Infrastructure\YiiActiveRecord\SmsDeliveryTaskRecord;
 use app\Modules\Support\Application\Contract\SupportPushDeviceRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportPushNotificationSenderInterface;
 use app\Modules\Support\Application\Service\SupportOperatorProjectAccessService;
@@ -49,5 +50,40 @@ final class SmsDeliveryServiceTest extends YiiIntegrationTestCase
         $opened = $service->markSmsOpened((int)$created['id'], 2, [2]);
         self::assertSame(SmsDeliveryService::STATUS_SMS_OPENED, $opened['status']);
         self::assertSame([], $service->pendingTasks([2]));
+    }
+
+    public function testCronExpiresPendingTasks(): void
+    {
+        $devices = new class implements SupportPushDeviceRepositoryInterface {
+            public function upsertForUser(UserIdentity $user, string $token, string $platform): void {}
+            public function deactivateByToken(string $token): void {}
+            public function activeTokensForClient(int $publicKey): array { return []; }
+            public function activeTokensForUser(int $userId): array { return []; }
+            public function activeTokensForUsers(array $userIds): array { return []; }
+        };
+        $sender = new class implements SupportPushNotificationSenderInterface {
+            public function isConfigured(): bool { return false; }
+            public function sendToToken(string $token, string $title, string $body, array $data = []): void {}
+        };
+        $service = new SmsDeliveryService($devices, $sender, new SupportOperatorProjectAccessService());
+        $credentials = $service->rotateToken(2);
+        $task = $service->createTask($credentials['token'], [
+            'requestId' => 'test-expiration',
+            'phone' => '+79991234567',
+            'text' => 'Код подтверждения: 4321',
+            'expiresAt' => (new \DateTimeImmutable('+5 minutes'))->format(DATE_ATOM),
+        ], '203.0.113.11');
+
+        SmsDeliveryTaskRecord::updateAll(
+            ['expires_at' => date('Y-m-d H:i:s', time() - 60)],
+            ['id' => $task['id']],
+        );
+
+        self::assertSame(1, $service->expirePendingTasks());
+        self::assertSame(
+            SmsDeliveryService::STATUS_EXPIRED,
+            (string)SmsDeliveryTaskRecord::findOne((int)$task['id'])->status,
+        );
+        self::assertSame(0, $service->expirePendingTasks());
     }
 }
