@@ -45,8 +45,15 @@ class AuthController extends Controller
         $form = new UserLoginForm();
         $form->load($this->requestBody(), '');
 
-        if ($form->validate() && $form->getUser()) {
+        if ($form->validate()) {
             $user = $form->getUser();
+
+            if ($user === null) {
+                return [
+                    'success' => false,
+                    'message' => 'Неверный email или пароль',
+                ];
+            }
 
             return [
                 'success' => true,
