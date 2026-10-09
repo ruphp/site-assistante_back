@@ -25,6 +25,7 @@ $this->params['seoSchemas'][] = [
         'FAQ и инструкции для пользователей сайта',
         'онбординг и подсказки на сайте',
         'опросы и анкеты для сайта',
+        'подтверждение телефона при регистрации через SMS',
     ],
     'offers' => [
         '@type' => 'AggregateOffer',
@@ -213,6 +214,31 @@ $this->registerMetaTag([
                     <span>Все ссылки, версии и короткая инструкция по установке</span>
                 </a>
             </div>
+        </div>
+    </section>
+
+    <section id="sms-verification" class="site-landing__section">
+        <div class="site-landing__inner">
+            <h2>Подтверждение телефона при регистрации через SMS</h2>
+            <p class="site-landing__section-lead">
+                SiteWidget помогает небольшому проекту подтвердить номер нового пользователя без отдельного SMS-шлюза.
+                Сообщение отправляется владельцем сайта из Android-приложения с использованием SMS его мобильного тарифа.
+            </p>
+            <div class="site-landing__steps">
+                <div class="site-landing__step">
+                    <strong>Сайт создаёт код</strong>
+                    <p>Backend или CMS-модуль сохраняет хеш кода и передаёт в SiteWidget номер и готовый текст сообщения.</p>
+                </div>
+                <div class="site-landing__step">
+                    <strong>Владелец отправляет SMS</strong>
+                    <p>Android-приложение показывает запрос и открывает стандартное SMS-приложение с заполненными данными.</p>
+                </div>
+                <div class="site-landing__step">
+                    <strong>Телефон подтверждён один раз</strong>
+                    <p>После проверки кода регистрация продолжается. При следующих входах повторное подтверждение не требуется.</p>
+                </div>
+            </div>
+            <p class="site-landing__section-lead">Функция входит в тариф Start. Для отправки используются SMS, доступные на мобильном тарифе владельца сайта.</p>
         </div>
     </section>
 

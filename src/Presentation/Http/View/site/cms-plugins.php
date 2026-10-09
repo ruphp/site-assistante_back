@@ -5,7 +5,7 @@
 use yii\helpers\Html;
 
 $this->title = 'SiteWidget | Модули и плагины для CMS';
-$this->params['seoDescription'] = 'Готовые модули и плагины SiteWidget для WordPress, Joomla и OpenCart: где скачать, как установить и настроить public key.';
+$this->params['seoDescription'] = 'Готовые модули SiteWidget для WordPress, Joomla и OpenCart: подключение виджета и подтверждение телефона при регистрации через SMS.';
 $this->params['seoCanonical'] = '/cms-plugins';
 $this->params['seoBreadcrumbs'] = [
     ['name' => 'Главная', 'url' => '/'],
@@ -35,8 +35,8 @@ $items = [
         'name' => 'WordPress',
         'type' => 'плагин',
         'version' => 'ориентир: WordPress 6.x и актуальные PHP-версии хостинга',
-        'download' => 'https://github.com/ruphp/sitewidget_integrations/raw/main/dist/sitewidget-wordpress-0.1.0.zip',
-        'file' => 'sitewidget-wordpress-0.1.0.zip',
+        'download' => 'https://github.com/ruphp/sitewidget_integrations/raw/main/dist/sitewidget-wordpress-0.2.0.zip',
+        'file' => 'sitewidget-wordpress-0.2.0.zip',
         'steps' => [
             'Скачайте zip-архив плагина.',
             'Откройте админку WordPress: Плагины -> Добавить новый -> Загрузить плагин.',
@@ -48,6 +48,7 @@ $items = [
             'public key проекта',
             'передача id, имени и email авторизованного пользователя сайта - бесплатно',
             'роли пользователя для дополнительной фильтрации контента - только в платных тарифах',
+            'серверный SMS API-токен для подтверждения телефона при регистрации',
         ],
     ],
     [
@@ -55,8 +56,8 @@ $items = [
         'name' => 'Joomla',
         'type' => 'system plugin',
         'version' => 'ориентир: Joomla 4/5',
-        'download' => 'https://github.com/ruphp/sitewidget_integrations/raw/main/dist/sitewidget-joomla-system-0.1.0.zip',
-        'file' => 'sitewidget-joomla-system-0.1.0.zip',
+        'download' => 'https://github.com/ruphp/sitewidget_integrations/raw/main/dist/sitewidget-joomla-system-0.2.0.zip',
+        'file' => 'sitewidget-joomla-system-0.2.0.zip',
         'steps' => [
             'Скачайте zip-архив system plugin.',
             'Откройте админку Joomla: Система -> Установка -> Расширения.',
@@ -68,6 +69,7 @@ $items = [
             'public key проекта',
             'передача id, имени и email авторизованного пользователя - бесплатно',
             'группы и роли для дополнительной фильтрации контента - только в платных тарифах',
+            'серверный SMS API-токен для подтверждения телефона при регистрации',
         ],
     ],
     [
@@ -75,8 +77,8 @@ $items = [
         'name' => 'OpenCart',
         'type' => 'модуль OCMOD',
         'version' => 'ориентир: OpenCart 3.x/4.x, старые версии лучше проверять отдельно',
-        'download' => 'https://github.com/ruphp/sitewidget_integrations/raw/main/dist/sitewidget-opencart-0.1.0.ocmod.zip',
-        'file' => 'sitewidget-opencart-0.1.0.ocmod.zip',
+        'download' => 'https://github.com/ruphp/sitewidget_integrations/raw/main/dist/sitewidget-opencart-0.2.0.ocmod.zip',
+        'file' => 'sitewidget-opencart-0.2.0.ocmod.zip',
         'steps' => [
             'Скачайте архив .ocmod.zip.',
             'Откройте админку OpenCart: Extensions -> Installer.',
@@ -88,6 +90,7 @@ $items = [
             'public key проекта',
             'передача id, имени и email авторизованного пользователя - бесплатно',
             'группы клиентов и роли для дополнительной фильтрации контента - только в платных тарифах',
+            'серверный SMS API-токен для подтверждения телефона при регистрации',
         ],
     ],
 ];
@@ -109,6 +112,17 @@ $items = [
                     </a>
                 <?php endforeach; ?>
             </div>
+        </div>
+    </section>
+
+    <section class="site-landing__section">
+        <div class="site-landing__inner">
+            <h2>Подтверждение телефона нового пользователя</h2>
+            <p class="site-landing__section-lead">
+                CMS-модуль создаёт одноразовый код, хранит только его хеш и передаёт задание в SiteWidget по защищённому серверному запросу.
+                Владелец отправляет готовое SMS из Android-приложения, используя сообщения своего мобильного тарифа.
+                После успешной регистрации телефон считается подтверждённым, поэтому при последующих входах код не запрашивается.
+            </p>
         </div>
     </section>
 

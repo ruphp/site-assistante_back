@@ -1,0 +1,16 @@
+# config/packages/rate_limiter.yaml
+framework:
+  rate_limiter:
+    sms_request:
+      policy: sliding_window
+      limit: 5
+      interval: '10 minutes'
+
+# config/services.yaml
+services:
+  App\Controller\SymfonySmsAuthController:
+    arguments:
+      $smsRequestLimiter: '@limiter.sms_request'
+
+# .env.local
+# SITEWIDGET_SMS_TOKEN=sw_sms_...
