@@ -3,6 +3,7 @@
 namespace app\Presentation\Http\Controller\api;
 
 use app\Infrastructure\YiiActiveRecord\Roles;
+use app\Modules\Onboarding\Domain\OnboardingPlanLimit;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingHintRecord;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingHintRoleRecord;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingHintUrlRecord;
@@ -12,12 +13,16 @@ use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingRoleRecord;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingSectionRecord;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingStepRecord;
 use app\Modules\Onboarding\Infrastructure\YiiActiveRecord\OnboardingSelectorSessionRecord;
+use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Presentation\Http\Controller\ApiController;
 use Yii;
 use yii\web\Response;
 
 final class OnboardingController extends ApiController
 {
+    /** @var array<int, bool> */
+    private array $rolesEnabled = [];
+
     public function actionHints(int $publicKey): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -494,6 +499,10 @@ final class OnboardingController extends ApiController
 
     private function rolesAllowed(int $publicKey, array $roleIds): bool
     {
+        if (!$this->rolesEnabled($publicKey)) {
+            return true;
+        }
+
         $roleIds = array_values(array_filter(array_map('intval', $roleIds)));
         if ($roleIds === []) {
             return true;
@@ -526,6 +535,16 @@ final class OnboardingController extends ApiController
             ->column();
 
         return array_values(array_unique(array_merge($rawIds, array_map('intval', $mappedIds))));
+    }
+
+    private function rolesEnabled(int $publicKey): bool
+    {
+        if (!array_key_exists($publicKey, $this->rolesEnabled)) {
+            $plan = Yii::$container->get(SupportSettingsRepositoryInterface::class)->getForClient($publicKey)->plan;
+            $this->rolesEnabled[$publicKey] = OnboardingPlanLimit::forPlan($plan)->rolesEnabled;
+        }
+
+        return $this->rolesEnabled[$publicKey];
     }
 
     private function urlMatches(string $target, bool $includeChildren, bool $includeQuery): bool

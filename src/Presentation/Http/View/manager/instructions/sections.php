@@ -8,6 +8,7 @@ use yii\helpers\Url;
 
 /**
  * @var InstructionCategoryRecord[] $categories
+ * @var bool $nestedCategoriesEnabled
  * @var ClientProjectView[] $projects
  * @var ClientProjectView $activeProject
  */
@@ -32,10 +33,12 @@ $formUrl = Url::to(['/manager/instructions/sections', 'projectId' => $activeProj
                     <label class="uk-form-label">Название</label>
                     <input class="uk-input" name="InstructionCategory[name]" placeholder="Например: Оплата">
                 </div>
-                <div class="uk-width-1-3@m">
-                    <label class="uk-form-label">Родительский раздел</label>
-                    <?= Html::dropDownList('InstructionCategory[parent_id]', '', $categoryOptions, ['class' => 'uk-select']) ?>
-                </div>
+                <?php if ($nestedCategoriesEnabled): ?>
+                    <div class="uk-width-1-3@m">
+                        <label class="uk-form-label">Родительский раздел</label>
+                        <?= Html::dropDownList('InstructionCategory[parent_id]', '', $categoryOptions, ['class' => 'uk-select']) ?>
+                    </div>
+                <?php endif; ?>
                 <div class="uk-width-1-6@m">
                     <label class="uk-form-label">Порядок</label>
                     <input class="uk-input" type="number" name="InstructionCategory[sort_order]" value="100">
@@ -58,11 +61,13 @@ $formUrl = Url::to(['/manager/instructions/sections', 'projectId' => $activeProj
                             <label class="uk-form-label">Название</label>
                             <input class="uk-input" name="InstructionCategory[name]" value="<?= Html::encode($category->name) ?>">
                         </div>
-                        <div class="uk-width-1-3@m">
-                            <label class="uk-form-label">Родительский раздел</label>
-                            <?php $options = $categoryOptions; unset($options[$category->id]); ?>
-                            <?= Html::dropDownList('InstructionCategory[parent_id]', $category->parent_id, $options, ['class' => 'uk-select']) ?>
-                        </div>
+                        <?php if ($nestedCategoriesEnabled): ?>
+                            <div class="uk-width-1-3@m">
+                                <label class="uk-form-label">Родительский раздел</label>
+                                <?php $options = $categoryOptions; unset($options[$category->id]); ?>
+                                <?= Html::dropDownList('InstructionCategory[parent_id]', $category->parent_id, $options, ['class' => 'uk-select']) ?>
+                            </div>
+                        <?php endif; ?>
                         <div class="uk-width-1-6@m">
                             <label class="uk-form-label">Порядок</label>
                             <input class="uk-input" type="number" name="InstructionCategory[sort_order]" value="<?= Html::encode((string)$category->sort_order) ?>">

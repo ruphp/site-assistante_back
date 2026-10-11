@@ -9,6 +9,7 @@ final class SurveyPlanLimit
     public function __construct(
         public readonly bool $enabled,
         public readonly bool $urlBindingsEnabled,
+        public readonly bool $rolesEnabled,
     ) {
     }
 
@@ -17,9 +18,9 @@ final class SurveyPlanLimit
         $plan = SupportPlan::normalize($plan);
 
         return match ($plan) {
-            SupportPlan::START => new self(true, false),
-            SupportPlan::PRO => new self(true, true),
-            default => new self(false, false),
+            SupportPlan::START => new self(true, false, false),
+            SupportPlan::PRO => new self(true, true, true),
+            default => new self(false, false, false),
         };
     }
 }

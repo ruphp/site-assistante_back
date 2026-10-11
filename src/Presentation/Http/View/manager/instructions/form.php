@@ -15,6 +15,7 @@ use yii\helpers\Html;
  * @var int[] $selectedRoleIds
  * @var InstructionArticleUrlRecord[] $articleUrls
  * @var bool $urlBindingsEnabled
+ * @var bool $rolesEnabled
  * @var ClientProjectView[] $projects
  * @var ClientProjectView $activeProject
  */
@@ -68,7 +69,7 @@ $urlText = implode("\n", array_map(static function (InstructionArticleUrlRecord 
                 Видео удобнее вставлять ссылкой с YouTube, Rutube или VK Video.
             </div>
         </div>
-        <?php if ($roles !== []): ?>
+        <?php if ($rolesEnabled && $roles !== []): ?>
             <div class="uk-margin">
                 <label class="uk-form-label">Роли пользователя сайта</label>
                 <div class="sw-instruction-role-list">
@@ -88,7 +89,7 @@ $urlText = implode("\n", array_map(static function (InstructionArticleUrlRecord 
                 <textarea class="uk-textarea" name="InstructionArticle[urls]" rows="5" placeholder="/catalog|children&#10;/checkout||query"><?= Html::encode($urlText) ?></textarea>
                 <div class="uk-text-meta">Формат строки: URL|children|query. Если список пустой, инструкция видна на всех страницах.</div>
             <?php else: ?>
-                <div class="uk-alert-primary" uk-alert>URL-привязки доступны в Pro-тарифе. Сейчас инструкция будет общей или ограниченной только ролями.</div>
+                <div class="uk-alert-primary" uk-alert>URL-привязки доступны в Pro-тарифе. Сейчас инструкция будет общей для всех страниц.</div>
             <?php endif; ?>
         </div>
         <button class="uk-button uk-button-primary" type="submit">Сохранить</button>

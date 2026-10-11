@@ -3,6 +3,8 @@
 namespace app\Presentation\Http\Controller\api;
 
 use app\Infrastructure\YiiActiveRecord\Roles;
+use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
+use app\Modules\Surveys\Domain\SurveyPlanLimit;
 use app\Modules\Surveys\Infrastructure\YiiActiveRecord\SurveyFormRecord;
 use app\Modules\Surveys\Infrastructure\YiiActiveRecord\SurveyQuestionOptionRecord;
 use app\Modules\Surveys\Infrastructure\YiiActiveRecord\SurveyQuestionRecord;
@@ -15,6 +17,9 @@ use yii\web\Response;
 
 final class SurveysController extends ApiController
 {
+    /** @var array<int, bool> */
+    private array $rolesEnabled = [];
+
     public function actionListPolls(int $publicKey): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -221,6 +226,10 @@ final class SurveysController extends ApiController
 
     private function rolesAllowed(int $publicKey, array $roleIds): bool
     {
+        if (!$this->rolesEnabled($publicKey)) {
+            return true;
+        }
+
         $roleIds = array_values(array_filter(array_map('intval', $roleIds)));
         if ($roleIds === []) {
             return true;
@@ -253,6 +262,16 @@ final class SurveysController extends ApiController
             ->column();
 
         return array_values(array_unique(array_merge($rawIds, array_map('intval', $mappedIds))));
+    }
+
+    private function rolesEnabled(int $publicKey): bool
+    {
+        if (!array_key_exists($publicKey, $this->rolesEnabled)) {
+            $plan = Yii::$container->get(SupportSettingsRepositoryInterface::class)->getForClient($publicKey)->plan;
+            $this->rolesEnabled[$publicKey] = SurveyPlanLimit::forPlan($plan)->rolesEnabled;
+        }
+
+        return $this->rolesEnabled[$publicKey];
     }
 
     private function response(int $publicKey, int $surveyId): SurveyResponseRecord

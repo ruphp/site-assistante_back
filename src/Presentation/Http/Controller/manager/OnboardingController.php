@@ -39,7 +39,7 @@ final class OnboardingController extends ManagerController
     public function actionIndex(): Response|string
     {
         [$projects, $ownerPublicKey, $projectId, $publicKey] = $this->projectContext();
-        $limit = $this->limit($publicKey);
+        $limit = $this->limit($ownerPublicKey);
         if (!$limit->enabled) {
             return $this->render('locked', [] + $projects->tabsData($ownerPublicKey, $projectId));
         }
@@ -257,6 +257,7 @@ final class OnboardingController extends ManagerController
     private function editOnboarding(?int $id): Response|string
     {
         [$projects, $ownerPublicKey, $projectId, $publicKey] = $this->projectContext();
+        $limit = $this->limit($ownerPublicKey);
         $onboarding = $id === null
             ? new OnboardingRecord(['public_key' => $publicKey, 'is_active' => true, 'auto_start' => true, 'sort_order' => 100])
             : OnboardingRecord::findOne(['id' => $id, 'public_key' => $publicKey]);
@@ -274,7 +275,7 @@ final class OnboardingController extends ManagerController
             $onboarding->auto_start = (bool)($data['auto_start'] ?? false);
             $onboarding->is_active = (bool)($data['is_active'] ?? false);
             $onboarding->sort_order = (int)($data['sort_order'] ?? 100);
-            if ($onboarding->save()) {
+            if ($onboarding->save() && $limit->rolesEnabled) {
                 $this->saveRoles((int)$onboarding->id, Yii::$app->request->post('role_ids', []), true);
             }
 
@@ -284,8 +285,8 @@ final class OnboardingController extends ManagerController
         return $this->render('form', [
             'onboarding' => $onboarding,
             'structure' => $onboarding->isNewRecord ? [] : $this->structureData([$onboarding]),
-            'roles' => Roles::find()->where(['public_key' => $publicKey])->orderBy(['name' => SORT_ASC])->all(),
-            'selectedRoleIds' => $onboarding->isNewRecord ? [] : OnboardingRoleRecord::find()->where(['onboarding_id' => $onboarding->id])->select('role_id')->column(),
+            'roles' => $limit->rolesEnabled ? Roles::find()->where(['public_key' => $publicKey])->orderBy(['name' => SORT_ASC])->all() : [],
+            'selectedRoleIds' => !$limit->rolesEnabled || $onboarding->isNewRecord ? [] : OnboardingRoleRecord::find()->where(['onboarding_id' => $onboarding->id])->select('role_id')->column(),
         ] + $projects->tabsData($ownerPublicKey, $projectId));
     }
 
@@ -330,6 +331,7 @@ final class OnboardingController extends ManagerController
     private function editHint(?int $id): Response|string
     {
         [$projects, $ownerPublicKey, $projectId, $publicKey] = $this->projectContext();
+        $limit = $this->limit($ownerPublicKey);
         $hint = $id === null
             ? new OnboardingHintRecord([
                 'public_key' => $publicKey,
@@ -368,7 +370,9 @@ final class OnboardingController extends ManagerController
             $hint->left_offset = (int)($data['left_offset'] ?? 0);
             $hint->top_offset = (int)($data['top_offset'] ?? 0);
             if ($hint->save()) {
-                $this->saveRoles((int)$hint->id, Yii::$app->request->post('role_ids', []), false);
+                if ($limit->rolesEnabled) {
+                    $this->saveRoles((int)$hint->id, Yii::$app->request->post('role_ids', []), false);
+                }
                 $this->saveHintUrls($publicKey, $hint, $data);
             }
 
@@ -377,10 +381,10 @@ final class OnboardingController extends ManagerController
 
         return $this->render('hint-form', [
             'hint' => $hint,
-            'roles' => Roles::find()->where(['public_key' => $publicKey])->orderBy(['name' => SORT_ASC])->all(),
-            'selectedRoleIds' => $hint->isNewRecord ? [] : OnboardingHintRoleRecord::find()->where(['hint_id' => $hint->id])->select('role_id')->column(),
+            'roles' => $limit->rolesEnabled ? Roles::find()->where(['public_key' => $publicKey])->orderBy(['name' => SORT_ASC])->all() : [],
+            'selectedRoleIds' => !$limit->rolesEnabled || $hint->isNewRecord ? [] : OnboardingHintRoleRecord::find()->where(['hint_id' => $hint->id])->select('role_id')->column(),
             'hintUrls' => $hint->isNewRecord ? [] : OnboardingHintUrlRecord::find()->where(['hint_id' => $hint->id])->all(),
-            'urlBindingsEnabled' => $this->limit($publicKey)->urlBindingsEnabled,
+            'urlBindingsEnabled' => $limit->urlBindingsEnabled,
             'instructions' => InstructionArticleRecord::find()
                 ->where(['public_key' => $publicKey, 'is_active' => true, 'admin_blocked' => false])
                 ->orderBy(['title' => SORT_ASC])

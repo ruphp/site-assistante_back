@@ -2,12 +2,19 @@
 
 namespace app\Presentation\Http\Controller\api;
 
+use app\Modules\Instructions\Domain\InstructionPlanLimit;
+use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleRoleRecord;
+use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
+use app\Infrastructure\YiiActiveRecord\Roles;
 use app\Presentation\Http\Controller\ApiController;
 use Yii;
 use yii\web\Response;
 
 final class InstructionsController extends ApiController
 {
+    /** @var array<int, InstructionPlanLimit> */
+    private array $limits = [];
+
     public function actionInstructions($publicKey): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -22,6 +29,7 @@ final class InstructionsController extends ApiController
     public function actionInstruction($publicKey, $id): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
+        $publicKey = (int)$publicKey;
         $article = Yii::$app->db->createCommand(
             'SELECT id, category_id, title, html, sort_order, views, likes, dislikes
                FROM sw_instruction_articles
@@ -30,10 +38,14 @@ final class InstructionsController extends ApiController
                 AND is_active = TRUE
                 AND COALESCE(admin_blocked, FALSE) = FALSE
               LIMIT 1',
-            [':id' => (int)$id, ':public_key' => (int)$publicKey],
+            [':id' => (int)$id, ':public_key' => $publicKey],
         )->queryOne();
 
         if (!$article) {
+            return $this->HTTPStatus(404, 'Instruction not found');
+        }
+
+        if (!$this->rowsAllowedForRoles($publicKey, [$article])) {
             return $this->HTTPStatus(404, 'Instruction not found');
         }
 
@@ -48,6 +60,11 @@ final class InstructionsController extends ApiController
     public function actionSearch($publicKey, $word = ''): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
+        $publicKey = (int)$publicKey;
+        if (!$this->limit($publicKey)->searchEnabled) {
+            return [];
+        }
+
         $word = trim((string)$word);
 
         if ($word === '') {
@@ -63,10 +80,10 @@ final class InstructionsController extends ApiController
                 AND (title ILIKE :word OR html ILIKE :word)
               ORDER BY sort_order ASC, id ASC
               LIMIT 30',
-            [':public_key' => (int)$publicKey, ':word' => '%' . $word . '%'],
+            [':public_key' => $publicKey, ':word' => '%' . $word . '%'],
         )->queryAll();
 
-        return array_map(fn(array $row): array => $this->articleRow($row, false), $rows);
+        return array_map(fn(array $row): array => $this->articleRow($row, false), $this->rowsAllowedForRoles($publicKey, $rows));
     }
 
     public function actionLinktag(): array
@@ -123,7 +140,7 @@ final class InstructionsController extends ApiController
             [':public_key' => $publicKey, ':visitor_key' => $visitorKey],
         )->queryAll();
 
-        return array_map(fn(array $row): array => $this->articleRow($row, false), $rows);
+        return array_map(fn(array $row): array => $this->articleRow($row, false), $this->rowsAllowedForRoles($publicKey, $rows));
     }
 
     public function actionInstructionEstimate($publicKey, $id_source, $up = null, $like = null, $comment = null): int|array
@@ -217,7 +234,7 @@ final class InstructionsController extends ApiController
             [':public_key' => $publicKey],
         )->queryAll();
 
-        return array_map(fn(array $row): array => $this->articleRow($row, false), $rows);
+        return array_map(fn(array $row): array => $this->articleRow($row, false), $this->rowsAllowedForRoles($publicKey, $rows));
     }
 
     private function articleRow(array $row, bool $withHtml): array
@@ -264,5 +281,71 @@ final class InstructionsController extends ApiController
         }
 
         return 'ip:' . (Yii::$app->request->userIP ?? '0.0.0.0');
+    }
+
+    private function limit(int $publicKey): InstructionPlanLimit
+    {
+        if (!isset($this->limits[$publicKey])) {
+            $plan = Yii::$container->get(SupportSettingsRepositoryInterface::class)->getForClient($publicKey)->plan;
+            $this->limits[$publicKey] = InstructionPlanLimit::forPlan($plan);
+        }
+
+        return $this->limits[$publicKey];
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $rows
+     * @return array<int, array<string, mixed>>
+     */
+    private function rowsAllowedForRoles(int $publicKey, array $rows): array
+    {
+        if ($rows === [] || !$this->limit($publicKey)->rolesEnabled) {
+            return $rows;
+        }
+
+        $articleIds = array_values(array_unique(array_map(static fn(array $row): int => (int)$row['id'], $rows)));
+        $links = InstructionArticleRoleRecord::find()
+            ->where(['article_id' => $articleIds])
+            ->asArray()
+            ->all();
+        if ($links === []) {
+            return $rows;
+        }
+
+        $rolesByArticle = [];
+        foreach ($links as $link) {
+            $rolesByArticle[(int)$link['article_id']][] = (int)$link['role_id'];
+        }
+
+        $visitorRoles = $this->visitorRoleIds($publicKey);
+
+        return array_values(array_filter($rows, static function (array $row) use ($rolesByArticle, $visitorRoles): bool {
+            $requiredRoles = $rolesByArticle[(int)$row['id']] ?? [];
+
+            return $requiredRoles === [] || array_intersect($requiredRoles, $visitorRoles) !== [];
+        }));
+    }
+
+    private function visitorRoleIds(int $publicKey): array
+    {
+        $raw = Yii::$app->request->get('userRole', []);
+        if (is_string($raw)) {
+            $raw = trim($raw) === '' ? [] : explode(',', $raw);
+        }
+        if (!is_array($raw)) {
+            return [];
+        }
+
+        $rawIds = array_values(array_filter(array_map('intval', $raw)));
+        if ($rawIds === []) {
+            return [];
+        }
+
+        $mappedIds = Roles::find()
+            ->where(['public_key' => $publicKey, 'id_role_in_system' => $rawIds])
+            ->select('id')
+            ->column();
+
+        return array_values(array_unique(array_merge($rawIds, array_map('intval', $mappedIds))));
     }
 }

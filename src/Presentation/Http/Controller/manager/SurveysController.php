@@ -98,8 +98,8 @@ final class SurveysController extends ManagerController
         return $this->render('form', [
             'survey' => $survey,
             'questions' => $survey->isNewRecord ? [] : SurveyQuestionRecord::find()->where(['survey_id' => $survey->id])->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC])->all(),
-            'roles' => Roles::find()->where(['public_key' => $publicKey])->orderBy(['name' => SORT_ASC])->all(),
-            'selectedRoleIds' => $survey->isNewRecord ? [] : SurveyRoleRecord::find()->where(['survey_id' => $survey->id])->select('role_id')->column(),
+            'roles' => $limit->rolesEnabled ? Roles::find()->where(['public_key' => $publicKey])->orderBy(['name' => SORT_ASC])->all() : [],
+            'selectedRoleIds' => !$limit->rolesEnabled || $survey->isNewRecord ? [] : SurveyRoleRecord::find()->where(['survey_id' => $survey->id])->select('role_id')->column(),
             'surveyUrls' => $survey->isNewRecord ? [] : SurveyUrlRecord::find()->where(['survey_id' => $survey->id])->orderBy(['id' => SORT_ASC])->all(),
             'urlBindingsEnabled' => $limit->urlBindingsEnabled,
         ] + $projects->tabsData($ownerPublicKey, $projectId));
@@ -128,7 +128,9 @@ final class SurveysController extends ManagerController
         }
 
         $this->saveQuestions($survey, Yii::$app->request->post('SurveyQuestion', []));
-        $this->saveRoles($survey, $data);
+        if ($limit->rolesEnabled) {
+            $this->saveRoles($survey, $data);
+        }
         $this->saveUrls($publicKey, $survey, $data, $limit);
         Yii::$app->session->setFlash('success', 'Анкета сохранена');
     }

@@ -47,15 +47,17 @@ final class InstructionsController extends ManagerController
         }
 
         [$projects, $ownerPublicKey, $projectId, $publicKey] = $this->projectContext();
+        $limit = InstructionPlanLimit::forPlan($this->supportPlan($ownerPublicKey));
 
         if (Yii::$app->request->isPost) {
-            $this->saveCategory($publicKey);
+            $this->saveCategory($publicKey, $limit);
 
             return $this->redirect($this->projectUrl('/manager/instructions/sections', $projectId));
         }
 
         return $this->render('sections', [
             'categories' => $this->categories($publicKey),
+            'nestedCategoriesEnabled' => $limit->nestedCategoriesEnabled,
         ] + $projects->tabsData($ownerPublicKey, $projectId));
     }
 
@@ -132,6 +134,7 @@ final class InstructionsController extends ManagerController
         }
 
         [$projects, $ownerPublicKey, $projectId, $publicKey] = $this->projectContext();
+        $limit = InstructionPlanLimit::forPlan($this->supportPlan($ownerPublicKey));
         $article = $id === null
             ? new InstructionArticleRecord(['public_key' => $publicKey, 'is_active' => true, 'sort_order' => 100])
             : InstructionArticleRecord::findOne(['id' => $id, 'public_key' => $publicKey]);
@@ -143,7 +146,7 @@ final class InstructionsController extends ManagerController
         }
 
         if (Yii::$app->request->isPost) {
-            $this->saveArticle($publicKey, $article, $ownerPublicKey);
+            $this->saveArticle($publicKey, $article, $limit);
 
             return $this->redirect($this->projectUrl('/manager/instructions', $projectId));
         }
@@ -151,14 +154,15 @@ final class InstructionsController extends ManagerController
         return $this->render('form', [
             'article' => $article,
             'categories' => $this->categories($publicKey),
-            'roles' => Roles::find()->where(['public_key' => $publicKey])->orderBy(['name' => SORT_ASC])->all(),
-            'selectedRoleIds' => $article->isNewRecord ? [] : InstructionArticleRoleRecord::find()->where(['article_id' => $article->id])->select('role_id')->column(),
+            'roles' => $limit->rolesEnabled ? Roles::find()->where(['public_key' => $publicKey])->orderBy(['name' => SORT_ASC])->all() : [],
+            'selectedRoleIds' => !$limit->rolesEnabled || $article->isNewRecord ? [] : InstructionArticleRoleRecord::find()->where(['article_id' => $article->id])->select('role_id')->column(),
             'articleUrls' => $article->isNewRecord ? [] : InstructionArticleUrlRecord::find()->where(['article_id' => $article->id])->orderBy(['id' => SORT_ASC])->all(),
-            'urlBindingsEnabled' => InstructionPlanLimit::forPlan($this->supportPlan($ownerPublicKey))->urlBindingsEnabled,
+            'urlBindingsEnabled' => $limit->urlBindingsEnabled,
+            'rolesEnabled' => $limit->rolesEnabled,
         ] + $projects->tabsData($ownerPublicKey, $projectId));
     }
 
-    private function saveCategory(int $publicKey): void
+    private function saveCategory(int $publicKey, InstructionPlanLimit $limit): void
     {
         $data = Yii::$app->request->post('InstructionCategory');
         if (!is_array($data)) {
@@ -173,6 +177,21 @@ final class InstructionsController extends ManagerController
             return;
         }
 
+        if ($category->isNewRecord && $limit->maxCategories !== null) {
+            $categoryCount = (int)InstructionCategoryRecord::find()->where(['public_key' => $publicKey])->count();
+            if ($categoryCount >= $limit->maxCategories) {
+                Yii::$app->session->setFlash('error', 'На тарифе Free можно создать до 5 разделов инструкций');
+
+                return;
+            }
+        }
+
+        if (!$limit->nestedCategoriesEnabled && !empty($data['parent_id'])) {
+            Yii::$app->session->setFlash('error', 'Вложенные разделы доступны на тарифе Start');
+
+            return;
+        }
+
         $category->name = trim((string)($data['name'] ?? ''));
         $category->parent_id = empty($data['parent_id']) ? null : (int)$data['parent_id'];
         $category->sort_order = (int)($data['sort_order'] ?? 100);
@@ -182,7 +201,7 @@ final class InstructionsController extends ManagerController
         Yii::$app->session->setFlash($saved ? 'success' : 'error', $saved ? 'Раздел сохранен' : 'Не удалось сохранить раздел');
     }
 
-    private function saveArticle(int $publicKey, InstructionArticleRecord $article, int $ownerPublicKey): void
+    private function saveArticle(int $publicKey, InstructionArticleRecord $article, InstructionPlanLimit $limit): void
     {
         $data = Yii::$app->request->post('InstructionArticle');
         if (!is_array($data)) {
@@ -202,7 +221,11 @@ final class InstructionsController extends ManagerController
         $article->sort_order = (int)($data['sort_order'] ?? 100);
         $article->is_active = (bool)($data['is_active'] ?? false);
 
-        if (!$this->storageAllowed($publicKey, $article, $ownerPublicKey)) {
+        if (!$this->articleCountAllowed($publicKey, $article, $limit)) {
+            return;
+        }
+
+        if (!$this->storageAllowed($publicKey, $article, $limit)) {
             Yii::$app->session->setFlash('error', 'Лимит места для инструкций исчерпан');
 
             return;
@@ -210,8 +233,10 @@ final class InstructionsController extends ManagerController
 
         $saved = $article->save();
         if ($saved) {
-            $this->saveArticleRoles($article, $data);
-            $this->saveArticleUrls($publicKey, $article, $data);
+            if ($limit->rolesEnabled) {
+                $this->saveArticleRoles($article, $data);
+            }
+            $this->saveArticleUrls($publicKey, $article, $data, $limit);
         }
         Yii::$app->session->setFlash($saved ? 'success' : 'error', $saved ? 'Инструкция сохранена' : 'Не удалось сохранить инструкцию');
     }
@@ -235,9 +260,8 @@ final class InstructionsController extends ManagerController
         }
     }
 
-    private function saveArticleUrls(int $publicKey, InstructionArticleRecord $article, array $data): void
+    private function saveArticleUrls(int $publicKey, InstructionArticleRecord $article, array $data, InstructionPlanLimit $limit): void
     {
-        $limit = InstructionPlanLimit::forPlan($this->supportPlan($publicKey));
         if (!$limit->urlBindingsEnabled) {
             return;
         }
@@ -268,9 +292,41 @@ final class InstructionsController extends ManagerController
         return $settings instanceof InstructionSettingsRecord && (bool)$settings->creation_locked;
     }
 
-    private function storageAllowed(int $publicKey, InstructionArticleRecord $article, int $ownerPublicKey): bool
+    private function articleCountAllowed(int $publicKey, InstructionArticleRecord $article, InstructionPlanLimit $limit): bool
     {
-        $limit = InstructionPlanLimit::forPlan($this->supportPlan($ownerPublicKey));
+        if ($limit->maxArticlesPerCategory === null) {
+            return true;
+        }
+
+        if ($article->category_id === null) {
+            Yii::$app->session->setFlash('error', 'На тарифе Free инструкция должна находиться в разделе');
+
+            return false;
+        }
+
+        $categoryExists = InstructionCategoryRecord::find()
+            ->where(['id' => $article->category_id, 'public_key' => $publicKey])
+            ->exists();
+        if (!$categoryExists) {
+            Yii::$app->session->setFlash('error', 'Выбранный раздел не найден');
+
+            return false;
+        }
+
+        $query = InstructionArticleRecord::find()
+            ->where(['public_key' => $publicKey, 'category_id' => $article->category_id])
+            ->andFilterWhere(['<>', 'id', $article->id ?: null]);
+        if ((int)$query->count() >= $limit->maxArticlesPerCategory) {
+            Yii::$app->session->setFlash('error', 'На тарифе Free в одном разделе можно создать до 10 статей');
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private function storageAllowed(int $publicKey, InstructionArticleRecord $article, InstructionPlanLimit $limit): bool
+    {
         if (!$limit->enabled) {
             return false;
         }
