@@ -82,7 +82,7 @@ $canCreateProjects = count($projects) < $projectLimit->maxProjects;
     <div id="modal-project-limit" uk-modal>
         <div class="uk-modal-dialog uk-modal-body">
             <h3 class="uk-modal-title">Дополнительные проекты</h3>
-            <p>На текущем тарифе доступно проектов: <?= Html::encode((string)$projectLimit->maxProjects) ?>. Чтобы подключить несколько сайтов или тематик, перейдите на Pro-тариф.</p>
+            <p>На текущем тарифе доступно проектов/сайтов: <?= Html::encode((string)$projectLimit->maxProjects) ?>. Чтобы подключить несколько сайтов или тематик, перейдите на Pro-тариф.</p>
             <div class="uk-text-right">
                 <button class="uk-button uk-button-default uk-modal-close" type="button">Закрыть</button>
                 <button class="uk-button uk-button-primary uk-modal-close" type="button" data-sitewidget-open-support>Написать в виджет</button>

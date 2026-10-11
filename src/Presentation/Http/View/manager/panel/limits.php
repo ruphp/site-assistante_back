@@ -26,13 +26,13 @@ $progress = static function (int $used, int $limit) use ($percent): string {
             <div class="uk-card uk-card-default uk-card-body">
                 <div class="uk-text-meta">Тариф</div>
                 <h4 class="uk-margin-small"><?= Html::encode($report->planLabel) ?></h4>
-                <div class="uk-text-meta"><?= Html::encode(RussianPlural::word($report->projectsCount, 'Проект', 'Проекта', 'Проектов')) ?>: <?= $report->projectsCount ?> / <?= $report->projectsLimit ?></div>
-                <div class="uk-text-meta"><?= Html::encode(RussianPlural::word($report->operatorsCount, 'Оператор', 'Оператора', 'Операторов')) ?>: <?= $report->operatorsCount ?> / <?= $report->operatorsLimit ?></div>
+                <div class="uk-text-meta">Проекты/сайты: <?= $report->projectsCount ?> / <?= $report->projectsLimit ?></div>
+                <div class="uk-text-meta"><?= Html::encode(RussianPlural::word($report->operatorsCount, 'Менеджер', 'Менеджера', 'Менеджеров')) ?>: <?= $report->operatorsCount ?> / <?= $report->operatorsLimit ?></div>
             </div>
         </div>
         <div>
             <div class="uk-card uk-card-default uk-card-body">
-                <div class="uk-text-meta">Ответы операторов сегодня</div>
+                <div class="uk-text-meta">Ответы менеджеров сегодня</div>
                 <h4 class="uk-margin-small"><?= $report->operatorRepliesToday ?> / <?= $report->operatorRepliesPerDayLimit ?></h4>
                 <?= $progress($report->operatorRepliesToday, $report->operatorRepliesPerDayLimit) ?>
             </div>

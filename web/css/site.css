@@ -1439,6 +1439,35 @@ ul.ticket-messages-list {
     background: var(--sw-warm);
 }
 
+.site-landing__pricing-limits {
+    margin-top: 18px;
+    color: var(--sw-muted);
+    font-size: 14px;
+}
+
+.site-landing__pricing-limits summary {
+    width: fit-content;
+    color: var(--sw-base);
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.site-landing__pricing-limits div {
+    margin-top: 12px;
+    padding: 14px 16px;
+    background: #fff;
+    border-left: 3px solid var(--sw-warm);
+}
+
+.site-landing__pricing-limits p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.site-landing__pricing-limits p + p {
+    margin-top: 6px;
+}
+
 .site-landing__addons {
     display: grid;
     grid-template-columns: .9fr 1.1fr;

@@ -37,7 +37,7 @@ $currentUserId = (int)Yii::$app->user->id;
     <div class="uk-card uk-card-default uk-card-body uk-margin">
         <h4>Владелец аккаунта</h4>
         <p class="uk-text-meta">
-            Владелец считается первым менеджером. Эти контакты будут использоваться для общения и отображения в операторской части.
+            Владелец считается первым менеджером. Эти контакты будут использоваться для общения и отображения в интерфейсе менеджера.
         </p>
 
         <?= Html::beginForm('/manager/operator/owner-contacts', 'post', ['class' => 'uk-form-stacked', 'enctype' => 'multipart/form-data']) ?>
