@@ -121,7 +121,7 @@ class Params extends ActiveRecord
         }
     };
     var script = document.createElement('script');
-    script.src = '$domainstatic/lib.js', document.head.appendChild(script);
+    script.src = '$domainstatic/lib.js?v=20261011.1', document.head.appendChild(script);
 &lt;/script&gt;";
 
         return $code;

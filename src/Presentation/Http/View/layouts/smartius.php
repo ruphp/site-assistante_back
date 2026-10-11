@@ -450,7 +450,7 @@ $this->beginPage();
             };
 
             var script = document.createElement('script');
-            script.src = '<?= $_ENV['DOMAINSTATICWIDGET'] . '/lib.js' ?>', document.head.appendChild(script);
+            script.src = '<?= $_ENV['DOMAINSTATICWIDGET'] . '/lib.js?v=20261011.1' ?>', document.head.appendChild(script);
         </script>
     <?php endif; ?>
 
