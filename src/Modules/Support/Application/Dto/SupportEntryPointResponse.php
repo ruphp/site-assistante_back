@@ -18,6 +18,7 @@ final class SupportEntryPointResponse
             'title' => $this->entryPoint->title,
             'description' => $this->entryPoint->description,
             'response_type' => $this->entryPoint->responseType,
+            'instruction_id' => $this->entryPoint->instructionId,
             'priority' => $this->entryPoint->priority,
             'enabled' => $this->entryPoint->enabled,
             'sort_order' => $this->entryPoint->sortOrder,

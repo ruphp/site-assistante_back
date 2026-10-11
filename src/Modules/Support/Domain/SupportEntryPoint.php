@@ -6,6 +6,7 @@ final class SupportEntryPoint
 {
     public const RESPONSE_ANSWER = 'answer';
     public const RESPONSE_QUESTION = 'question';
+    public const RESPONSE_INSTRUCTION = 'instruction';
 
     public function __construct(
         public readonly ?int $id,
@@ -16,6 +17,7 @@ final class SupportEntryPoint
         public readonly int $priority = 1,
         public readonly bool $enabled = true,
         public readonly int $sortOrder = 100,
+        public readonly ?int $instructionId = null,
     ) {
     }
 
@@ -26,7 +28,7 @@ final class SupportEntryPoint
 
     public static function normalizeResponseType(string $responseType): string
     {
-        return in_array($responseType, [self::RESPONSE_ANSWER, self::RESPONSE_QUESTION], true)
+        return in_array($responseType, [self::RESPONSE_ANSWER, self::RESPONSE_QUESTION, self::RESPONSE_INSTRUCTION], true)
             ? $responseType
             : self::RESPONSE_ANSWER;
     }

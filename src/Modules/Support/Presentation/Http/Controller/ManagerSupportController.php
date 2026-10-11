@@ -3,6 +3,7 @@
 namespace app\Modules\Support\Presentation\Http\Controller;
 
 use app\Application\Panel\ClientProjectService;
+use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleRecord;
 use app\Modules\Support\Application\Contract\SupportRealtimeTokenIssuerInterface;
 use app\Modules\Support\Application\Service\SupportOperatorProjectAccessService;
 use app\Modules\Support\Application\UseCase\ManageSupportEntryPointsUseCase;
@@ -95,6 +96,10 @@ final class ManagerSupportController extends ManagerController
         return $this->render(
             '@app/src/Modules/Support/Presentation/Http/View/manager/entry-points',
             $this->entryPoints->viewData($publicKey)
+            + ['instructions' => InstructionArticleRecord::find()
+                ->where(['public_key' => $publicKey, 'is_active' => true, 'admin_blocked' => false])
+                ->orderBy(['title' => SORT_ASC])
+                ->all()]
             + $this->projects->tabsData($ownerPublicKey, $projectId),
         );
     }

@@ -2,6 +2,7 @@
 
 namespace app\Modules\Support\Application\UseCase;
 
+use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleRecord;
 use app\Modules\Support\Application\Contract\SupportEntryPointRepositoryInterface;
 use app\Modules\Support\Application\Contract\SupportSettingsRepositoryInterface;
 use app\Modules\Support\Domain\SupportEntryPoint;
@@ -45,6 +46,13 @@ final class ManageSupportEntryPointsUseCase
         }
 
         $description = trim((string)($data['description'] ?? ''));
+        $responseType = SupportEntryPoint::normalizeResponseType((string)($data['responseType'] ?? SupportEntryPoint::RESPONSE_ANSWER));
+        $instructionId = $responseType === SupportEntryPoint::RESPONSE_INSTRUCTION
+            ? (int)($data['instructionId'] ?? 0)
+            : null;
+        if ($responseType === SupportEntryPoint::RESPONSE_INSTRUCTION && !$this->instructionExists($publicKey, $instructionId)) {
+            throw new \InvalidArgumentException('Выберите доступную статью инструкции');
+        }
         $rankLimit = min($limit->entryPointRankLimit(), max(1, $entryPointCount + ($isNew ? 1 : 0)));
 
         return $this->entryPoints->save(new SupportEntryPoint(
@@ -52,15 +60,32 @@ final class ManageSupportEntryPointsUseCase
             publicKey: $publicKey,
             title: mb_substr($title, 0, 255),
             description: mb_substr($description, 0, 2000),
-            responseType: SupportEntryPoint::normalizeResponseType((string)($data['responseType'] ?? SupportEntryPoint::RESPONSE_ANSWER)),
+            responseType: $responseType,
             priority: max(1, min($rankLimit, (int)($data['priority'] ?? 1))),
             enabled: (bool)($data['enabled'] ?? false),
             sortOrder: max(1, min($rankLimit, (int)($data['sortOrder'] ?? 1))),
+            instructionId: $instructionId ?: null,
         ));
     }
 
     public function delete(int $publicKey, int $id): bool
     {
         return $this->entryPoints->deleteForClient($publicKey, $id);
+    }
+
+    private function instructionExists(int $publicKey, int $instructionId): bool
+    {
+        if ($instructionId <= 0) {
+            return false;
+        }
+
+        return InstructionArticleRecord::find()
+            ->where([
+                'id' => $instructionId,
+                'public_key' => $publicKey,
+                'is_active' => true,
+                'admin_blocked' => false,
+            ])
+            ->exists();
     }
 }

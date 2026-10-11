@@ -3,12 +3,14 @@
 use app\Modules\Support\Domain\SupportEntryPoint;
 use app\Modules\Support\Domain\SupportPlan;
 use app\Modules\Support\Domain\SupportPlanLimit;
+use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleRecord;
 use yii\helpers\Html;
 
 /**
  * @var SupportEntryPoint[] $entryPoints
  * @var SupportPlanLimit $limit
  * @var string $plan
+ * @var InstructionArticleRecord[] $instructions
  * @var \app\Application\Panel\Dto\ClientProjectView[] $projects
  * @var \app\Application\Panel\Dto\ClientProjectView $activeProject
  */
@@ -28,7 +30,12 @@ for ($rank = 1; $rank <= $newRankLimit; $rank++) {
 $responseTypeOptions = [
     SupportEntryPoint::RESPONSE_ANSWER => 'Готовый ответ',
     SupportEntryPoint::RESPONSE_QUESTION => 'Уточняющий вопрос',
+    SupportEntryPoint::RESPONSE_INSTRUCTION => 'Открыть инструкцию',
 ];
+$instructionOptions = ['' => 'Выберите статью'];
+foreach ($instructions as $instruction) {
+    $instructionOptions[(int)$instruction->id] = (string)$instruction->title;
+}
 ?>
 
 <div class="uk-container uk-position-relative">
@@ -59,7 +66,7 @@ $responseTypeOptions = [
                         ]) ?>
                     </div>
 
-                    <div class="uk-margin-small">
+                    <div class="uk-margin-small sw-entry-point-response">
                         <?= Html::label('Ответ', null, ['class' => 'uk-form-label']) ?>
                         <?= Html::textarea('SupportEntryPoint[description]', $entryPoint->description, [
                             'class' => 'uk-textarea',
@@ -70,7 +77,7 @@ $responseTypeOptions = [
 
                     <div class="sw-entry-point-card__controls">
                         <div>
-                            <?= Html::label('Тип ответа', null, ['class' => 'uk-form-label']) ?>
+                            <?= Html::label('Действие кнопки', null, ['class' => 'uk-form-label']) ?>
                             <?= Html::dropDownList('SupportEntryPoint[responseType]', $entryPoint->responseType, $responseTypeOptions, [
                                 'class' => 'uk-select',
                             ]) ?>
@@ -87,6 +94,14 @@ $responseTypeOptions = [
                                 'class' => 'uk-select',
                             ]) ?>
                         </div>
+                    </div>
+
+                    <div class="uk-margin-small sw-entry-point-instruction">
+                        <?= Html::label('Статья инструкции', null, ['class' => 'uk-form-label']) ?>
+                        <?= Html::dropDownList('SupportEntryPoint[instructionId]', $entryPoint->instructionId, $instructionOptions, [
+                            'class' => 'uk-select',
+                        ]) ?>
+                        <div class="uk-text-meta">Посетитель откроет выбранную статью внутри виджета без создания диалога.</div>
                     </div>
 
                     <div class="sw-entry-point-card__footer">
@@ -134,7 +149,7 @@ $responseTypeOptions = [
                     'placeholder' => 'Не работает сервис',
                 ]) ?>
             </div>
-            <div class="uk-width-1-3@s">
+            <div class="uk-width-1-3@s sw-entry-point-response">
                 <?= Html::label('Ответ', 'support-entry-description', ['class' => 'uk-form-label']) ?>
                 <?= Html::textarea('SupportEntryPoint[description]', '', [
                     'id' => 'support-entry-description',
@@ -145,7 +160,7 @@ $responseTypeOptions = [
                 <div class="uk-text-meta">Для переноса строки используйте Enter. Ссылку можно вставить обычным URL.</div>
             </div>
             <div class="uk-width-1-6@s">
-                <?= Html::label('Тип ответа', 'support-entry-response-type', ['class' => 'uk-form-label']) ?>
+                <?= Html::label('Действие кнопки', 'support-entry-response-type', ['class' => 'uk-form-label']) ?>
                 <?= Html::dropDownList('SupportEntryPoint[responseType]', SupportEntryPoint::RESPONSE_ANSWER, $responseTypeOptions, [
                     'id' => 'support-entry-response-type',
                     'class' => 'uk-select',
@@ -166,6 +181,14 @@ $responseTypeOptions = [
                 ]) ?>
             </div>
         </div>
+        <div class="uk-margin-small sw-entry-point-instruction">
+            <?= Html::label('Статья инструкции', 'support-entry-instruction', ['class' => 'uk-form-label']) ?>
+            <?= Html::dropDownList('SupportEntryPoint[instructionId]', '', $instructionOptions, [
+                'id' => 'support-entry-instruction',
+                'class' => 'uk-select',
+            ]) ?>
+            <div class="uk-text-meta">Посетитель откроет выбранную статью внутри виджета без создания диалога.</div>
+        </div>
         <div class="uk-margin">
             <?= Html::hiddenInput('SupportEntryPoint[enabled]', '0') ?>
             <label><?= Html::checkbox('SupportEntryPoint[enabled]', true, ['value' => '1']) ?> Показывать в виджете</label>
@@ -174,3 +197,25 @@ $responseTypeOptions = [
         <?php \ruwmapps\yii2_uikit3\ActiveForm::end(); ?>
     <?php endif; ?>
 </div>
+
+<?php
+$instructionType = SupportEntryPoint::RESPONSE_INSTRUCTION;
+$this->registerJs(<<<JS
+function toggleEntryPointInstruction(form) {
+    const type = form.querySelector('[name="SupportEntryPoint[responseType]"]');
+    const instruction = form.querySelector('.sw-entry-point-instruction');
+    const response = form.querySelector('.sw-entry-point-response');
+    if (!type || !instruction) return;
+    const opensInstruction = type.value === '{$instructionType}';
+    instruction.hidden = !opensInstruction;
+    if (response) response.hidden = opensInstruction;
+}
+
+document.querySelectorAll('form').forEach(toggleEntryPointInstruction);
+document.addEventListener('change', function (event) {
+    if (event.target && event.target.matches('[name="SupportEntryPoint[responseType]"]')) {
+        toggleEntryPointInstruction(event.target.closest('form'));
+    }
+});
+JS);
+?>

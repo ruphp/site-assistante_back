@@ -2,6 +2,7 @@
 
 namespace app\Modules\Support\Infrastructure;
 
+use app\Modules\Instructions\Infrastructure\YiiActiveRecord\InstructionArticleRecord;
 use app\Modules\Support\Application\Contract\SupportEntryPointRepositoryInterface;
 use app\Modules\Support\Domain\SupportEntryPoint;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportEntryPointRecord;
@@ -18,7 +19,15 @@ final class YiiSupportEntryPointRepository implements SupportEntryPointRepositor
             $query->andWhere(['enabled' => 1]);
         }
 
-        return array_map(fn(SupportEntryPointRecord $record): SupportEntryPoint => $this->map($record), $query->all());
+        $records = $query->all();
+        if ($enabledOnly) {
+            $records = array_values(array_filter(
+                $records,
+                fn(SupportEntryPointRecord $record): bool => $this->hasAvailableInstruction($record),
+            ));
+        }
+
+        return array_map(fn(SupportEntryPointRecord $record): SupportEntryPoint => $this->map($record), $records);
     }
 
     public function countForClient(int $publicKey): int
@@ -51,6 +60,7 @@ final class YiiSupportEntryPointRepository implements SupportEntryPointRepositor
         $record->title = $entryPoint->title;
         $record->description = $entryPoint->description;
         $record->response_type = $entryPoint->responseType;
+        $record->instruction_id = $entryPoint->instructionId;
         $record->priority = $entryPoint->priority;
         $record->enabled = $entryPoint->enabled ? 1 : 0;
         $record->sort_order = $entryPoint->sortOrder;
@@ -76,6 +86,27 @@ final class YiiSupportEntryPointRepository implements SupportEntryPointRepositor
             priority: (int)$record->priority,
             enabled: (bool)$record->enabled,
             sortOrder: (int)$record->sort_order,
+            instructionId: $record->instruction_id === null ? null : (int)$record->instruction_id,
         );
+    }
+
+    private function hasAvailableInstruction(SupportEntryPointRecord $record): bool
+    {
+        if ((string)$record->response_type !== SupportEntryPoint::RESPONSE_INSTRUCTION) {
+            return true;
+        }
+
+        if ($record->instruction_id === null) {
+            return false;
+        }
+
+        return InstructionArticleRecord::find()
+            ->where([
+                'id' => (int)$record->instruction_id,
+                'public_key' => (int)$record->public_key,
+                'is_active' => true,
+                'admin_blocked' => false,
+            ])
+            ->exists();
     }
 }

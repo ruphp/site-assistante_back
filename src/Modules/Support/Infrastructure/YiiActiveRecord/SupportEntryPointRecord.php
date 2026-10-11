@@ -15,7 +15,7 @@ final class SupportEntryPointRecord extends ActiveRecord
     {
         return [
             [['public_key', 'title'], 'required'],
-            [['public_key', 'priority', 'enabled', 'sort_order'], 'integer'],
+            [['public_key', 'priority', 'enabled', 'sort_order', 'instruction_id'], 'integer'],
             [['description'], 'string'],
             [['title', 'response_type'], 'string', 'max' => 255],
             [['created_at', 'updated_at'], 'safe'],
