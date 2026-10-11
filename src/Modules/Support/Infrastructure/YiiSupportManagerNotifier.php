@@ -13,6 +13,8 @@ use app\Modules\Support\Domain\SupportConversation;
 use app\Modules\Support\Domain\SupportMessage;
 use app\Modules\Support\Infrastructure\YiiActiveRecord\SupportProjectRecord;
 use Yii;
+use yii\base\Application;
+use yii\web\Response;
 
 final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
 {
@@ -27,15 +29,31 @@ final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
 
     public function notifyVisitorMessage(SupportConversation $conversation, SupportMessage $message): void
     {
-        $settings = $this->settings->getForClient($conversation->publicKey);
-        $text = $this->body($conversation, $message);
+        $notify = function () use ($conversation, $message): void {
+            $settings = $this->settings->getForClient($conversation->publicKey);
+            $text = $this->body($conversation, $message);
 
-        if ($settings->notifyEmail) {
-            $this->notifyEmail($conversation, $text);
+            // Push is the time-sensitive channel. Email and Telegram may involve
+            // slower external connections and must not delay it.
+            $this->notifyPush($conversation, $message);
+            $this->telegramManagerBot->notifyVisitorMessage($conversation, $message);
+
+            if ($settings->notifyEmail) {
+                $this->notifyEmail($conversation, $text);
+            }
+        };
+
+        if (Yii::$app instanceof Application && Yii::$app->has('response')) {
+            $response = Yii::$app->getResponse();
+            if ($response instanceof Response) {
+                $response->on(Response::EVENT_AFTER_SEND, static function () use ($notify): void {
+                    $notify();
+                });
+                return;
+            }
         }
 
-        $this->notifyPush($conversation, $message);
-        $this->telegramManagerBot->notifyVisitorMessage($conversation, $message);
+        $notify();
     }
 
     private function notifyEmail(SupportConversation $conversation, string $text): void
@@ -50,6 +68,9 @@ final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
             return;
         }
 
+        $previousTimeout = ini_get('default_socket_timeout');
+        ini_set('default_socket_timeout', '5');
+
         try {
             Yii::$app->mailer
                 ->compose()
@@ -59,6 +80,10 @@ final class YiiSupportManagerNotifier implements SupportManagerNotifierInterface
                 ->setTextBody($text)
                 ->send();
         } catch (\Throwable) {
+        } finally {
+            if ($previousTimeout !== false) {
+                ini_set('default_socket_timeout', (string)$previousTimeout);
+            }
         }
     }
 

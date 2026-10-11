@@ -63,6 +63,7 @@ final class FirebaseHttpV1PushNotificationSender implements SupportPushNotificat
                 ])
                 ->setFormat(Client::FORMAT_JSON)
                 ->setData($payload)
+                ->setOptions(['timeout' => 5])
                 ->send();
 
             if (!$response->isOk) {
@@ -99,6 +100,7 @@ final class FirebaseHttpV1PushNotificationSender implements SupportPushNotificat
                     'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                     'assertion' => $assertion,
                 ])
+                ->setOptions(['timeout' => 5])
                 ->send();
 
             if (!$response->isOk) {

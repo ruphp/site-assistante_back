@@ -404,6 +404,7 @@ final class TelegramManagerBotService
                 ->setMethod('POST')
                 ->setUrl('https://api.telegram.org/bot' . $token . '/sendMessage')
                 ->setData($data)
+                ->setOptions(['timeout' => 5])
                 ->send();
         } catch (\Throwable $e) {
             Yii::error($e->getMessage(), 'telegram-manager-bot');
@@ -425,6 +426,7 @@ final class TelegramManagerBotService
                     'callback_query_id' => $callbackId,
                     'text' => $text,
                 ])
+                ->setOptions(['timeout' => 5])
                 ->send();
         } catch (\Throwable $e) {
             Yii::error($e->getMessage(), 'telegram-manager-bot');

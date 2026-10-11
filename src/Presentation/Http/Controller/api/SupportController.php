@@ -150,13 +150,27 @@ class SupportController extends ApiController
         $request = Yii::$app->request;
 
         return new SupportVisitorContext(
-            visitorId: $request->get('visitorId') ?: $request->get('userId'),
-            visitorEmail: $request->get('visitorEmail') ?: $request->get('userEmail'),
+            visitorId: $this->requestParam('visitor_id', 'visitorId', 'user_id', 'userId'),
+            visitorName: $this->requestParam('visitor_name', 'visitorName', 'user_name', 'userName'),
+            visitorEmail: $this->requestParam('visitor_email', 'visitorEmail', 'user_email', 'userEmail'),
+            visitorPhone: $this->requestParam('visitor_phone', 'visitorPhone', 'user_phone', 'userPhone'),
             originHost: $this->originHost(),
             remoteAddr: $request->userIP ?? '0.0.0.0',
             pathname: (string)$request->get('pathname', ''),
             pageUrl: (string)$request->get('pageUrl', ''),
         );
+    }
+
+    private function requestParam(string ...$names): ?string
+    {
+        foreach ($names as $name) {
+            $value = $this->bodyParam($name);
+            if ($value !== null && trim((string)$value) !== '') {
+                return trim((string)$value);
+            }
+        }
+
+        return null;
     }
 
     private function originHost(): string

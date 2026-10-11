@@ -27,6 +27,15 @@ final class YiiSupportPushDeviceRepository implements SupportPushDeviceRepositor
             $record->created_at = date('Y-m-d H:i:s');
         }
 
+        SupportPushDeviceRecord::updateAll([
+            'is_active' => 0,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ], [
+            'and',
+            ['user_id' => (int)$user->id, 'platform' => $platform, 'is_active' => 1],
+            ['not', ['token' => $token]],
+        ]);
+
         $record->public_key = (int)$user->public_key;
         $record->user_id = (int)$user->id;
         $record->token = $token;
