@@ -286,6 +286,7 @@ $this->registerMetaTag([
                         <li>Онлайн чат, диалоги и история обращений</li>
                         <li>Инструкции: разделы и статьи</li>
                         <li>Ответы из Android-приложения и Telegram</li>
+                        <li>Подтверждение номеров пользователей по SMS без отдельного SMS-сервиса</li>
                     </ul>
                     <div class="site-landing__price-action">
                         <?= Html::a('Начать бесплатно', ['/join'], ['class' => 'site-landing__button site-landing__button--ghost']) ?>
