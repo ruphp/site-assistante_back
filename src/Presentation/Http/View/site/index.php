@@ -72,7 +72,7 @@ $this->registerMetaTag([
                 </div>
                 <div class="site-landing__browser-body">
                     <div class="site-landing__page-copy"><strong>Ваш сайт</strong><span></span><span></span><span></span></div>
-                    <div class="site-landing__manager-alert"><small>Новое обращение</small><strong>«Этот товар есть в наличии?»</strong><span>Ответить из Android или Telegram</span></div>
+                    <div class="site-landing__manager-alert"><small>Новое обращение</small><strong>Покупатель ждёт ответа</strong><span>Ответить из Android или Telegram</span></div>
                 </div>
             </div>
             <div class="site-landing__widget">
