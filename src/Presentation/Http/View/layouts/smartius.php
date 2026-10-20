@@ -283,8 +283,11 @@ $this->beginPage();
         <?php foreach ($seoSchemas as $schema): ?>
             <script type="application/ld+json"><?= Json::htmlEncode($schema) ?></script>
         <?php endforeach; ?>
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-        <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" media="(prefers-color-scheme: dark)">
+        <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=2">
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2">
+        <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg?v=2" media="(prefers-color-scheme: dark)">
+        <link rel="shortcut icon" href="/favicon.ico?v=2">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2">
         <?php $this->head() ?>
         <meta name="yandex-verification" content="7c5f49e6578a5ddc" />
     </head>
