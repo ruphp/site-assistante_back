@@ -190,12 +190,25 @@ HTML;
 
     public function actionFaqInstructions(): string
     {
-        return $this->render('faq-instructions');
+        return $this->render('faq-instructions', ['demoOnboardings' => $this->publicDemoOnboardings()]);
     }
 
     public function actionOnboarding(): string
     {
-        return $this->render('onboarding');
+        return $this->render('onboarding', ['demoOnboardings' => $this->publicDemoOnboardings()]);
+    }
+
+    private function publicDemoOnboardings(): array
+    {
+        return (new \yii\db\Query())
+            ->select(['id', 'title'])
+            ->from('{{%sw_onboardings}}')
+            ->where(['public_key' => (int)($_ENV['PK_WIDGET'] ?? 0), 'is_active' => true, 'title' => [
+                'Подсказки на одной странице - пример SiteWidget',
+                'Переход между страницами - пример SiteWidget',
+            ]])
+            ->indexBy('title')
+            ->all();
     }
 
     public function actionSurveys(): string

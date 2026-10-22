@@ -69,10 +69,12 @@ $steps = [
             </p>
             <div class="site-landing__actions">
                 <?= Html::a('Начать использовать', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
-                <a class="site-landing__button site-landing__button--ghost" href="#use-cases">Где применять</a>
+                <a class="site-landing__button site-landing__button--ghost" href="#live-demo">Попробовать на сайте</a>
             </div>
         </div>
     </section>
+
+    <?= $this->render('_onboardingDemo', ['demoOnboardings' => $demoOnboardings, 'arrival' => false]) ?>
 
     <section class="site-landing__section site-landing__section--tint">
         <div class="site-landing__inner">
@@ -94,7 +96,7 @@ $steps = [
         </div>
     </section>
 
-    <section class="site-landing__section">
+    <section id="how" class="site-landing__section">
         <div class="site-landing__inner">
             <h2>Как работает интерактивная инструкция</h2>
             <div class="site-landing__steps">

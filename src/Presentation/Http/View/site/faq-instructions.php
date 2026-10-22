@@ -74,6 +74,8 @@ $steps = [
         </div>
     </section>
 
+    <?= $this->render('_onboardingDemo', ['demoOnboardings' => $demoOnboardings, 'arrival' => true]) ?>
+
     <section class="site-landing__section site-landing__section--tint">
         <div class="site-landing__inner">
             <h2>FAQ на сайте, который не уводит посетителя со страницы</h2>
