@@ -103,14 +103,13 @@ final class InstructionsController extends ApiController
         if ($addId !== null) {
             Yii::$app->db->createCommand(
                 'INSERT INTO sw_instruction_article_favorites (public_key, article_id, visitor_id, visitor_key, created_at)
-                 VALUES (:public_key, :article_id, :visitor_id, :visitor_key, :created_at)
+                 VALUES (:public_key, :article_id, :visitor_id, :visitor_key, CURRENT_TIMESTAMP)
                  ON CONFLICT DO NOTHING',
                 [
                     ':public_key' => $publicKey,
                     ':article_id' => (int)$addId,
-                    ':visitor_id' => is_numeric($userId) ? (int)$userId : null,
+                    ':visitor_id' => is_numeric($userId) ? (int)$userId : 0,
                     ':visitor_key' => $visitorKey,
-                    ':created_at' => time(),
                 ],
             )->execute();
 
@@ -148,45 +147,67 @@ final class InstructionsController extends ApiController
         Yii::$app->response->format = Response::FORMAT_JSON;
         $publicKey = (int)$publicKey;
         $articleId = (int)$id_source;
+        $visitorKey = $this->visitorKey(Yii::$app->request->get('userId'));
+
+        $article = Yii::$app->db->createCommand(
+            'SELECT id FROM sw_instruction_articles
+              WHERE id = :id AND public_key = :public_key AND is_active = TRUE
+                AND COALESCE(admin_blocked, FALSE) = FALSE',
+            [':id' => $articleId, ':public_key' => $publicKey],
+        )->queryOne();
+        if (!$article || !$this->rowsAllowedForRoles($publicKey, [$article])) {
+            return $this->HTTPStatus(404, 'Instruction not found');
+        }
 
         if ($like !== null && $comment !== null) {
             Yii::$app->db->createCommand(
-                'UPDATE sw_instruction_article_feedback SET comment = :comment WHERE id = :id AND public_key = :public_key',
-                [':comment' => (string)$comment, ':id' => (int)$like, ':public_key' => $publicKey],
+                'UPDATE sw_instruction_article_feedback SET comment = :comment
+                  WHERE id = :id AND public_key = :public_key AND article_id = :article_id AND visitor_key = :visitor_key',
+                [':comment' => (string)$comment, ':id' => (int)$like, ':public_key' => $publicKey,
+                    ':article_id' => $articleId, ':visitor_key' => $visitorKey],
             )->execute();
 
             return [];
         }
 
-        $isLike = (int)$up === 1;
-        Yii::$app->db->createCommand(
-            'INSERT INTO sw_instruction_article_feedback (public_key, article_id, visitor_id, visitor_key, is_like, created_at)
-             VALUES (:public_key, :article_id, :visitor_id, :visitor_key, :is_like, :created_at)',
-            [
-                ':public_key' => $publicKey,
-                ':article_id' => $articleId,
-                ':visitor_id' => is_numeric(Yii::$app->request->get('userId')) ? (int)Yii::$app->request->get('userId') : null,
-                ':visitor_key' => $this->visitorKey(Yii::$app->request->get('userId')),
-                ':is_like' => $isLike,
-                ':created_at' => time(),
-            ],
-        )->execute();
-        $feedbackId = (int)Yii::$app->db->getLastInsertID();
+        if (!in_array((string)$up, ['0', '1'], true)) {
+            return $this->HTTPStatus(400, 'Invalid estimate');
+        }
 
-        Yii::$app->db->createCommand(
-            'UPDATE sw_instruction_articles
-                SET likes = COALESCE(likes, 0) + :likes,
-                    dislikes = COALESCE(dislikes, 0) + :dislikes
-              WHERE id = :id AND public_key = :public_key',
-            [
-                ':likes' => $isLike ? 1 : 0,
-                ':dislikes' => $isLike ? 0 : 1,
-                ':id' => $articleId,
-                ':public_key' => $publicKey,
-            ],
-        )->execute();
+        return Yii::$app->db->transaction(function () use ($publicKey, $articleId, $visitorKey, $up): int {
+            // Serialize votes for this article so feedback and counters change together.
+            Yii::$app->db->createCommand(
+                'SELECT id FROM sw_instruction_articles WHERE id = :id AND public_key = :public_key FOR UPDATE',
+                [':id' => $articleId, ':public_key' => $publicKey],
+            )->queryScalar();
+            $previous = Yii::$app->db->createCommand(
+                'SELECT id, is_like FROM sw_instruction_article_feedback
+                  WHERE public_key = :public_key AND article_id = :article_id AND visitor_key = :visitor_key',
+                [':public_key' => $publicKey, ':article_id' => $articleId, ':visitor_key' => $visitorKey],
+            )->queryOne();
+            $isLike = (int)$up === 1;
+            $feedbackId = (int)Yii::$app->db->createCommand(
+                'INSERT INTO sw_instruction_article_feedback (public_key, article_id, visitor_id, visitor_key, is_like, created_at)
+                 VALUES (:public_key, :article_id, :visitor_id, :visitor_key, :is_like, CURRENT_TIMESTAMP)
+                 ON CONFLICT (public_key, article_id, visitor_key) DO UPDATE SET is_like = EXCLUDED.is_like
+                 RETURNING id',
+                [':public_key' => $publicKey, ':article_id' => $articleId,
+                    ':visitor_id' => is_numeric(Yii::$app->request->get('userId')) ? (int)Yii::$app->request->get('userId') : 0,
+                    ':visitor_key' => $visitorKey, ':is_like' => $isLike],
+            )->queryScalar();
+            $wasLike = $previous ? (bool)$previous['is_like'] : null;
+            Yii::$app->db->createCommand(
+                'UPDATE sw_instruction_articles
+                    SET likes = COALESCE(likes, 0) + :likes,
+                        dislikes = COALESCE(dislikes, 0) + :dislikes
+                  WHERE id = :id AND public_key = :public_key',
+                [':likes' => (int)$isLike - (int)($wasLike === true),
+                    ':dislikes' => (int)!$isLike - (int)($wasLike === false),
+                    ':id' => $articleId, ':public_key' => $publicKey],
+            )->execute();
 
-        return $feedbackId;
+            return $feedbackId;
+        });
     }
 
     public function actionLogInterest(): array

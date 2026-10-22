@@ -28,7 +28,10 @@ $this->registerCssFile('/css/onboarding-demo.css', ['depends' => [\app\Presentat
                 <img src="/img/sitewidget-module-navigator.svg" alt="" width="32" height="32">
                 <h3>С переходом на другую страницу</h3>
                 <p>Начните на странице онбординга. Кнопка «Далее» откроет инструкции, и обучение продолжится.</p>
-                <?= Html::a('Пройти маршрут', $launch((int)$multi), ['class' => 'site-landing__button site-landing__button--ghost']) ?>
+                <?= Html::a($arrival ? 'Пройти маршрут сначала' : 'Пройти маршрут', $launch((int)$multi), ['class' => 'site-landing__button site-landing__button--ghost']) ?>
+                <?php if ($arrival): ?>
+                    <p class="sw-demo__back"><?= Html::a('Перейти на страницу описания онбординга', ['/onboarding']) ?></p>
+                <?php endif; ?>
             </article>
             <article>
                 <img src="/img/sitewidget-module-instructions.svg" alt="" width="32" height="32">
@@ -36,8 +39,5 @@ $this->registerCssFile('/css/onboarding-demo.css', ['depends' => [\app\Presentat
                 <p id="sw-demo-article">Нажмите значок вопроса рядом с этим текстом. Из подсказки откроется статья - без перехода на другую страницу.</p>
             </article>
         </div>
-        <?php if ($arrival): ?>
-            <p class="sw-demo__back"><?= Html::a('Вернуться к странице онбординга', ['/onboarding', '#' => 'live-demo']) ?></p>
-        <?php endif; ?>
     </div>
 </section>
