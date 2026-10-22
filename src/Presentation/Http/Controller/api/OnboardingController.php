@@ -80,7 +80,9 @@ final class OnboardingController extends ApiController
                     fn(OnboardingSectionRecord $section): array => $this->sectionPayload(
                         $section,
                         $this->nextSectionUrl($allSections, $section),
-                        $requestedStartStep ?? $this->startStepForSection($allSections, $section, $resumeCountViewed)
+                        $requestedStartStep ?? $this->startStepForSection($allSections, $section, $resumeCountViewed),
+                        $this->stepOffsetForSection($allSections, $section),
+                        $stepsCount
                     ),
                     $sections
                 ),
@@ -247,7 +249,7 @@ final class OnboardingController extends ApiController
         return false;
     }
 
-    private function sectionPayload(OnboardingSectionRecord $section, string $nextUrl = '', int $startStep = 0): array
+    private function sectionPayload(OnboardingSectionRecord $section, string $nextUrl = '', int $startStep = 0, int $stepOffset = 0, int $totalSteps = 0): array
     {
         $steps = OnboardingStepRecord::find()
             ->where(['section_id' => $section->id, 'is_active' => true])
@@ -264,6 +266,8 @@ final class OnboardingController extends ApiController
             'content' => array_map(fn(OnboardingStepRecord $step): array => $this->stepPayload($step), $steps),
             'next_url' => $nextUrl,
             'start_step' => max(0, min($startStep, count($steps) - 1)),
+            'step_offset' => $stepOffset,
+            'total_steps' => $totalSteps > 0 ? $totalSteps : count($steps),
         ];
     }
 
@@ -424,6 +428,19 @@ final class OnboardingController extends ApiController
             $seen += $stepsInSection;
         }
 
+        return 0;
+    }
+
+    /** @param OnboardingSectionRecord[] $sections */
+    private function stepOffsetForSection(array $sections, OnboardingSectionRecord $current): int
+    {
+        $offset = 0;
+        foreach ($sections as $section) {
+            if ((int)$section->id === (int)$current->id) {
+                return $offset;
+            }
+            $offset += count($this->activeSteps($section));
+        }
         return 0;
     }
 
