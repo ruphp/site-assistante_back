@@ -4,6 +4,8 @@
 
 use yii\helpers\Html;
 
+$this->registerCssFile('/css/home.css', ['depends' => [\app\Presentation\Yii\Asset\AppAsset::class]]);
+
 $this->title = 'Онлайн чат для сайта и онлайн консультант | SiteWidget';
 $this->params['seoDescription'] = 'Онлайн чат для сайта и онлайн консультант: общение с посетителями, push-уведомления и ответы из приложения Android или Telegram.';
 $this->params['seoCanonical'] = '/';
@@ -45,57 +47,61 @@ $this->registerMetaTag([
 ]);
 ?>
 
-<main class="site-landing">
-    <section class="site-landing__hero">
-        <div>
-            <div class="site-landing__eyebrow">Вопросы посетителей не теряются</div>
-            <h1>Онлайн чат для сайта - отвечайте из приложения Android или Telegram</h1>
+<main class="site-landing sw-home">
+    <section class="sw-home__hero">
+        <div class="sw-home__intro">
+            <p class="sw-home__brand"><img src="/img/sitewidget-logo.svg" width="36" height="40" alt=""> SiteWidget</p>
+            <h1>Онлайн чат для сайта</h1>
+            <p class="sw-home__headline">Посетитель пишет на сайте.<br>Вы отвечаете из Android или Telegram.</p>
             <p class="site-landing__lead">
-                Посетитель задаёт вопрос прямо на сайте, менеджер получает уведомление и отвечает.
-                Диалог и история остаются в панели SiteWidget. FAQ, инструкции, онбординг и анкеты дополняют онлайн-поддержку.
+                Не нужно держать сайт открытым. Приложение уведомит о новом вопросе
+                и напомнит, если посетитель ещё ждёт ответа.
             </p>
             <div class="site-landing__actions">
                 <?= Html::a('Начать бесплатно', ['/join'], ['class' => 'site-landing__button site-landing__button--primary']) ?>
                 <button class="site-landing__button site-landing__button--ghost" type="button" data-sitewidget-open-support>Открыть живой чат</button>
             </div>
-            <div class="site-landing__hero-facts" aria-label="Ключевые возможности">
-                <span>Чат на вашем сайте</span><span>Ответы из приложения Android и Telegram</span><span>История диалогов</span>
-            </div>
+            <p class="sw-home__free-note">Есть бесплатный тариф. Без привязки карты.</p>
         </div>
 
-        <div class="site-landing__mockup" aria-label="Пример виджета на сайте">
-            <div class="site-landing__browser">
-                <div class="site-landing__browser-top">
-                    <span class="site-landing__dot"></span>
-                    <span class="site-landing__dot"></span>
-                    <span class="site-landing__dot"></span>
-                </div>
-                <div class="site-landing__browser-body">
-                    <div class="site-landing__page-copy"><strong>Ваш сайт</strong><span></span><span></span><span></span></div>
-                    <div class="site-landing__manager-alert"><small>Новое обращение</small><strong>Покупатель ждёт ответа</strong><span>Ответить из Android или Telegram</span></div>
-                </div>
-            </div>
-            <div class="site-landing__widget">
-                <div class="site-landing__widget-head">Онлайн чат</div>
-                <div class="site-landing__widget-body">
-                    <div class="site-landing__message site-landing__message--visitor">Здравствуйте! Этот товар есть в наличии?</div>
-                    <div class="site-landing__message site-landing__message--operator">Здравствуйте! Да, есть. Подскажите, нужна доставка или самовывоз?</div>
+        <figure class="sw-home__conversation" aria-label="Пример общения посетителя сайта с менеджером">
+            <div class="sw-home__visitor">
+                <div class="sw-home__surface-label">На вашем сайте</div>
+                <div class="sw-home__chat">
+                    <div class="sw-home__chat-header"><img src="/img/sitewidget-module-support.svg" width="27" height="27" alt=""><div><strong>Онлайн консультант</strong><span><i></i> На связи</span></div></div>
+                    <div class="sw-home__chat-body">
+                        <p class="sw-home__bubble sw-home__bubble--visitor">Здравствуйте! Можно заказать доставку на завтра?<small>12:40</small></p>
+                        <p class="sw-home__bubble sw-home__bubble--reply">Да, конечно. Подскажите ваш город - проверю время доставки.<small>Менеджер · 12:41</small></p>
+                    </div>
+                    <button type="button" class="sw-home__try-chat" data-sitewidget-open-support>Задать свой вопрос <span aria-hidden="true">↗</span></button>
                 </div>
             </div>
-        </div>
+            <div class="sw-home__connection" aria-hidden="true"><span>Тот же диалог</span>↔</div>
+            <div class="sw-home__manager">
+                <div class="sw-home__surface-label">У менеджера в Android</div>
+                <div class="sw-home__phone">
+                    <div class="sw-home__phone-head"><img src="/img/sitewidget-logo.svg" width="26" height="29" alt=""><strong>SiteWidget Менеджер</strong><span aria-hidden="true">•••</span></div>
+                    <div class="sw-home__phone-toolbar">Диалог с посетителем <span>Ваш сайт</span></div>
+                    <div class="sw-home__phone-message"><strong>Посетитель</strong><p>Здравствуйте! Можно заказать доставку на завтра?</p><small>12:40</small></div>
+                    <div class="sw-home__phone-reply">Да, конечно. Подскажите ваш город - проверю время доставки.<small>Вы · 12:41</small></div>
+                    <div class="sw-home__phone-compose">Ответ посетителю<span aria-hidden="true">➤</span></div>
+                </div>
+            </div>
+            <figcaption>Пример диалога. Сообщения с сайта приходят в приложение менеджера, ответы возвращаются в виджет.</figcaption>
+        </figure>
     </section>
 
     <section id="modules" class="site-landing__section site-landing__section--tint">
         <div class="site-landing__inner">
-            <h2>Онлайн чат - основа виджета</h2>
+            <h2>Сначала живой ответ.<br>Остальное - когда понадобится.</h2>
             <p class="site-landing__section-lead">
-                При открытии посетитель сразу видит онлайн-связь. FAQ, инструкции, онбординг и анкеты остаются дополнительными модулями.
+                Онлайн чат открывается первым. А инструкции, подсказки и анкеты помогают посетителю решить часть вопросов самостоятельно.
             </p>
             <div class="site-landing__grid">
                 <article class="site-landing__card" id="support">
                     <img class="site-landing__card-icon" src="/img/sitewidget-module-support.svg" alt="">
                     <h3>Онлайн консультант для сайта</h3>
-                    <p>Чат с менеджером, форма обратной связи, быстрые кнопки тем и тикеты. Менеджеры получают уведомления в приложении Android и Telegram-боте.</p>
+                    <p>Общение с менеджером прямо на странице. История диалогов сохраняется, а быстрые кнопки помогают сразу выбрать нужную тему.</p>
                 </article>
                 <article class="site-landing__card">
                     <img class="site-landing__card-icon" src="/img/sitewidget-module-instructions.svg" alt="">
@@ -106,13 +112,13 @@ $this->registerMetaTag([
                 <article class="site-landing__card">
                     <img class="site-landing__card-icon" src="/img/sitewidget-module-onboarding.svg" alt="">
                     <h3>Онбординг на сайт</h3>
-                    <p>Пошаговые подсказки к элементам страницы: провести посетителя по сценарию, открыть инструкцию или довести до действия.</p>
+                    <p>Покажите, где оформить заказ или настроить аккаунт. Подсказка появляется рядом с нужной кнопкой, а не на отдельной странице.</p>
                     <?= Html::a('Подробнее об онбординге', ['/onboarding'], ['class' => 'site-landing__link']) ?>
                 </article>
                 <article class="site-landing__card">
                     <img class="site-landing__card-icon" src="/img/sitewidget-checkbox.svg" alt="">
                     <h3>Опросы и анкеты</h3>
-                    <p>Пошаговые анкеты и мини-опросы: вопросы, контакты, вводные по задаче, обратная связь и возможность вернуться к заполнению позже.</p>
+                    <p>Уточните задачу, соберите контакты или спросите мнение. Посетитель заполняет форму внутри виджета и может вернуться к ней позже.</p>
                     <?= Html::a('Подробнее об анкетах', ['/surveys'], ['class' => 'site-landing__link']) ?>
                 </article>
             </div>
@@ -121,7 +127,7 @@ $this->registerMetaTag([
 
     <section id="how" class="site-landing__section">
         <div class="site-landing__inner">
-            <h2>От вопроса до ответа - три шага</h2>
+            <h2>Виджет обратной связи для сайта: от вопроса до ответа</h2>
             <div class="site-landing__steps">
                 <div class="site-landing__step">
                     <strong>01. Посетитель спрашивает</strong>
@@ -143,9 +149,11 @@ $this->registerMetaTag([
         <div class="site-landing__inner">
             <div class="site-landing__app-head">
                 <div>
-                    <h2>Приложение для менеджера</h2>
+                    <p class="sw-home__kicker">SiteWidget для Android</p>
+                    <h2>Один сигнал легко пропустить.<br>Поэтому есть напоминания.</h2>
                     <p class="site-landing__section-lead">
-                        Android-приложение помогает не пропускать обращения: отправляет менеджеру push-уведомления о новых обращениях и неотвеченных диалогах, даже в свернутом режиме.
+                        В активном режиме приложение повторяет уведомления о неотвеченных диалогах.
+                        В пассивном - сообщает о новых сообщениях. Вы выбираете подходящий режим.
                     </p>
                 </div>
                 <div class="site-landing__actions">
@@ -169,7 +177,7 @@ $this->registerMetaTag([
             </div>
             <ul class="site-landing__list">
                 <li>Уведомления о новых обращениях.</li>
-                <li>Ответ посетителю без входа в панель управления.</li>
+                <li>Переписка с посетителем прямо в Telegram.</li>
                 <li>Закрытие диалога владельцем аккаунта.</li>
             </ul>
             <div class="site-landing__actions">
@@ -194,7 +202,7 @@ $this->registerMetaTag([
             <ul class="site-landing__list">
                 <li>Быстрое подключение SiteWidget к WordPress, Joomla и OpenCart.</li>
                 <li>Интеграция авторизованного посетителя с виджетом без лишней настройки кода.</li>
-                <li>Настройка доступа к контенту по ролям пользователя сайта <span>(только в платных тарифах)</span>.</li>
+                <li>Передача ролей пользователей для фильтрации контента модулей в тарифе Pro.</li>
             </ul>
             <div class="site-landing__download">
                 <a href="/cms-plugins#wordpress">
@@ -239,32 +247,7 @@ $this->registerMetaTag([
                     <p>После получения SMS пользователь сайта вводит код. Ваш проект проверяет его и разрешает регистрацию либо запускает любой другой предусмотренный вами сценарий.</p>
                 </div>
             </div>
-            <p class="site-landing__section-lead">Функция входит в тариф Start. Для отправки используются SMS, доступные на мобильном тарифе отправителя.</p>
-        </div>
-    </section>
-
-    <section class="site-landing__section">
-        <div class="site-landing__inner">
-            <h2>Обратная связь с сайта без пропущенных заявок</h2>
-            <p class="site-landing__section-lead">
-                Обращения не теряются в почте и не ждут, пока кто-то случайно откроет админку.
-                Менеджер получает уведомления в Android-приложении и Telegram-боте, видит новые и
-                неотвеченные диалоги, а владелец сайта и менеджеры контролируют историю общения.
-            </p>
-            <div class="site-landing__steps">
-                <div class="site-landing__step">
-                    <strong>Горячие вопросы</strong>
-                    <p>Новые обращения и неотвеченные диалоги подсвечиваются, чтобы менеджер быстро понял, где нужен ответ.</p>
-                </div>
-                <div class="site-landing__step">
-                    <strong>Android и Telegram</strong>
-                    <p>Push-уведомления, активные напоминания и ответы из приложения или Telegram помогают не пропускать посетителей.</p>
-                </div>
-                <div class="site-landing__step">
-                    <strong>История диалогов</strong>
-                    <p>Все обращения остаются в панели управления: видно, кто писал, что спросил и как менеджер ответил.</p>
-                </div>
-            </div>
+            <p class="sw-home__sms-note">Доступно и в Free. SMS отправляются вручную и расходуются по мобильному тарифу отправителя.</p>
         </div>
     </section>
 
@@ -348,7 +331,7 @@ $this->registerMetaTag([
     <section class="site-landing__section">
         <div class="site-landing__inner">
             <div class="site-landing__cta">
-                <h2>Проверьте онлайн-поддержку на своём сайте</h2>
+                <h2>Посетитель уже на сайте.<br>Будьте на связи.</h2>
                 <p class="site-landing__section-lead">
                     Создайте проект, установите код или CMS-модуль и проведите первый тестовый диалог.
                 </p>
