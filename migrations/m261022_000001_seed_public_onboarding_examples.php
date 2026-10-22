@@ -24,7 +24,7 @@ final class m261022_000001_seed_public_onboarding_examples extends Migration
         foreach (['/onboarding', '/faq-instructions'] as $index => $url) {
             $hintId = $this->ensure('sw_onboarding_hints', ['public_key' => self::KEY, 'title' => 'Демо: статья из подсказки ' . $url], [
                 'content' => $index === 0 ? 'Это самостоятельная подсказка. Короткого объяснения не хватило? Откройте статью прямо в виджете.' : 'Вы уже на другой странице. Из этой подсказки можно открыть статью о многостраничном сценарии.',
-                'selector' => '#sw-demo-article', 'type' => 2, 'standalone_enabled' => true, 'is_active' => true,
+                'selector' => '#sw-demo-article', 'type' => 2, 'standalone_enabled' => true, 'is_active' => true, 'is_leftward' => true,
                 'trigger_type' => 'click', 'theme' => 'light', 'background_color' => '#FFFFFF', 'hide_after_view' => false,
                 'button_label' => 'Открыть статью', 'button_instruction_id' => $articleIds[$index], 'button_url' => '',
             ]);
