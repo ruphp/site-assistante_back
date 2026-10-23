@@ -17,6 +17,7 @@ h3[id^="help-"] {
     width: fit-content;
     max-width: calc(100% - 28px);
     margin-right: 28px;
+    padding-right: 20px;
 }
 CSS);
 $items = [
