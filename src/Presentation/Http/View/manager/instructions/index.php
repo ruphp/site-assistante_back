@@ -41,7 +41,7 @@ $formatBytes = static function (int $bytes): string {
 
     <div class="uk-flex uk-flex-between uk-flex-middle uk-margin">
         <div>
-            <h3 class="uk-margin-remove">Инструкции</h3>
+            <h3 id="help-instructions-list" class="uk-margin-remove" style="width:fit-content;max-width:calc(100% - 28px);margin-right:28px">Инструкции</h3>
             <div class="uk-text-meta">Разделы, статьи, избранное и отзывы посетителей.</div>
         </div>
         <?= Html::a('Создать инструкцию', ['/manager/instructions/create', 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-primary']) ?>

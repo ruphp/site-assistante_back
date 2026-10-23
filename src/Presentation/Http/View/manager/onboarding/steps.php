@@ -49,7 +49,7 @@ $positions = [0 => 'Сверху', 1 => 'Справа', 2 => 'Снизу', 3 => 
     <?php endif; ?>
 
     <h4 class="uk-margin-large-top"><?= $editStep->isNewRecord ? 'Новый шаг' : 'Редактировать шаг' ?></h4>
-    <?= Html::beginForm('', 'post', ['class' => 'uk-form-stacked sw-form-panel']) ?>
+    <?= Html::beginForm('', 'post', ['class' => 'uk-form-stacked sw-form-panel sw-help-form']) ?>
         <?= $editStep->isNewRecord ? '' : Html::hiddenInput('OnboardingStep[id]', (string)$editStep->id) ?>
         <div class="uk-grid-small" uk-grid>
             <div class="uk-width-1-2@m">

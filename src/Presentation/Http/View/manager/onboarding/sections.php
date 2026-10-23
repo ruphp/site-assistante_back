@@ -45,7 +45,7 @@ $this->title = 'Разделы сценария';
     <?php endif; ?>
 
     <h4 class="uk-margin-large-top"><?= $editSection->isNewRecord ? 'Новый раздел' : 'Редактировать раздел' ?></h4>
-    <?= Html::beginForm('', 'post', ['class' => 'uk-form-stacked sw-form-panel']) ?>
+    <?= Html::beginForm('', 'post', ['class' => 'uk-form-stacked sw-form-panel sw-help-form']) ?>
         <?= $editSection->isNewRecord ? '' : Html::hiddenInput('OnboardingSection[id]', (string)$editSection->id) ?>
         <div class="uk-grid-small" uk-grid>
             <div class="uk-width-1-3@m">

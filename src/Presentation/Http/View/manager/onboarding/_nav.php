@@ -9,6 +9,16 @@ use yii\helpers\Url;
  */
 
 $projectParam = ['projectId' => $activeProject->id];
+$this->registerCss(<<<CSS
+.sw-help-form .uk-form-label,
+.sw-help-form label[id^="help-"],
+h3[id^="help-"] {
+    display: block;
+    width: fit-content;
+    max-width: calc(100% - 28px);
+    margin-right: 28px;
+}
+CSS);
 $items = [
     ['label' => 'Сценарии', 'url' => ['/manager/onboarding'] + $projectParam],
     ['label' => 'Подсказки', 'url' => ['/manager/onboarding/hints'] + $projectParam],

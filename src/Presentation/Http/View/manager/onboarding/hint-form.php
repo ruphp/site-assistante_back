@@ -33,8 +33,8 @@ $urlsText = implode("\n", array_map(static fn(OnboardingHintUrlRecord $url): str
 <div class="uk-container uk-margin">
     <?= $this->render('_nav', compact('activeProject')) ?>
 
-    <h3><?= Html::encode($this->title) ?></h3>
-    <?= Html::beginForm('', 'post', ['class' => 'uk-form-stacked sw-form-panel']) ?>
+    <h3 id="help-hint-form"><?= Html::encode($this->title) ?></h3>
+    <?= Html::beginForm('', 'post', ['class' => 'uk-form-stacked sw-form-panel sw-help-form']) ?>
         <div class="uk-margin">
             <?= Html::label('Название', 'hint-title', ['class' => 'uk-form-label']) ?>
             <?= Html::input('text', 'OnboardingHint[title]', $hint->title, ['id' => 'hint-title', 'class' => 'uk-input', 'required' => true]) ?>
@@ -91,13 +91,13 @@ $urlsText = implode("\n", array_map(static fn(OnboardingHintUrlRecord $url): str
             </div>
         </div>
         <div class="uk-margin">
-            <label><?= Html::checkbox('OnboardingHint[is_active]', (bool)$hint->is_active) ?> Включена</label>
+            <label id="help-hint-active"><?= Html::checkbox('OnboardingHint[is_active]', (bool)$hint->is_active) ?> Включена</label>
         </div>
         <div class="uk-margin">
-            <label><?= Html::checkbox('OnboardingHint[standalone_enabled]', (bool)$hint->standalone_enabled) ?> Показывать отдельно от онбординга</label>
+            <label id="help-hint-standalone"><?= Html::checkbox('OnboardingHint[standalone_enabled]', (bool)$hint->standalone_enabled) ?> Показывать отдельно от онбординга</label>
         </div>
         <div class="uk-margin">
-            <label><?= Html::checkbox('OnboardingHint[hide_after_view]', (bool)$hint->hide_after_view) ?> Прятать после просмотра</label>
+            <label id="help-hint-hide"><?= Html::checkbox('OnboardingHint[hide_after_view]', (bool)$hint->hide_after_view) ?> Прятать после просмотра</label>
         </div>
         <div class="uk-margin">
             <?= Html::label('Способ привязки', 'hint-bind-mode', ['class' => 'uk-form-label']) ?>
@@ -122,7 +122,7 @@ $urlsText = implode("\n", array_map(static fn(OnboardingHintUrlRecord $url): str
         </div>
         <?php if ($roles !== []): ?>
             <div class="uk-margin">
-                <div class="uk-form-label">Роли</div>
+                <div id="help-hint-roles" class="uk-form-label">Роли</div>
                 <?= Html::checkboxList('role_ids', $selectedRoleIds, ArrayHelper::map($roles, 'id', 'name'), ['separator' => '<br>']) ?>
             </div>
         <?php endif; ?>

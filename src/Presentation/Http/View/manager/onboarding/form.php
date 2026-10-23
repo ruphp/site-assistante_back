@@ -22,7 +22,7 @@ $this->title = $onboarding->isNewRecord ? 'Создать сценарий' : '�
     <?= $this->render('_nav', compact('activeProject')) ?>
 
     <h3><?= Html::encode($this->title) ?></h3>
-    <?= Html::beginForm('', 'post', ['class' => 'uk-form-stacked sw-form-panel']) ?>
+    <?= Html::beginForm('', 'post', ['class' => 'uk-form-stacked sw-form-panel sw-help-form']) ?>
         <div class="uk-margin">
             <?= Html::label('Название сценария', 'nav-title', ['class' => 'uk-form-label']) ?>
             <?= Html::input('text', 'Onboarding[title]', $onboarding->title, ['id' => 'nav-title', 'class' => 'uk-input', 'required' => true]) ?>

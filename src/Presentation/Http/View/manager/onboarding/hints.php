@@ -18,7 +18,7 @@ $this->title = 'Подсказки';
     <?= $this->render('_nav', compact('activeProject')) ?>
 
     <div class="uk-flex uk-flex-between uk-flex-middle uk-margin">
-        <h3 class="uk-margin-remove">Подсказки</h3>
+        <h3 id="help-hints-list" class="uk-margin-remove">Подсказки</h3>
         <?= Html::a('Создать подсказку', ['/manager/onboarding/hint-create', 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-primary']) ?>
     </div>
 

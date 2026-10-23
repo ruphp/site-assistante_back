@@ -21,7 +21,7 @@ $this->title = 'Онбординг';
 
     <div class="uk-flex uk-flex-between uk-flex-middle uk-margin">
         <div>
-            <h3 class="uk-margin-remove">Онбординг</h3>
+            <h3 id="help-onboarding-list" class="uk-margin-remove">Онбординг</h3>
             <div class="uk-text-meta">Сценарии онбординга и подсказки к элементам сайта. Подсказки могут работать самостоятельно или как шаг сценария.</div>
         </div>
         <?= Html::a('Создать сценарий', ['/manager/onboarding/create', 'projectId' => $activeProject->id], ['class' => 'uk-button uk-button-primary']) ?>

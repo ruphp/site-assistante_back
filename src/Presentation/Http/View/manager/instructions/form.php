@@ -30,7 +30,7 @@ $urlText = implode("\n", array_map(static function (InstructionArticleUrlRecord 
 <div class="uk-container uk-margin">
     <?= $this->render('_nav', compact('activeProject')) ?>
 
-    <h3><?= Html::encode($this->title) ?></h3>
+    <h3 id="help-instructions-form" style="width:fit-content;max-width:calc(100% - 28px);margin-right:28px"><?= Html::encode($this->title) ?></h3>
     <?= Html::beginForm('', 'post', ['class' => 'uk-form-stacked sw-instruction-form']) ?>
         <div class="uk-margin">
             <label class="uk-form-label">Заголовок</label>
