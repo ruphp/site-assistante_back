@@ -73,5 +73,21 @@ final class ManagerHelpSeedTest extends YiiIntegrationTestCase
             ])->exists());
             self::assertTrue((new Query())->from('sw_onboarding_hint_urls')->where(['hint_id' => $hint['id']])->exists());
         }
+        require_once dirname(__DIR__, 3) . '/migrations/m261023_000004_make_manager_help_once.php';
+        $otherHints = static fn(): array => (new Query())->from('sw_onboarding_hints')
+            ->where(['not in', 'id', array_column($hints, 'id')])->orderBy('id')->all();
+        $before = $otherHints();
+        ob_start();
+        try {
+            $once = new \m261023_000004_make_manager_help_once(['db' => Yii::$app->db]);
+            $once->safeUp();
+            $once->safeUp();
+        } finally {
+            ob_end_clean();
+        }
+        self::assertSame($before, $otherHints());
+        self::assertSame(25, (int)(new Query())->from('sw_onboarding_hints')->where([
+            'id' => array_column($hints, 'id'), 'hide_after_view' => true,
+        ])->count());
     }
 }
