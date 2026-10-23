@@ -8,6 +8,31 @@ use yii\db\Query;
 
 final class ManagerHelpSeedTest extends YiiIntegrationTestCase
 {
+    public function testScreenshotReplacementPreservesArticleEdits(): void
+    {
+        if (!(new Query())->from('users')->where(['public_key' => 2])->exists()) $this->createClient(2);
+        require_once dirname(__DIR__, 3) . '/migrations/m261023_000001_seed_manager_help.php';
+        require_once dirname(__DIR__, 3) . '/migrations/m261023_000003_replace_help_screenshots.php';
+        ob_start();
+        try {
+            (new \m261023_000001_seed_manager_help(['db' => Yii::$app->db]))->safeUp();
+            $row = (new Query())->from('sw_instruction_articles')->where(['public_key' => 2, 'title' => 'Как создать первую подсказку'])->one();
+            $html = str_replace('/img/help/create-hint-detail.png', '/img/help/create-hint.png', $row['html']) . '<p>Editorial note</p>';
+            Yii::$app->db->createCommand()->update('sw_instruction_articles', ['html' => $html], ['id' => $row['id']])->execute();
+            $migration = new \m261023_000003_replace_help_screenshots(['db' => Yii::$app->db]);
+            $migration->safeUp();
+            $first = (new Query())->from('sw_instruction_articles')->where(['id' => $row['id']])->one();
+            $migration->safeUp();
+            $second = (new Query())->from('sw_instruction_articles')->where(['id' => $row['id']])->one();
+            self::assertSame($first['html'], $second['html']);
+            self::assertStringContainsString('/img/help/create-hint-detail.png', $first['html']);
+            self::assertStringContainsString('<p>Editorial note</p>', $first['html']);
+            self::assertSame(strlen($first['html']), (int)$first['content_bytes']);
+        } finally {
+            ob_end_clean();
+        }
+    }
+
     public function testHelpSeedIsRepeatSafeAndLinksHintsToPublishedArticles(): void
     {
         if (!(new Query())->from('users')->where(['public_key' => 2])->exists()) {
